@@ -8,19 +8,35 @@ local function hash(str)
     return tostring(h)
 end
 
-local key = getgenv().KEY or ""
+local key = tostring(getgenv().KEY or ""):gsub("%s+", "")
 if key == "" then
-    warn("Digite a key")
+    warn("Nenhuma key fornecida")
     return
 end
 
-local data = HttpService:JSONDecode(
-    game:HttpGet("https://raw.githubusercontent.com/sixsdev/test/refs/heads/main/main")
-)
+local success, response = pcall(function()
+    return game:HttpGet("https://raw.githubusercontent.com/sixsdev/test/refs/heads/main/main")
+end)
 
-if not data[hash(key)] then
+if not success then
+    warn("Erro ao acessar o servidor de keys")
+    return
+end
+
+local data = HttpService:JSONDecode(response)
+local keyHash = hash(key)
+
+-- DEBUG (remove depois)
+print("KEY:", key)
+print("HASH:", keyHash)
+print("JSON RESULT:", data[keyHash])
+
+if not data[keyHash] then
     warn("Key inválida")
+    game.Players.LocalPlayer:Kick("Key inválida")
     return
 end
+
+print("Key válida ✔")
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/sixsdev/KraviX-Arsenal/refs/heads/main/Main.lua"))()
