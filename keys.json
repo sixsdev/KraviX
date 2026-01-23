@@ -10,7 +10,7 @@ end
 
 local key = tostring(getgenv().KEY or ""):gsub("%s+", "")
 if key == "" then
-    warn("Nenhuma key fornecida")
+    warn("No key provided")
     return
 end
 
@@ -19,7 +19,7 @@ local success, response = pcall(function()
 end)
 
 if not success then
-    warn("Erro ao acessar o servidor de keys")
+    warn("Error accessing the key server")
     return
 end
 
@@ -32,11 +32,11 @@ print("HASH:", keyHash)
 print("JSON RESULT:", data[keyHash])
 
 if not data[keyHash] then
-    warn("Key inválida")
-    game.Players.LocalPlayer:Kick("Key inválida")
+    warn("Key invalid")
+    game.Players.LocalPlayer:Kick("Key invalid")
     return
 end
 
-print("Key válida ✔")
+print("Key ok")
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/sixsdev/KraviX-Arsenal/refs/heads/main/Main.lua"))()
