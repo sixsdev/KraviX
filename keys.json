@@ -1,5 +1,26 @@
-{
-  "keys": [
-    "KRAVIX-9F3A-2X7K-2026"
-  ]
-}
+local HttpService = game:GetService("HttpService")
+
+local function hash(str)
+    local h = 0
+    for i = 1, #str do
+        h = (h * 31 + string.byte(str, i)) % 1000000007
+    end
+    return tostring(h)
+end
+
+local key = getgenv().KEY or ""
+if key == "" then
+    warn("Digite a key")
+    return
+end
+
+local data = HttpService:JSONDecode(
+    game:HttpGet("https://raw.githubusercontent.com/sixsdev/test/refs/heads/main/main")
+)
+
+if not data[hash(key)] then
+    warn("Key inválida")
+    return
+end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/sixsdev/KraviX-Arsenal/refs/heads/main/Main.lua"))()
