@@ -104,52 +104,16 @@ function KraviX:CreateWindow(config)
         end)
     end
     
-    local LoadingBox = Instance.new("Frame")
-    LoadingBox.Size = UDim2.new(0, 450, 0, 250)
-    LoadingBox.Position = UDim2.new(0.5, -225, 0.5, -125)
-    LoadingBox.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-    LoadingBox.BorderSizePixel = 0
-    LoadingBox.BackgroundTransparency = 1
-    LoadingBox.Parent = LoadingFrame
-    
-    local BoxCorner = Instance.new("UICorner")
-    BoxCorner.CornerRadius = UDim.new(0, 8)
-    BoxCorner.Parent = LoadingBox
-    
-    local BoxStroke = Instance.new("UIStroke")
-    BoxStroke.Color = Color3.fromRGB(150, 50, 255)
-    BoxStroke.Thickness = 2
-    BoxStroke.Transparency = 1
-    BoxStroke.Parent = LoadingBox
-    
-    local BoxGlow = Instance.new("ImageLabel")
-    BoxGlow.Size = UDim2.new(1, 60, 1, 60)
-    BoxGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    BoxGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    BoxGlow.BackgroundTransparency = 1
-    BoxGlow.Image = "rbxassetid://5554236805"
-    BoxGlow.ImageColor3 = Color3.fromRGB(150, 50, 255)
-    BoxGlow.ImageTransparency = 1
-    BoxGlow.ScaleType = Enum.ScaleType.Slice
-    BoxGlow.SliceCenter = Rect.new(23, 23, 277, 277)
-    BoxGlow.ZIndex = 0
-    BoxGlow.Parent = LoadingBox
-    
-    Tween(LoadingBox, {BackgroundTransparency = 0}, 0.5):Play()
-    Tween(BoxStroke, {Transparency = 0.3}, 0.5):Play()
-    Tween(BoxGlow, {ImageTransparency = 0.7}, 0.5):Play()
-    task.wait(0.3)
-    
     local LoadingLogo = Instance.new("TextLabel")
-    LoadingLogo.Size = UDim2.new(1, 0, 0, 60)
-    LoadingLogo.Position = UDim2.new(0, 0, 0, 40)
+    LoadingLogo.Size = UDim2.new(1, 0, 0, 80)
+    LoadingLogo.Position = UDim2.new(0, 0, 0.5, -80)
     LoadingLogo.BackgroundTransparency = 1
     LoadingLogo.Text = "KRAVIX"
     LoadingLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
-    LoadingLogo.TextSize = 48
+    LoadingLogo.TextSize = 64
     LoadingLogo.Font = Enum.Font.GothamBold
     LoadingLogo.TextTransparency = 1
-    LoadingLogo.Parent = LoadingBox
+    LoadingLogo.Parent = LoadingFrame
     
     local LogoGradient = Instance.new("UIGradient")
     LogoGradient.Color = ColorSequence.new{
@@ -168,23 +132,23 @@ function KraviX:CreateWindow(config)
     end)
     
     local LoadingText = Instance.new("TextLabel")
-    LoadingText.Size = UDim2.new(1, 0, 0, 25)
-    LoadingText.Position = UDim2.new(0, 0, 0, 110)
+    LoadingText.Size = UDim2.new(1, 0, 0, 30)
+    LoadingText.Position = UDim2.new(0, 0, 0.5, 10)
     LoadingText.BackgroundTransparency = 1
     LoadingText.Text = "Loading UI Components..."
     LoadingText.TextColor3 = Color3.fromRGB(140, 140, 140)
-    LoadingText.TextSize = 14
+    LoadingText.TextSize = 16
     LoadingText.Font = Enum.Font.Gotham
     LoadingText.TextTransparency = 1
-    LoadingText.Parent = LoadingBox
+    LoadingText.Parent = LoadingFrame
     
     local LoadingBar = Instance.new("Frame")
-    LoadingBar.Size = UDim2.new(0, 350, 0, 4)
-    LoadingBar.Position = UDim2.new(0.5, -175, 0, 160)
+    LoadingBar.Size = UDim2.new(0, 400, 0, 4)
+    LoadingBar.Position = UDim2.new(0.5, -200, 0.5, 60)
     LoadingBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     LoadingBar.BorderSizePixel = 0
     LoadingBar.BackgroundTransparency = 1
-    LoadingBar.Parent = LoadingBox
+    LoadingBar.Parent = LoadingFrame
     
     local BarCorner = Instance.new("UICorner")
     BarCorner.CornerRadius = UDim.new(1, 0)
@@ -217,15 +181,15 @@ function KraviX:CreateWindow(config)
     end)
     
     local LoadingPercent = Instance.new("TextLabel")
-    LoadingPercent.Size = UDim2.new(1, 0, 0, 20)
-    LoadingPercent.Position = UDim2.new(0, 0, 0, 175)
+    LoadingPercent.Size = UDim2.new(1, 0, 0, 25)
+    LoadingPercent.Position = UDim2.new(0, 0, 0.5, 80)
     LoadingPercent.BackgroundTransparency = 1
     LoadingPercent.Text = "0%"
     LoadingPercent.TextColor3 = Color3.fromRGB(150, 50, 255)
-    LoadingPercent.TextSize = 13
+    LoadingPercent.TextSize = 14
     LoadingPercent.Font = Enum.Font.GothamBold
     LoadingPercent.TextTransparency = 1
-    LoadingPercent.Parent = LoadingBox
+    LoadingPercent.Parent = LoadingFrame
     
     Tween(LoadingLogo, {TextTransparency = 0}, 0.6):Play()
     task.wait(0.3)
@@ -245,18 +209,14 @@ function KraviX:CreateWindow(config)
     end
     
     task.wait(0.3)
-    Tween(LoadingPercent, {TextTransparency = 1, TextSize = 20}, 0.3):Play()
+    Tween(LoadingPercent, {TextTransparency = 1, TextSize = 18}, 0.3):Play()
     Tween(LoadingText, {TextTransparency = 1}, 0.3):Play()
     task.wait(0.2)
     Tween(LoadingBar, {BackgroundTransparency = 1}, 0.3):Play()
     Tween(LoadingFill, {BackgroundTransparency = 1}, 0.3):Play()
     task.wait(0.2)
-    Tween(LoadingLogo, {TextTransparency = 1, TextSize = 60}, 0.4, Enum.EasingStyle.Back):Play()
-    Tween(LoadingBox, {Size = UDim2.new(0, 500, 0, 300)}, 0.4, Enum.EasingStyle.Back):Play()
-    task.wait(0.3)
-    Tween(LoadingBox, {BackgroundTransparency = 1}, 0.3):Play()
-    Tween(BoxStroke, {Transparency = 1}, 0.3):Play()
-    Tween(BoxGlow, {ImageTransparency = 1}, 0.3):Play()
+    Tween(LoadingLogo, {TextTransparency = 1, TextSize = 80}, 0.4, Enum.EasingStyle.Back):Play()
+    task.wait(0.4)
     Tween(LoadingFrame, {BackgroundTransparency = 1}, 0.3):Play()
     task.wait(0.3)
     LoadingFrame:Destroy()
@@ -385,9 +345,20 @@ function KraviX:CreateWindow(config)
         Tween(CloseIcon, {TextTransparency = 1}, 0.2):Play()
         Tween(AccentLine, {BackgroundTransparency = 1}, 0.2):Play()
         task.wait(0.2)
-        Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3, Enum.EasingStyle.Back):Play()
+        Tween(Main, {Size = UDim2.new(0, 700, 0, 0), BackgroundTransparency = 1}, 0.3, Enum.EasingStyle.Back):Play()
         task.wait(0.3)
         Main.Visible = false
+        Main.Size = UDim2.new(0, 700, 0, 450)
+        Main.BackgroundTransparency = 0
+        MainStroke.Transparency = 0.7
+        TopBar.BackgroundTransparency = 0
+        Logo.TextTransparency = 0
+        Subtitle.TextTransparency = 0
+        CloseBtn.BackgroundTransparency = 0
+        CloseIcon.TextTransparency = 0
+        AccentLine.BackgroundTransparency = 0
+        TabContainer.Position = UDim2.new(0, 10, 0, 50)
+        ContentContainer.Position = UDim2.new(0, 170, 0, 50)
         CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
     end)
     
