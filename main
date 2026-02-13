@@ -25,7 +25,7 @@ local function CreateNotification(title, text, duration)
     
     local Accent = Instance.new("Frame")
     Accent.Size = UDim2.new(0, 4, 1, 0)
-    Accent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    Accent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
     Accent.BorderSizePixel = 0
     Accent.Parent = Notif
     
@@ -84,7 +84,7 @@ function KraviX:CreateWindow(config)
         local Particle = Instance.new("Frame")
         Particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
         Particle.Position = UDim2.new(math.random(0, 100) / 100, 0, math.random(0, 100) / 100, 0)
-        Particle.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        Particle.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
         Particle.BorderSizePixel = 0
         Particle.BackgroundTransparency = math.random(30, 70) / 100
         Particle.Parent = LoadingFrame
@@ -117,13 +117,27 @@ function KraviX:CreateWindow(config)
     BoxCorner.Parent = LoadingBox
     
     local BoxStroke = Instance.new("UIStroke")
-    BoxStroke.Color = Color3.fromRGB(200, 0, 0)
-    BoxStroke.Thickness = 1.5
+    BoxStroke.Color = Color3.fromRGB(150, 50, 255)
+    BoxStroke.Thickness = 2
     BoxStroke.Transparency = 1
     BoxStroke.Parent = LoadingBox
     
+    local BoxGlow = Instance.new("ImageLabel")
+    BoxGlow.Size = UDim2.new(1, 60, 1, 60)
+    BoxGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    BoxGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+    BoxGlow.BackgroundTransparency = 1
+    BoxGlow.Image = "rbxassetid://5554236805"
+    BoxGlow.ImageColor3 = Color3.fromRGB(150, 50, 255)
+    BoxGlow.ImageTransparency = 1
+    BoxGlow.ScaleType = Enum.ScaleType.Slice
+    BoxGlow.SliceCenter = Rect.new(23, 23, 277, 277)
+    BoxGlow.ZIndex = 0
+    BoxGlow.Parent = LoadingBox
+    
     Tween(LoadingBox, {BackgroundTransparency = 0}, 0.5):Play()
-    Tween(BoxStroke, {Transparency = 0.5}, 0.5):Play()
+    Tween(BoxStroke, {Transparency = 0.3}, 0.5):Play()
+    Tween(BoxGlow, {ImageTransparency = 0.7}, 0.5):Play()
     task.wait(0.3)
     
     local LoadingLogo = Instance.new("TextLabel")
@@ -139,10 +153,19 @@ function KraviX:CreateWindow(config)
     
     local LogoGradient = Instance.new("UIGradient")
     LogoGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 60, 60)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 100, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 50, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 30, 200))
     }
     LogoGradient.Parent = LoadingLogo
+    
+    task.spawn(function()
+        while LoadingFrame.Parent do
+            Tween(LogoGradient, {Rotation = 360}, 4, Enum.EasingStyle.Linear):Play()
+            task.wait(4)
+            LogoGradient.Rotation = 0
+        end
+    end)
     
     local LoadingText = Instance.new("TextLabel")
     LoadingText.Size = UDim2.new(1, 0, 0, 25)
@@ -169,7 +192,7 @@ function KraviX:CreateWindow(config)
     
     local LoadingFill = Instance.new("Frame")
     LoadingFill.Size = UDim2.new(0, 0, 1, 0)
-    LoadingFill.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    LoadingFill.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
     LoadingFill.BorderSizePixel = 0
     LoadingFill.Parent = LoadingBar
     
@@ -179,18 +202,26 @@ function KraviX:CreateWindow(config)
     
     local FillGradient = Instance.new("UIGradient")
     FillGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 0, 0)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 50, 50)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 30, 200)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 30, 200))
     }
     FillGradient.Parent = LoadingFill
+    
+    task.spawn(function()
+        while LoadingFrame.Parent do
+            Tween(FillGradient, {Offset = Vector2.new(1, 0)}, 1.5, Enum.EasingStyle.Linear):Play()
+            task.wait(1.5)
+            FillGradient.Offset = Vector2.new(-1, 0)
+        end
+    end)
     
     local LoadingPercent = Instance.new("TextLabel")
     LoadingPercent.Size = UDim2.new(1, 0, 0, 20)
     LoadingPercent.Position = UDim2.new(0, 0, 0, 175)
     LoadingPercent.BackgroundTransparency = 1
     LoadingPercent.Text = "0%"
-    LoadingPercent.TextColor3 = Color3.fromRGB(200, 0, 0)
+    LoadingPercent.TextColor3 = Color3.fromRGB(150, 50, 255)
     LoadingPercent.TextSize = 13
     LoadingPercent.Font = Enum.Font.GothamBold
     LoadingPercent.TextTransparency = 1
@@ -214,15 +245,20 @@ function KraviX:CreateWindow(config)
     end
     
     task.wait(0.3)
-    Tween(LoadingBox, {BackgroundTransparency = 1}, 0.4):Play()
-    Tween(BoxStroke, {Transparency = 1}, 0.4):Play()
-    Tween(LoadingLogo, {TextTransparency = 1}, 0.4):Play()
-    Tween(LoadingText, {TextTransparency = 1}, 0.4):Play()
-    Tween(LoadingBar, {BackgroundTransparency = 1}, 0.4):Play()
-    Tween(LoadingFill, {BackgroundTransparency = 1}, 0.4):Play()
-    Tween(LoadingPercent, {TextTransparency = 1}, 0.4):Play()
-    Tween(LoadingFrame, {BackgroundTransparency = 1}, 0.4):Play()
-    task.wait(0.4)
+    Tween(LoadingPercent, {TextTransparency = 1, TextSize = 20}, 0.3):Play()
+    Tween(LoadingText, {TextTransparency = 1}, 0.3):Play()
+    task.wait(0.2)
+    Tween(LoadingBar, {BackgroundTransparency = 1}, 0.3):Play()
+    Tween(LoadingFill, {BackgroundTransparency = 1}, 0.3):Play()
+    task.wait(0.2)
+    Tween(LoadingLogo, {TextTransparency = 1, TextSize = 60}, 0.4, Enum.EasingStyle.Back):Play()
+    Tween(LoadingBox, {Size = UDim2.new(0, 500, 0, 300)}, 0.4, Enum.EasingStyle.Back):Play()
+    task.wait(0.3)
+    Tween(LoadingBox, {BackgroundTransparency = 1}, 0.3):Play()
+    Tween(BoxStroke, {Transparency = 1}, 0.3):Play()
+    Tween(BoxGlow, {ImageTransparency = 1}, 0.3):Play()
+    Tween(LoadingFrame, {BackgroundTransparency = 1}, 0.3):Play()
+    task.wait(0.3)
     LoadingFrame:Destroy()
     
     local Main = Instance.new("Frame")
@@ -239,7 +275,7 @@ function KraviX:CreateWindow(config)
     MainCorner.Parent = Main
     
     local MainStroke = Instance.new("UIStroke")
-    MainStroke.Color = Color3.fromRGB(200, 0, 0)
+    MainStroke.Color = Color3.fromRGB(150, 50, 255)
     MainStroke.Thickness = 1
     MainStroke.Transparency = 1
     MainStroke.Parent = Main
@@ -267,15 +303,15 @@ function KraviX:CreateWindow(config)
     local AccentLine = Instance.new("Frame")
     AccentLine.Size = UDim2.new(1, 0, 0, 2)
     AccentLine.Position = UDim2.new(0, 0, 1, 0)
-    AccentLine.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    AccentLine.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
     AccentLine.BorderSizePixel = 0
     AccentLine.Parent = TopBar
     
     local LineGradient = Instance.new("UIGradient")
     LineGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 0, 0)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 50, 50)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 50, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 255))
     }
     LineGradient.Parent = AccentLine
     
@@ -292,8 +328,8 @@ function KraviX:CreateWindow(config)
     
     local LogoGrad = Instance.new("UIGradient")
     LogoGrad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 60, 60)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 100, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 255))
     }
     LogoGrad.Parent = Logo
     
@@ -329,7 +365,7 @@ function KraviX:CreateWindow(config)
     CloseIcon.Parent = CloseBtn
     
     CloseBtn.MouseEnter:Connect(function()
-        Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.2):Play()
+        Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
     end)
     
     CloseBtn.MouseLeave:Connect(function()
@@ -338,7 +374,18 @@ function KraviX:CreateWindow(config)
     
     CloseBtn.MouseButton1Click:Connect(function()
         Window.Visible = false
-        Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3):Play()
+        Tween(MainStroke, {Transparency = 1}, 0.2):Play()
+        Tween(TabContainer, {Position = UDim2.new(0, -160, 0, 50)}, 0.3):Play()
+        Tween(ContentContainer, {Position = UDim2.new(1, 0, 0, 50)}, 0.3):Play()
+        task.wait(0.2)
+        Tween(TopBar, {BackgroundTransparency = 1}, 0.2):Play()
+        Tween(Logo, {TextTransparency = 1}, 0.2):Play()
+        Tween(Subtitle, {TextTransparency = 1}, 0.2):Play()
+        Tween(CloseBtn, {BackgroundTransparency = 1}, 0.2):Play()
+        Tween(CloseIcon, {TextTransparency = 1}, 0.2):Play()
+        Tween(AccentLine, {BackgroundTransparency = 1}, 0.2):Play()
+        task.wait(0.2)
+        Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3, Enum.EasingStyle.Back):Play()
         task.wait(0.3)
         Main.Visible = false
         CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
@@ -350,7 +397,7 @@ function KraviX:CreateWindow(config)
     TabContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     TabContainer.BorderSizePixel = 0
     TabContainer.ScrollBarThickness = 4
-    TabContainer.ScrollBarImageColor3 = Color3.fromRGB(200, 0, 0)
+    TabContainer.ScrollBarImageColor3 = Color3.fromRGB(150, 50, 255)
     TabContainer.Parent = Main
     
     local TabCorner = Instance.new("UICorner")
@@ -447,7 +494,7 @@ function KraviX:CreateWindow(config)
         local TabAccent = Instance.new("Frame")
         TabAccent.Size = UDim2.new(0, 3, 0, 20)
         TabAccent.Position = UDim2.new(0, 8, 0.5, -10)
-        TabAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        TabAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
         TabAccent.BorderSizePixel = 0
         TabAccent.Visible = false
         TabAccent.Parent = TabBtn
@@ -472,7 +519,7 @@ function KraviX:CreateWindow(config)
         TabContent.BackgroundTransparency = 1
         TabContent.BorderSizePixel = 0
         TabContent.ScrollBarThickness = 4
-        TabContent.ScrollBarImageColor3 = Color3.fromRGB(200, 0, 0)
+        TabContent.ScrollBarImageColor3 = Color3.fromRGB(150, 50, 255)
         TabContent.Visible = false
         TabContent.Parent = ContentContainer
         
@@ -528,17 +575,17 @@ function KraviX:CreateWindow(config)
             end
             TabContent.Visible = true
             TabAccent.Visible = true
-            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.2):Play()
+            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
             Tween(TabLabel, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
-            Tween(TabStroke, {Color = Color3.fromRGB(255, 50, 50), Transparency = 0}, 0.2):Play()
+            Tween(TabStroke, {Color = Color3.fromRGB(180, 100, 255), Transparency = 0}, 0.2):Play()
         end)
         
         if #Window.Tabs == 0 then
             TabContent.Visible = true
             TabAccent.Visible = true
-            TabBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            TabBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            TabStroke.Color = Color3.fromRGB(255, 50, 50)
+            TabStroke.Color = Color3.fromRGB(180, 100, 255)
             TabStroke.Transparency = 0
         end
         
@@ -564,7 +611,7 @@ function KraviX:CreateWindow(config)
             local BtnAccent = Instance.new("Frame")
             BtnAccent.Size = UDim2.new(0, 3, 0, 18)
             BtnAccent.Position = UDim2.new(0, 8, 0.5, -9)
-            BtnAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            BtnAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             BtnAccent.BorderSizePixel = 0
             BtnAccent.Parent = Button
             
@@ -585,7 +632,7 @@ function KraviX:CreateWindow(config)
             
             Button.MouseEnter:Connect(function()
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(22, 22, 22)}, 0.2):Play()
-                Tween(BtnStroke, {Color = Color3.fromRGB(200, 0, 0), Transparency = 0.3}, 0.2):Play()
+                Tween(BtnStroke, {Color = Color3.fromRGB(150, 50, 255), Transparency = 0.3}, 0.2):Play()
             end)
             
             Button.MouseLeave:Connect(function()
@@ -594,7 +641,7 @@ function KraviX:CreateWindow(config)
             end)
             
             Button.MouseButton1Click:Connect(function()
-                Tween(Button, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.1):Play()
+                Tween(Button, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.1):Play()
                 task.wait(0.12)
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
                 callback()
@@ -622,7 +669,7 @@ function KraviX:CreateWindow(config)
             local ToggleAccent = Instance.new("Frame")
             ToggleAccent.Size = UDim2.new(0, 3, 0, 18)
             ToggleAccent.Position = UDim2.new(0, 8, 0.5, -9)
-            ToggleAccent.BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(50, 50, 50)
+            ToggleAccent.BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(50, 50, 50)
             ToggleAccent.BorderSizePixel = 0
             ToggleAccent.Parent = Toggle
             
@@ -644,7 +691,7 @@ function KraviX:CreateWindow(config)
             local ToggleBtn = Instance.new("TextButton")
             ToggleBtn.Size = UDim2.new(0, 40, 0, 20)
             ToggleBtn.Position = UDim2.new(1, -48, 0.5, -10)
-            ToggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(30, 30, 30)
+            ToggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)
             ToggleBtn.Text = ""
             ToggleBtn.Parent = Toggle
             
@@ -664,9 +711,9 @@ function KraviX:CreateWindow(config)
             
             ToggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
-                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
+                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
                 Tween(ToggleCircle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2, Enum.EasingStyle.Back):Play()
-                Tween(ToggleAccent, {BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(50, 50, 50)}, 0.2):Play()
+                Tween(ToggleAccent, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(50, 50, 50)}, 0.2):Play()
                 callback(toggled)
             end)
         end
@@ -692,7 +739,7 @@ function KraviX:CreateWindow(config)
             local SliderAccent = Instance.new("Frame")
             SliderAccent.Size = UDim2.new(0, 3, 0, 18)
             SliderAccent.Position = UDim2.new(0, 8, 0, 10)
-            SliderAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            SliderAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             SliderAccent.BorderSizePixel = 0
             SliderAccent.Parent = Slider
             
@@ -716,7 +763,7 @@ function KraviX:CreateWindow(config)
             SliderValue.Position = UDim2.new(1, -58, 0, 10)
             SliderValue.BackgroundTransparency = 1
             SliderValue.Text = tostring(value)
-            SliderValue.TextColor3 = Color3.fromRGB(200, 0, 0)
+            SliderValue.TextColor3 = Color3.fromRGB(150, 50, 255)
             SliderValue.TextSize = 13
             SliderValue.Font = Enum.Font.GothamBold
             SliderValue.TextXAlignment = Enum.TextXAlignment.Right
@@ -735,7 +782,7 @@ function KraviX:CreateWindow(config)
             
             local SliderFill = Instance.new("Frame")
             SliderFill.Size = UDim2.new((value - min) / (max - min), 0, 1, 0)
-            SliderFill.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            SliderFill.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             SliderFill.BorderSizePixel = 0
             SliderFill.Parent = SliderBar
             
@@ -791,7 +838,7 @@ function KraviX:CreateWindow(config)
             local DropAccent = Instance.new("Frame")
             DropAccent.Size = UDim2.new(0, 3, 0, 18)
             DropAccent.Position = UDim2.new(0, 8, 0, 10)
-            DropAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            DropAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             DropAccent.BorderSizePixel = 0
             DropAccent.Parent = Dropdown
             
@@ -815,7 +862,7 @@ function KraviX:CreateWindow(config)
             DropSelected.Position = UDim2.new(1, -103, 0, 0)
             DropSelected.BackgroundTransparency = 1
             DropSelected.Text = selected
-            DropSelected.TextColor3 = Color3.fromRGB(200, 0, 0)
+            DropSelected.TextColor3 = Color3.fromRGB(150, 50, 255)
             DropSelected.TextSize = 12
             DropSelected.Font = Enum.Font.GothamBold
             DropSelected.TextXAlignment = Enum.TextXAlignment.Right
@@ -853,7 +900,7 @@ function KraviX:CreateWindow(config)
                 OptCorner.Parent = OptionBtn
                 
                 OptionBtn.MouseEnter:Connect(function()
-                    Tween(OptionBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0), TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
+                    Tween(OptionBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255), TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
                 end)
                 
                 OptionBtn.MouseLeave:Connect(function()
@@ -894,7 +941,7 @@ function KraviX:CreateWindow(config)
             local TextboxAccent = Instance.new("Frame")
             TextboxAccent.Size = UDim2.new(0, 3, 0, 18)
             TextboxAccent.Position = UDim2.new(0, 8, 0.5, -9)
-            TextboxAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            TextboxAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             TextboxAccent.BorderSizePixel = 0
             TextboxAccent.Parent = Textbox
             
@@ -934,7 +981,7 @@ function KraviX:CreateWindow(config)
             InputPadding.Parent = Input
             
             Input.Focused:Connect(function()
-                Tween(TextboxStroke, {Color = Color3.fromRGB(200, 0, 0), Transparency = 0.3}, 0.2):Play()
+                Tween(TextboxStroke, {Color = Color3.fromRGB(150, 50, 255), Transparency = 0.3}, 0.2):Play()
             end)
             
             Input.FocusLost:Connect(function(enter)
@@ -968,7 +1015,7 @@ function KraviX:CreateWindow(config)
             local LabelAccent = Instance.new("Frame")
             LabelAccent.Size = UDim2.new(0, 3, 0, 16)
             LabelAccent.Position = UDim2.new(0, 8, 0.5, -8)
-            LabelAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            LabelAccent.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             LabelAccent.BorderSizePixel = 0
             LabelAccent.Parent = Label
             
