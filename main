@@ -351,13 +351,41 @@ function KraviX:CreateWindow(config)
         
         Tween(Stroke, {Color = newColor}, 0.3):Play()
         Tween(TitleGradient, {Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.new(newColor.R * 1.2, newColor.G * 1.2, newColor.B * 1.2)),
+            ColorSequenceKeypoint.new(0, Color3.new(math.min(newColor.R * 1.2, 1), math.min(newColor.G * 1.2, 1), math.min(newColor.B * 1.2, 1))),
             ColorSequenceKeypoint.new(1, newColor)
         }}, 0.3):Play()
         
         for _, tab in pairs(Window.Tabs) do
             if tab.Content.Visible then
                 Tween(tab.Button, {BackgroundColor3 = newColor}, 0.3):Play()
+            end
+            for _, child in pairs(tab.Content:GetChildren()) do
+                if child:IsA("GuiObject") then
+                    for _, subChild in pairs(child:GetDescendants()) do
+                        if subChild.Name == "ToggleBtn" and subChild.BackgroundColor3 ~= Color3.fromRGB(30, 30, 30) then
+                            Tween(subChild, {BackgroundColor3 = newColor}, 0.3):Play()
+                        end
+                        if subChild.Name == "Fill" or subChild.Name == "LoadingFill" then
+                            Tween(subChild, {BackgroundColor3 = newColor}, 0.3):Play()
+                        end
+                        if subChild:IsA("TextLabel") and (subChild.Name == "ValueLabel" or subChild.Name == "Selected" or subChild.Name == "LoadingPercent") then
+                            Tween(subChild, {TextColor3 = newColor}, 0.3):Play()
+                        end
+                        if subChild.Name == "ToggleAccent" and subChild.BackgroundColor3 ~= Color3.fromRGB(50, 50, 50) then
+                            Tween(subChild, {BackgroundColor3 = newColor}, 0.3):Play()
+                        end
+                    end
+                end
+            end
+        end
+        
+        for _, notif in pairs(game.CoreGui:GetChildren()) do
+            if notif.Name == "KraviXNotif" then
+                for _, child in pairs(notif:GetDescendants()) do
+                    if child.Name == "Accent" then
+                        Tween(child, {BackgroundColor3 = newColor}, 0.3):Play()
+                    end
+                end
             end
         end
     end
@@ -432,6 +460,22 @@ function KraviX:CreateWindow(config)
             TabContent.Visible = true
             Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
             Tween(TabBtn, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
+            
+            -- Animar componentes da nova tab
+            task.spawn(function()
+                for i, child in pairs(TabContent:GetChildren()) do
+                    if child:IsA("GuiObject") and child.ClassName ~= "UIListLayout" and child.ClassName ~= "UIPadding" then
+                        task.spawn(function()
+                            local delay = 0.05 * (i - 1)
+                            task.wait(delay)
+                            Tween(child, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
+                            if child:IsA("TextButton") or child:IsA("TextLabel") then
+                                Tween(child, {TextTransparency = 0}, 0.3):Play()
+                            end
+                        end)
+                    end
+                end
+            end)
         end)
         
         if #Window.Tabs == 0 then
