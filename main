@@ -348,6 +348,7 @@ function KraviX:CreateWindow(config)
     TabContainer.BorderSizePixel = 0
     TabContainer.ScrollBarThickness = 4
     TabContainer.ScrollBarImageColor3 = Color3.fromRGB(150, 50, 255)
+    TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
     TabContainer.Parent = Main
     
     local TabCorner = Instance.new("UICorner")
@@ -425,11 +426,15 @@ function KraviX:CreateWindow(config)
     function Window:CreateTab(name)
         local Tab = {}
         
+        print("Criando tab:", name)
+        
         local TabBtn = Instance.new("TextButton")
         TabBtn.Size = UDim2.new(1, 0, 0, 38)
         TabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
         TabBtn.Text = ""
         TabBtn.Parent = TabContainer
+        
+        print("TabBtn criado para:", name, "Parent:", TabBtn.Parent.Name)
         
         local TabCorner = Instance.new("UICorner")
         TabCorner.CornerRadius = UDim.new(0, 6)
@@ -502,7 +507,11 @@ function KraviX:CreateWindow(config)
         end)
         
         TabBtn.MouseButton1Click:Connect(function()
-            for _, otherTab in pairs(Window.Tabs) do
+            print("Tab clicada:", name)
+            print("Total de tabs:", #Window.Tabs)
+            
+            for i, otherTab in pairs(Window.Tabs) do
+                print("Desativando tab", i)
                 if otherTab.Content then
                     otherTab.Content.Visible = false
                 end
@@ -519,6 +528,8 @@ function KraviX:CreateWindow(config)
                     end
                 end
             end
+            
+            print("Ativando tab:", name)
             TabContent.Visible = true
             TabAccent.Visible = true
             Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
