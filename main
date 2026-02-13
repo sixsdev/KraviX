@@ -502,24 +502,20 @@ function KraviX:CreateWindow(config)
         end)
         
         TabBtn.MouseButton1Click:Connect(function()
-            for _, tab in pairs(ContentContainer:GetChildren()) do
-                if tab:IsA("ScrollingFrame") then
-                    tab.Visible = false
+            for _, otherTab in pairs(Window.Tabs) do
+                if otherTab.Content then
+                    otherTab.Content.Visible = false
                 end
-            end
-            for _, btn in pairs(TabContainer:GetChildren()) do
-                if btn:IsA("TextButton") then
-                    Tween(btn, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
-                    for _, child in pairs(btn:GetChildren()) do
-                        if child:IsA("TextLabel") then
-                            Tween(child, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.2):Play()
-                        end
-                        if child:IsA("UIStroke") then
-                            Tween(child, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
-                        end
-                        if child.Name == "TabAccent" then
-                            child.Visible = false
-                        end
+                if otherTab.Button then
+                    Tween(otherTab.Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
+                    if otherTab.Label then
+                        Tween(otherTab.Label, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.2):Play()
+                    end
+                    if otherTab.Stroke then
+                        Tween(otherTab.Stroke, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
+                    end
+                    if otherTab.Accent then
+                        otherTab.Accent.Visible = false
                     end
                 end
             end
@@ -538,6 +534,12 @@ function KraviX:CreateWindow(config)
             TabStroke.Color = Color3.fromRGB(180, 100, 255)
             TabStroke.Transparency = 0
         end
+        
+        Tab.Content = TabContent
+        Tab.Button = TabBtn
+        Tab.Label = TabLabel
+        Tab.Stroke = TabStroke
+        Tab.Accent = TabAccent
         
         table.insert(Window.Tabs, Tab)
         
