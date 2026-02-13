@@ -65,13 +65,13 @@ function KraviX:CreateWindow(config)
     ScreenGui.Name = "KraviX"
     ScreenGui.Parent = game.CoreGui
     
-    -- Loading Screen
+    
     local Loading = Instance.new("Frame", ScreenGui)
     Loading.Size = UDim2.new(1, 0, 1, 0)
     Loading.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
     Loading.BorderSizePixel = 0
     
-    -- Particles
+    
     for i = 1, 15 do
         local Particle = Instance.new("Frame", Loading)
         Particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
@@ -166,7 +166,7 @@ function KraviX:CreateWindow(config)
     LoadingPercent.Font = Enum.Font.GothamBold
     LoadingPercent.TextTransparency = 1
     
-    -- Animate loading
+    
     Tween(Logo, {TextTransparency = 0}, 0.6):Play()
     task.wait(0.3)
     Tween(LoadingText, {TextTransparency = 0}, 0.5):Play()
@@ -197,7 +197,7 @@ function KraviX:CreateWindow(config)
     task.wait(0.3)
     Loading:Destroy()
     
-    -- Main UI
+    
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name = "Main"
     Main.Size = UDim2.new(0, 700, 0, 450)
@@ -211,7 +211,7 @@ function KraviX:CreateWindow(config)
     Stroke.Thickness = 1
     Stroke.Transparency = 0.7
     
-    -- TopBar
+    
     local TopBar = Instance.new("Frame", Main)
     TopBar.Size = UDim2.new(1, 0, 0, 45)
     TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
@@ -277,7 +277,7 @@ function KraviX:CreateWindow(config)
         CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
     end)
     
-    -- Tab Container (Sidebar)
+    
     local TabContainer = Instance.new("Frame", Main)
     TabContainer.Size = UDim2.new(0, 150, 1, -55)
     TabContainer.Position = UDim2.new(0, 10, 0, 50)
@@ -294,14 +294,14 @@ function KraviX:CreateWindow(config)
     TabPadding.PaddingRight = UDim.new(0, 8)
     TabPadding.PaddingBottom = UDim.new(0, 8)
     
-    -- Content Container
+    
     local ContentContainer = Instance.new("Frame", Main)
     ContentContainer.Size = UDim2.new(1, -180, 1, -55)
     ContentContainer.Position = UDim2.new(0, 170, 0, 50)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.BorderSizePixel = 0
     
-    -- Dragging
+    
     local dragging, dragInput, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -324,7 +324,7 @@ function KraviX:CreateWindow(config)
         end
     end)
     
-    -- Keybind Toggle
+    
     UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == Window.Keybind then
             Main.Visible = not Main.Visible
