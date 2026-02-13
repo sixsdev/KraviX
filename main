@@ -367,8 +367,13 @@ function KraviX:CreateWindow(config)
     TabPadding.PaddingBottom = UDim.new(0, 8)
     TabPadding.Parent = TabContainer
     
-    TabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabList.AbsoluteContentSize.Y + 16)
+    task.spawn(function()
+        while true do
+            task.wait(0.1)
+            if TabList and TabList.Parent then
+                TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabList.AbsoluteContentSize.Y + 16)
+            end
+        end
     end)
     
     local ContentContainer = Instance.new("Frame")
@@ -426,15 +431,13 @@ function KraviX:CreateWindow(config)
     function Window:CreateTab(name)
         local Tab = {}
         
-        print("Criando tab:", name)
-        
         local TabBtn = Instance.new("TextButton")
-        TabBtn.Size = UDim2.new(1, 0, 0, 38)
+        TabBtn.Name = "TabButton_" .. name
+        TabBtn.Size = UDim2.new(1, -16, 0, 38)
         TabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
         TabBtn.Text = ""
+        TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabContainer
-        
-        print("TabBtn criado para:", name, "Parent:", TabBtn.Parent.Name)
         
         local TabCorner = Instance.new("UICorner")
         TabCorner.CornerRadius = UDim.new(0, 6)
@@ -507,11 +510,7 @@ function KraviX:CreateWindow(config)
         end)
         
         TabBtn.MouseButton1Click:Connect(function()
-            print("Tab clicada:", name)
-            print("Total de tabs:", #Window.Tabs)
-            
             for i, otherTab in pairs(Window.Tabs) do
-                print("Desativando tab", i)
                 if otherTab.Content then
                     otherTab.Content.Visible = false
                 end
@@ -529,7 +528,6 @@ function KraviX:CreateWindow(config)
                 end
             end
             
-            print("Ativando tab:", name)
             TabContent.Visible = true
             TabAccent.Visible = true
             Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
