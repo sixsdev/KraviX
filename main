@@ -270,22 +270,6 @@ function KraviX:CreateWindow(config)
     
     CloseBtn.MouseButton1Click:Connect(function()
         Window.Visible = false
-        Tween(Stroke, {Transparency = 1}, 0.2):Play()
-        Tween(Main, {BackgroundTransparency = 1}, 0.3):Play()
-        for _, child in pairs(Main:GetDescendants()) do
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                Tween(child, {TextTransparency = 1}, 0.2):Play()
-            end
-            if child:IsA("Frame") or child:IsA("ScrollingFrame") then
-                if child.BackgroundTransparency < 1 then
-                    Tween(child, {BackgroundTransparency = 1}, 0.2):Play()
-                end
-            end
-            if child:IsA("UIStroke") then
-                Tween(child, {Transparency = 1}, 0.2):Play()
-            end
-        end
-        task.wait(0.3)
         Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3, Enum.EasingStyle.Back):Play()
         task.wait(0.3)
         Main.Visible = false
@@ -346,21 +330,6 @@ function KraviX:CreateWindow(config)
             Main.Visible = not Main.Visible
             if Main.Visible then
                 Main.Size = UDim2.new(0, 700, 0, 0)
-                Main.BackgroundTransparency = 0
-                Stroke.Transparency = 0.7
-                for _, child in pairs(Main:GetDescendants()) do
-                    if child:IsA("TextLabel") or child:IsA("TextButton") then
-                        child.TextTransparency = 0
-                    end
-                    if child:IsA("Frame") or child:IsA("ScrollingFrame") then
-                        if child.Name ~= "Main" and child.Parent.Name ~= "UICorner" then
-                            child.BackgroundTransparency = child.Name == "TabContainer" and 0 or (child.Parent:IsA("ScrollingFrame") and 0 or 1)
-                        end
-                    end
-                    if child:IsA("UIStroke") and child.Parent.Name ~= "Main" then
-                        child.Transparency = 0.5
-                    end
-                end
                 Tween(Main, {Size = UDim2.new(0, 700, 0, 450)}, 0.3, Enum.EasingStyle.Back):Play()
             end
         end
@@ -415,10 +384,24 @@ function KraviX:CreateWindow(config)
         
         TabBtn.MouseButton1Click:Connect(function()
             for _, tab in pairs(Window.Tabs) do
+                if tab.Content.Visible then
+                    for _, child in pairs(tab.Content:GetChildren()) do
+                        if child:IsA("GuiObject") and child.ClassName ~= "UIListLayout" and child.ClassName ~= "UIPadding" then
+                            Tween(child, {Position = UDim2.new(0, 0, 0, -20)}, 0.15):Play()
+                            if child:IsA("TextButton") or child:IsA("TextLabel") then
+                                Tween(child, {TextTransparency = 1}, 0.15):Play()
+                            end
+                            if child.BackgroundTransparency < 1 then
+                                Tween(child, {BackgroundTransparency = 1}, 0.15):Play()
+                            end
+                        end
+                    end
+                end
                 tab.Content.Visible = false
                 Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
                 Tween(tab.Button, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.2):Play()
             end
+            task.wait(0.15)
             TabContent.Visible = true
             Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
             Tween(TabBtn, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
