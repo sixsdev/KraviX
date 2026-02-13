@@ -1,7 +1,6 @@
 local KraviX = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
 local Tween = function(obj, props, time, style)
     return TweenService:Create(obj, TweenInfo.new(time or 0.3, style or Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
@@ -81,7 +80,6 @@ function KraviX:CreateWindow(config)
     LoadingFrame.BorderSizePixel = 0
     LoadingFrame.Parent = ScreenGui
     
-    local Particles = {}
     for i = 1, 15 do
         local Particle = Instance.new("Frame")
         Particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
@@ -94,8 +92,6 @@ function KraviX:CreateWindow(config)
         local ParticleCorner = Instance.new("UICorner")
         ParticleCorner.CornerRadius = UDim.new(1, 0)
         ParticleCorner.Parent = Particle
-        
-        table.insert(Particles, Particle)
         
         task.spawn(function()
             while LoadingFrame.Parent do
@@ -147,14 +143,6 @@ function KraviX:CreateWindow(config)
         ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 0, 0))
     }
     LogoGradient.Parent = LoadingLogo
-    
-    task.spawn(function()
-        while LoadingFrame.Parent do
-            Tween(LogoGradient, {Rotation = 360}, 3, Enum.EasingStyle.Linear):Play()
-            task.wait(3)
-            LogoGradient.Rotation = 0
-        end
-    end)
     
     local LoadingText = Instance.new("TextLabel")
     LoadingText.Size = UDim2.new(1, 0, 0, 25)
@@ -239,8 +227,8 @@ function KraviX:CreateWindow(config)
     
     local Main = Instance.new("Frame")
     Main.Name = "Main"
-    Main.Size = UDim2.new(0, 750, 0, 480)
-    Main.Position = UDim2.new(0.5, -375, 0.5, -240)
+    Main.Size = UDim2.new(0, 700, 0, 450)
+    Main.Position = UDim2.new(0.5, -350, 0.5, -225)
     Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
     Main.BorderSizePixel = 0
     Main.BackgroundTransparency = 1
@@ -260,7 +248,7 @@ function KraviX:CreateWindow(config)
     Tween(MainStroke, {Transparency = 0.7}, 0.4):Play()
     
     local TopBar = Instance.new("Frame")
-    TopBar.Size = UDim2.new(1, 0, 0, 50)
+    TopBar.Size = UDim2.new(1, 0, 0, 45)
     TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     TopBar.BorderSizePixel = 0
     TopBar.Parent = Main
@@ -270,8 +258,8 @@ function KraviX:CreateWindow(config)
     TopCorner.Parent = TopBar
     
     local TopFix = Instance.new("Frame")
-    TopFix.Size = UDim2.new(1, 0, 0, 25)
-    TopFix.Position = UDim2.new(0, 0, 1, -25)
+    TopFix.Size = UDim2.new(1, 0, 0, 23)
+    TopFix.Position = UDim2.new(0, 0, 1, -23)
     TopFix.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     TopFix.BorderSizePixel = 0
     TopFix.Parent = TopBar
@@ -291,21 +279,13 @@ function KraviX:CreateWindow(config)
     }
     LineGradient.Parent = AccentLine
     
-    task.spawn(function()
-        while Main.Parent do
-            Tween(LineGradient, {Offset = Vector2.new(1, 0)}, 2, Enum.EasingStyle.Linear):Play()
-            task.wait(2)
-            LineGradient.Offset = Vector2.new(-1, 0)
-        end
-    end)
-    
     local Logo = Instance.new("TextLabel")
     Logo.Size = UDim2.new(0, 150, 1, 0)
     Logo.Position = UDim2.new(0, 15, 0, 0)
     Logo.BackgroundTransparency = 1
     Logo.Text = "KRAVIX"
     Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Logo.TextSize = 20
+    Logo.TextSize = 18
     Logo.Font = Enum.Font.GothamBold
     Logo.TextXAlignment = Enum.TextXAlignment.Left
     Logo.Parent = TopBar
@@ -318,19 +298,19 @@ function KraviX:CreateWindow(config)
     LogoGrad.Parent = Logo
     
     local Subtitle = Instance.new("TextLabel")
-    Subtitle.Size = UDim2.new(0, 200, 0, 16)
-    Subtitle.Position = UDim2.new(0, 15, 0, 28)
+    Subtitle.Size = UDim2.new(0, 200, 0, 14)
+    Subtitle.Position = UDim2.new(0, 15, 0, 26)
     Subtitle.BackgroundTransparency = 1
     Subtitle.Text = config.Name or "Premium UI Library"
-    Subtitle.TextColor3 = Color3.fromRGB(110, 110, 110)
-    Subtitle.TextSize = 11
+    Subtitle.TextColor3 = Color3.fromRGB(100, 100, 100)
+    Subtitle.TextSize = 10
     Subtitle.Font = Enum.Font.Gotham
     Subtitle.TextXAlignment = Enum.TextXAlignment.Left
     Subtitle.Parent = TopBar
     
     local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 34, 0, 34)
-    CloseBtn.Position = UDim2.new(1, -42, 0.5, -17)
+    CloseBtn.Size = UDim2.new(0, 32, 0, 32)
+    CloseBtn.Position = UDim2.new(1, -40, 0.5, -16)
     CloseBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     CloseBtn.Text = ""
     CloseBtn.Parent = TopBar
@@ -344,51 +324,58 @@ function KraviX:CreateWindow(config)
     CloseIcon.BackgroundTransparency = 1
     CloseIcon.Text = "×"
     CloseIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CloseIcon.TextSize = 22
+    CloseIcon.TextSize = 20
     CloseIcon.Font = Enum.Font.GothamBold
     CloseIcon.Parent = CloseBtn
     
     CloseBtn.MouseEnter:Connect(function()
         Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.2):Play()
-        Tween(CloseBtn, {Size = UDim2.new(0, 36, 0, 36)}, 0.2, Enum.EasingStyle.Back):Play()
     end)
     
     CloseBtn.MouseLeave:Connect(function()
         Tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(20, 20, 20)}, 0.2):Play()
-        Tween(CloseBtn, {Size = UDim2.new(0, 34, 0, 34)}, 0.2):Play()
     end)
     
     CloseBtn.MouseButton1Click:Connect(function()
         Window.Visible = false
-        Tween(Main, {Size = UDim2.new(0, 750, 0, 0)}, 0.3):Play()
+        Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3):Play()
         task.wait(0.3)
         Main.Visible = false
         CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
     end)
     
     local TabContainer = Instance.new("ScrollingFrame")
-    TabContainer.Size = UDim2.new(1, -20, 0, 45)
-    TabContainer.Position = UDim2.new(0, 10, 0, 60)
-    TabContainer.BackgroundTransparency = 1
+    TabContainer.Size = UDim2.new(0, 150, 1, -55)
+    TabContainer.Position = UDim2.new(0, 10, 0, 50)
+    TabContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     TabContainer.BorderSizePixel = 0
-    TabContainer.ScrollBarThickness = 0
-    TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabContainer.ScrollingDirection = Enum.ScrollingDirection.X
+    TabContainer.ScrollBarThickness = 4
+    TabContainer.ScrollBarImageColor3 = Color3.fromRGB(200, 0, 0)
     TabContainer.Parent = Main
     
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.CornerRadius = UDim.new(0, 6)
+    TabCorner.Parent = TabContainer
+    
     local TabList = Instance.new("UIListLayout")
-    TabList.FillDirection = Enum.FillDirection.Horizontal
     TabList.SortOrder = Enum.SortOrder.LayoutOrder
-    TabList.Padding = UDim.new(0, 8)
+    TabList.Padding = UDim.new(0, 6)
     TabList.Parent = TabContainer
     
+    local TabPadding = Instance.new("UIPadding")
+    TabPadding.PaddingTop = UDim.new(0, 8)
+    TabPadding.PaddingLeft = UDim.new(0, 8)
+    TabPadding.PaddingRight = UDim.new(0, 8)
+    TabPadding.PaddingBottom = UDim.new(0, 8)
+    TabPadding.Parent = TabContainer
+    
     TabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        TabContainer.CanvasSize = UDim2.new(0, TabList.AbsoluteContentSize.X, 0, 0)
+        TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabList.AbsoluteContentSize.Y + 16)
     end)
     
     local ContentContainer = Instance.new("Frame")
-    ContentContainer.Size = UDim2.new(1, -20, 1, -125)
-    ContentContainer.Position = UDim2.new(0, 10, 0, 115)
+    ContentContainer.Size = UDim2.new(1, -180, 1, -55)
+    ContentContainer.Position = UDim2.new(0, 170, 0, 50)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.Parent = Main
     
@@ -425,10 +412,10 @@ function KraviX:CreateWindow(config)
             Window.Visible = not Window.Visible
             if Window.Visible then
                 Main.Visible = true
-                Main.Size = UDim2.new(0, 750, 0, 0)
-                Tween(Main, {Size = UDim2.new(0, 750, 0, 480)}, 0.3, Enum.EasingStyle.Back):Play()
+                Main.Size = UDim2.new(0, 700, 0, 0)
+                Tween(Main, {Size = UDim2.new(0, 700, 0, 450)}, 0.3, Enum.EasingStyle.Back):Play()
             else
-                Tween(Main, {Size = UDim2.new(0, 750, 0, 0)}, 0.3):Play()
+                Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3):Play()
                 task.wait(0.3)
                 Main.Visible = false
             end
@@ -440,10 +427,9 @@ function KraviX:CreateWindow(config)
     
     function Window:CreateTab(name)
         local Tab = {}
-        local tabIndex = #Window.Tabs + 1
         
         local TabBtn = Instance.new("TextButton")
-        TabBtn.Size = UDim2.new(0, 110, 0, 38)
+        TabBtn.Size = UDim2.new(1, 0, 0, 38)
         TabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
         TabBtn.Text = ""
         TabBtn.Parent = TabContainer
@@ -458,13 +444,27 @@ function KraviX:CreateWindow(config)
         TabStroke.Transparency = 0.5
         TabStroke.Parent = TabBtn
         
+        local TabAccent = Instance.new("Frame")
+        TabAccent.Size = UDim2.new(0, 3, 0, 20)
+        TabAccent.Position = UDim2.new(0, 8, 0.5, -10)
+        TabAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        TabAccent.BorderSizePixel = 0
+        TabAccent.Visible = false
+        TabAccent.Parent = TabBtn
+        
+        local AccentCorner = Instance.new("UICorner")
+        AccentCorner.CornerRadius = UDim.new(1, 0)
+        AccentCorner.Parent = TabAccent
+        
         local TabLabel = Instance.new("TextLabel")
-        TabLabel.Size = UDim2.new(1, 0, 1, 0)
+        TabLabel.Size = UDim2.new(1, -20, 1, 0)
+        TabLabel.Position = UDim2.new(0, 10, 0, 0)
         TabLabel.BackgroundTransparency = 1
         TabLabel.Text = name
         TabLabel.TextColor3 = Color3.fromRGB(130, 130, 130)
         TabLabel.TextSize = 13
         TabLabel.Font = Enum.Font.GothamBold
+        TabLabel.TextXAlignment = Enum.TextXAlignment.Left
         TabLabel.Parent = TabBtn
         
         local TabContent = Instance.new("ScrollingFrame")
@@ -474,7 +474,6 @@ function KraviX:CreateWindow(config)
         TabContent.ScrollBarThickness = 4
         TabContent.ScrollBarImageColor3 = Color3.fromRGB(200, 0, 0)
         TabContent.Visible = false
-        TabContent.Position = UDim2.new(0, 20, 0, 0)
         TabContent.Parent = ContentContainer
         
         local ContentList = Instance.new("UIListLayout")
@@ -483,7 +482,7 @@ function KraviX:CreateWindow(config)
         ContentList.Parent = TabContent
         
         local ContentPadding = Instance.new("UIPadding")
-        ContentPadding.PaddingTop = UDim.new(0, 5)
+        ContentPadding.PaddingTop = UDim2.new(0, 5)
         ContentPadding.PaddingRight = UDim.new(0, 6)
         ContentPadding.Parent = TabContent
         
@@ -495,7 +494,6 @@ function KraviX:CreateWindow(config)
             if not TabContent.Visible then
                 Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(22, 22, 22)}, 0.2):Play()
                 Tween(TabStroke, {Transparency = 0.3}, 0.2):Play()
-                Tween(TabBtn, {Size = UDim2.new(0, 115, 0, 40)}, 0.2, Enum.EasingStyle.Back):Play()
             end
         end)
         
@@ -503,21 +501,18 @@ function KraviX:CreateWindow(config)
             if not TabContent.Visible then
                 Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
                 Tween(TabStroke, {Transparency = 0.5}, 0.2):Play()
-                Tween(TabBtn, {Size = UDim2.new(0, 110, 0, 38)}, 0.2):Play()
             end
         end)
         
         TabBtn.MouseButton1Click:Connect(function()
             for _, tab in pairs(ContentContainer:GetChildren()) do
                 if tab:IsA("ScrollingFrame") then
-                    Tween(tab, {Position = UDim2.new(0, -20, 0, 0)}, 0.2):Play()
-                    task.wait(0.1)
                     tab.Visible = false
                 end
             end
             for _, btn in pairs(TabContainer:GetChildren()) do
                 if btn:IsA("TextButton") then
-                    Tween(btn, {BackgroundColor3 = Color3.fromRGB(18, 18, 18), Size = UDim2.new(0, 110, 0, 38)}, 0.2):Play()
+                    Tween(btn, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
                     for _, child in pairs(btn:GetChildren()) do
                         if child:IsA("TextLabel") then
                             Tween(child, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.2):Play()
@@ -525,21 +520,23 @@ function KraviX:CreateWindow(config)
                         if child:IsA("UIStroke") then
                             Tween(child, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
                         end
+                        if child.Name == "TabAccent" then
+                            child.Visible = false
+                        end
                     end
                 end
             end
-            TabContent.Position = UDim2.new(0, 20, 0, 0)
             TabContent.Visible = true
-            Tween(TabContent, {Position = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Back):Play()
-            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0), Size = UDim2.new(0, 115, 0, 40)}, 0.2, Enum.EasingStyle.Back):Play()
+            TabAccent.Visible = true
+            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.2):Play()
             Tween(TabLabel, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
             Tween(TabStroke, {Color = Color3.fromRGB(255, 50, 50), Transparency = 0}, 0.2):Play()
         end)
         
         if #Window.Tabs == 0 then
             TabContent.Visible = true
+            TabAccent.Visible = true
             TabBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            TabBtn.Size = UDim2.new(0, 115, 0, 40)
             TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             TabStroke.Color = Color3.fromRGB(255, 50, 50)
             TabStroke.Transparency = 0
@@ -549,7 +546,7 @@ function KraviX:CreateWindow(config)
         
         function Tab:CreateButton(text, callback)
             local Button = Instance.new("TextButton")
-            Button.Size = UDim2.new(1, 0, 0, 40)
+            Button.Size = UDim2.new(1, 0, 0, 38)
             Button.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Button.Text = ""
             Button.Parent = TabContent
@@ -565,8 +562,8 @@ function KraviX:CreateWindow(config)
             BtnStroke.Parent = Button
             
             local BtnAccent = Instance.new("Frame")
-            BtnAccent.Size = UDim2.new(0, 3, 0, 20)
-            BtnAccent.Position = UDim2.new(0, 8, 0.5, -10)
+            BtnAccent.Size = UDim2.new(0, 3, 0, 18)
+            BtnAccent.Position = UDim2.new(0, 8, 0.5, -9)
             BtnAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             BtnAccent.BorderSizePixel = 0
             BtnAccent.Parent = Button
@@ -589,21 +586,17 @@ function KraviX:CreateWindow(config)
             Button.MouseEnter:Connect(function()
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(22, 22, 22)}, 0.2):Play()
                 Tween(BtnStroke, {Color = Color3.fromRGB(200, 0, 0), Transparency = 0.3}, 0.2):Play()
-                Tween(BtnAccent, {Size = UDim2.new(0, 3, 0, 26)}, 0.2, Enum.EasingStyle.Back):Play()
             end)
             
             Button.MouseLeave:Connect(function()
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
                 Tween(BtnStroke, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
-                Tween(BtnAccent, {Size = UDim2.new(0, 3, 0, 20)}, 0.2):Play()
             end)
             
             Button.MouseButton1Click:Connect(function()
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}, 0.1):Play()
-                Tween(BtnStroke, {Transparency = 0}, 0.1):Play()
                 task.wait(0.12)
                 Tween(Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
-                Tween(BtnStroke, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
                 callback()
             end)
         end
@@ -612,7 +605,7 @@ function KraviX:CreateWindow(config)
             local toggled = default or false
             
             local Toggle = Instance.new("Frame")
-            Toggle.Size = UDim2.new(1, 0, 0, 40)
+            Toggle.Size = UDim2.new(1, 0, 0, 38)
             Toggle.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Toggle.Parent = TabContent
             
@@ -627,8 +620,8 @@ function KraviX:CreateWindow(config)
             ToggleStroke.Parent = Toggle
             
             local ToggleAccent = Instance.new("Frame")
-            ToggleAccent.Size = UDim2.new(0, 3, 0, 20)
-            ToggleAccent.Position = UDim2.new(0, 8, 0.5, -10)
+            ToggleAccent.Size = UDim2.new(0, 3, 0, 18)
+            ToggleAccent.Position = UDim2.new(0, 8, 0.5, -9)
             ToggleAccent.BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(50, 50, 50)
             ToggleAccent.BorderSizePixel = 0
             ToggleAccent.Parent = Toggle
@@ -638,7 +631,7 @@ function KraviX:CreateWindow(config)
             AccentCorner.Parent = ToggleAccent
             
             local ToggleLabel = Instance.new("TextLabel")
-            ToggleLabel.Size = UDim2.new(1, -75, 1, 0)
+            ToggleLabel.Size = UDim2.new(1, -70, 1, 0)
             ToggleLabel.Position = UDim2.new(0, 18, 0, 0)
             ToggleLabel.BackgroundTransparency = 1
             ToggleLabel.Text = text
@@ -649,8 +642,8 @@ function KraviX:CreateWindow(config)
             ToggleLabel.Parent = Toggle
             
             local ToggleBtn = Instance.new("TextButton")
-            ToggleBtn.Size = UDim2.new(0, 42, 0, 22)
-            ToggleBtn.Position = UDim2.new(1, -50, 0.5, -11)
+            ToggleBtn.Size = UDim2.new(0, 40, 0, 20)
+            ToggleBtn.Position = UDim2.new(1, -48, 0.5, -10)
             ToggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(30, 30, 30)
             ToggleBtn.Text = ""
             ToggleBtn.Parent = Toggle
@@ -660,8 +653,8 @@ function KraviX:CreateWindow(config)
             ToggleBtnCorner.Parent = ToggleBtn
             
             local ToggleCircle = Instance.new("Frame")
-            ToggleCircle.Size = UDim2.new(0, 16, 0, 16)
-            ToggleCircle.Position = toggled and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
+            ToggleCircle.Size = UDim2.new(0, 14, 0, 14)
+            ToggleCircle.Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
             ToggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             ToggleCircle.Parent = ToggleBtn
             
@@ -672,7 +665,7 @@ function KraviX:CreateWindow(config)
             ToggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                Tween(ToggleCircle, {Position = toggled and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)}, 0.2, Enum.EasingStyle.Back):Play()
+                Tween(ToggleCircle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2, Enum.EasingStyle.Back):Play()
                 Tween(ToggleAccent, {BackgroundColor3 = toggled and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(50, 50, 50)}, 0.2):Play()
                 callback(toggled)
             end)
@@ -682,7 +675,7 @@ function KraviX:CreateWindow(config)
             local value = default or min
             
             local Slider = Instance.new("Frame")
-            Slider.Size = UDim2.new(1, 0, 0, 52)
+            Slider.Size = UDim2.new(1, 0, 0, 50)
             Slider.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Slider.Parent = TabContent
             
@@ -697,7 +690,7 @@ function KraviX:CreateWindow(config)
             SliderStroke.Parent = Slider
             
             local SliderAccent = Instance.new("Frame")
-            SliderAccent.Size = UDim2.new(0, 3, 0, 20)
+            SliderAccent.Size = UDim2.new(0, 3, 0, 18)
             SliderAccent.Position = UDim2.new(0, 8, 0, 10)
             SliderAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             SliderAccent.BorderSizePixel = 0
@@ -708,7 +701,7 @@ function KraviX:CreateWindow(config)
             AccentCorner.Parent = SliderAccent
             
             local SliderLabel = Instance.new("TextLabel")
-            SliderLabel.Size = UDim2.new(1, -75, 0, 20)
+            SliderLabel.Size = UDim2.new(1, -70, 0, 20)
             SliderLabel.Position = UDim2.new(0, 18, 0, 10)
             SliderLabel.BackgroundTransparency = 1
             SliderLabel.Text = text
@@ -719,8 +712,8 @@ function KraviX:CreateWindow(config)
             SliderLabel.Parent = Slider
             
             local SliderValue = Instance.new("TextLabel")
-            SliderValue.Size = UDim2.new(0, 55, 0, 20)
-            SliderValue.Position = UDim2.new(1, -63, 0, 10)
+            SliderValue.Size = UDim2.new(0, 50, 0, 20)
+            SliderValue.Position = UDim2.new(1, -58, 0, 10)
             SliderValue.BackgroundTransparency = 1
             SliderValue.Text = tostring(value)
             SliderValue.TextColor3 = Color3.fromRGB(200, 0, 0)
@@ -730,8 +723,8 @@ function KraviX:CreateWindow(config)
             SliderValue.Parent = Slider
             
             local SliderBar = Instance.new("Frame")
-            SliderBar.Size = UDim2.new(1, -28, 0, 4)
-            SliderBar.Position = UDim2.new(0, 14, 1, -14)
+            SliderBar.Size = UDim2.new(1, -26, 0, 4)
+            SliderBar.Position = UDim2.new(0, 13, 1, -13)
             SliderBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
             SliderBar.BorderSizePixel = 0
             SliderBar.Parent = Slider
@@ -780,7 +773,7 @@ function KraviX:CreateWindow(config)
             local opened = false
             
             local Dropdown = Instance.new("Frame")
-            Dropdown.Size = UDim2.new(1, 0, 0, 40)
+            Dropdown.Size = UDim2.new(1, 0, 0, 38)
             Dropdown.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Dropdown.ClipsDescendants = true
             Dropdown.Parent = TabContent
@@ -796,7 +789,7 @@ function KraviX:CreateWindow(config)
             DropStroke.Parent = Dropdown
             
             local DropAccent = Instance.new("Frame")
-            DropAccent.Size = UDim2.new(0, 3, 0, 20)
+            DropAccent.Size = UDim2.new(0, 3, 0, 18)
             DropAccent.Position = UDim2.new(0, 8, 0, 10)
             DropAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             DropAccent.BorderSizePixel = 0
@@ -807,7 +800,7 @@ function KraviX:CreateWindow(config)
             AccentCorner.Parent = DropAccent
             
             local DropLabel = Instance.new("TextLabel")
-            DropLabel.Size = UDim2.new(1, -130, 0, 40)
+            DropLabel.Size = UDim2.new(1, -120, 0, 38)
             DropLabel.Position = UDim2.new(0, 18, 0, 0)
             DropLabel.BackgroundTransparency = 1
             DropLabel.Text = text
@@ -818,8 +811,8 @@ function KraviX:CreateWindow(config)
             DropLabel.Parent = Dropdown
             
             local DropSelected = Instance.new("TextLabel")
-            DropSelected.Size = UDim2.new(0, 100, 0, 40)
-            DropSelected.Position = UDim2.new(1, -108, 0, 0)
+            DropSelected.Size = UDim2.new(0, 95, 0, 38)
+            DropSelected.Position = UDim2.new(1, -103, 0, 0)
             DropSelected.BackgroundTransparency = 1
             DropSelected.Text = selected
             DropSelected.TextColor3 = Color3.fromRGB(200, 0, 0)
@@ -829,14 +822,14 @@ function KraviX:CreateWindow(config)
             DropSelected.Parent = Dropdown
             
             local DropButton = Instance.new("TextButton")
-            DropButton.Size = UDim2.new(1, 0, 0, 40)
+            DropButton.Size = UDim2.new(1, 0, 0, 38)
             DropButton.BackgroundTransparency = 1
             DropButton.Text = ""
             DropButton.Parent = Dropdown
             
             local OptionsList = Instance.new("Frame")
-            OptionsList.Size = UDim2.new(1, 0, 0, #options * 32)
-            OptionsList.Position = UDim2.new(0, 0, 0, 40)
+            OptionsList.Size = UDim2.new(1, 0, 0, #options * 30)
+            OptionsList.Position = UDim2.new(0, 0, 0, 38)
             OptionsList.BackgroundTransparency = 1
             OptionsList.Parent = Dropdown
             
@@ -847,7 +840,7 @@ function KraviX:CreateWindow(config)
             
             for _, option in ipairs(options) do
                 local OptionBtn = Instance.new("TextButton")
-                OptionBtn.Size = UDim2.new(1, 0, 0, 30)
+                OptionBtn.Size = UDim2.new(1, 0, 0, 28)
                 OptionBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
                 OptionBtn.Text = option
                 OptionBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
@@ -871,20 +864,20 @@ function KraviX:CreateWindow(config)
                     selected = option
                     DropSelected.Text = selected
                     opened = false
-                    Tween(Dropdown, {Size = UDim2.new(1, 0, 0, 40)}, 0.2):Play()
+                    Tween(Dropdown, {Size = UDim2.new(1, 0, 0, 38)}, 0.2):Play()
                     callback(selected)
                 end)
             end
             
             DropButton.MouseButton1Click:Connect(function()
                 opened = not opened
-                Tween(Dropdown, {Size = opened and UDim2.new(1, 0, 0, 40 + #options * 32 + (#options - 1) * 2) or UDim2.new(1, 0, 0, 40)}, 0.2, Enum.EasingStyle.Back):Play()
+                Tween(Dropdown, {Size = opened and UDim2.new(1, 0, 0, 38 + #options * 30 + (#options - 1) * 2) or UDim2.new(1, 0, 0, 38)}, 0.2):Play()
             end)
         end
         
         function Tab:CreateTextbox(text, placeholder, callback)
             local Textbox = Instance.new("Frame")
-            Textbox.Size = UDim2.new(1, 0, 0, 40)
+            Textbox.Size = UDim2.new(1, 0, 0, 38)
             Textbox.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Textbox.Parent = TabContent
             
@@ -899,8 +892,8 @@ function KraviX:CreateWindow(config)
             TextboxStroke.Parent = Textbox
             
             local TextboxAccent = Instance.new("Frame")
-            TextboxAccent.Size = UDim2.new(0, 3, 0, 20)
-            TextboxAccent.Position = UDim2.new(0, 8, 0.5, -10)
+            TextboxAccent.Size = UDim2.new(0, 3, 0, 18)
+            TextboxAccent.Position = UDim2.new(0, 8, 0.5, -9)
             TextboxAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             TextboxAccent.BorderSizePixel = 0
             TextboxAccent.Parent = Textbox
@@ -910,7 +903,7 @@ function KraviX:CreateWindow(config)
             AccentCorner.Parent = TextboxAccent
             
             local TextboxLabel = Instance.new("TextLabel")
-            TextboxLabel.Size = UDim2.new(0, 120, 1, 0)
+            TextboxLabel.Size = UDim2.new(0, 110, 1, 0)
             TextboxLabel.Position = UDim2.new(0, 18, 0, 0)
             TextboxLabel.BackgroundTransparency = 1
             TextboxLabel.Text = text
@@ -921,8 +914,8 @@ function KraviX:CreateWindow(config)
             TextboxLabel.Parent = Textbox
             
             local Input = Instance.new("TextBox")
-            Input.Size = UDim2.new(1, -155, 0, 26)
-            Input.Position = UDim2.new(0, 143, 0.5, -13)
+            Input.Size = UDim2.new(1, -145, 0, 24)
+            Input.Position = UDim2.new(0, 133, 0.5, -12)
             Input.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
             Input.PlaceholderText = placeholder
             Input.PlaceholderColor3 = Color3.fromRGB(90, 90, 90)
@@ -942,12 +935,10 @@ function KraviX:CreateWindow(config)
             
             Input.Focused:Connect(function()
                 Tween(TextboxStroke, {Color = Color3.fromRGB(200, 0, 0), Transparency = 0.3}, 0.2):Play()
-                Tween(Input, {BackgroundColor3 = Color3.fromRGB(20, 20, 20)}, 0.2):Play()
             end)
             
             Input.FocusLost:Connect(function(enter)
                 Tween(TextboxStroke, {Color = Color3.fromRGB(30, 30, 30), Transparency = 0.5}, 0.2):Play()
-                Tween(Input, {BackgroundColor3 = Color3.fromRGB(15, 15, 15)}, 0.2):Play()
                 if enter then
                     callback(Input.Text)
                 end
@@ -956,7 +947,7 @@ function KraviX:CreateWindow(config)
         
         function Tab:CreateLabel(text)
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, 0, 0, 34)
+            Label.Size = UDim2.new(1, 0, 0, 32)
             Label.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Label.Text = text
             Label.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -975,8 +966,8 @@ function KraviX:CreateWindow(config)
             LabelStroke.Parent = Label
             
             local LabelAccent = Instance.new("Frame")
-            LabelAccent.Size = UDim2.new(0, 3, 0, 18)
-            LabelAccent.Position = UDim2.new(0, 8, 0.5, -9)
+            LabelAccent.Size = UDim2.new(0, 3, 0, 16)
+            LabelAccent.Position = UDim2.new(0, 8, 0.5, -8)
             LabelAccent.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
             LabelAccent.BorderSizePixel = 0
             LabelAccent.Parent = Label
