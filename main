@@ -237,8 +237,50 @@ function KraviX:CreateWindow(config)
     local TitleGradient = Instance.new("UIGradient", Title)
     TitleGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 100, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 255))
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 50, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 100, 255))
     }
+    
+    -- Animação do gradiente do título
+    task.spawn(function()
+        while Title.Parent do
+            Tween(TitleGradient, {Offset = Vector2.new(1, 0)}, 2, Enum.EasingStyle.Linear):Play()
+            task.wait(2)
+            TitleGradient.Offset = Vector2.new(-1, 0)
+        end
+    end)
+    
+    -- Reflexo do título
+    local TitleReflection = Instance.new("TextLabel", TopBar)
+    TitleReflection.Size = UDim2.new(0, 150, 0, 18)
+    TitleReflection.Position = UDim2.new(0, 15, 0, 24)
+    TitleReflection.BackgroundTransparency = 1
+    TitleReflection.Text = "KRAVIX"
+    TitleReflection.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleReflection.TextSize = 18
+    TitleReflection.Font = Enum.Font.GothamBold
+    TitleReflection.TextXAlignment = Enum.TextXAlignment.Left
+    TitleReflection.TextTransparency = 0.7
+    TitleReflection.Rotation = 180
+    
+    local ReflectionGradient = Instance.new("UIGradient", TitleReflection)
+    ReflectionGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 100, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 50, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 100, 255))
+    }
+    ReflectionGradient.Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 0.7),
+        NumberSequenceKeypoint.new(1, 1)
+    }
+    
+    task.spawn(function()
+        while TitleReflection.Parent do
+            Tween(ReflectionGradient, {Offset = Vector2.new(1, 0)}, 2, Enum.EasingStyle.Linear):Play()
+            task.wait(2)
+            ReflectionGradient.Offset = Vector2.new(-1, 0)
+        end
+    end)
     
     local Subtitle = Instance.new("TextLabel", TopBar)
     Subtitle.Size = UDim2.new(0, 200, 0, 14)
@@ -270,10 +312,11 @@ function KraviX:CreateWindow(config)
     
     CloseBtn.MouseButton1Click:Connect(function()
         Window.Visible = false
-        Tween(Main, {Size = UDim2.new(0, 700, 0, 0)}, 0.3, Enum.EasingStyle.Back):Play()
-        task.wait(0.3)
+        Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
+        task.wait(0.2)
         Main.Visible = false
         Main.Size = UDim2.new(0, 700, 0, 450)
+        Main.Position = UDim2.new(0.5, -350, 0.5, -225)
         CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
     end)
     
@@ -329,8 +372,15 @@ function KraviX:CreateWindow(config)
         if input.KeyCode == Window.Keybind then
             Main.Visible = not Main.Visible
             if Main.Visible then
-                Main.Size = UDim2.new(0, 700, 0, 0)
-                Tween(Main, {Size = UDim2.new(0, 700, 0, 450)}, 0.3, Enum.EasingStyle.Back):Play()
+                Main.Size = UDim2.new(0, 0, 0, 0)
+                Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
+            else
+                Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
+                task.wait(0.2)
+                Main.Visible = false
+                Main.Size = UDim2.new(0, 700, 0, 450)
+                Main.Position = UDim2.new(0.5, -350, 0.5, -225)
             end
         end
     end)
@@ -384,43 +434,14 @@ function KraviX:CreateWindow(config)
         
         TabBtn.MouseButton1Click:Connect(function()
             for _, tab in pairs(Window.Tabs) do
-                if tab.Content.Visible then
-                    for _, child in pairs(tab.Content:GetChildren()) do
-                        if child:IsA("GuiObject") and child.ClassName ~= "UIListLayout" and child.ClassName ~= "UIPadding" then
-                            Tween(child, {Position = UDim2.new(0, 0, 0, -20)}, 0.15):Play()
-                            if child:IsA("TextButton") or child:IsA("TextLabel") then
-                                Tween(child, {TextTransparency = 1}, 0.15):Play()
-                            end
-                            if child.BackgroundTransparency < 1 then
-                                Tween(child, {BackgroundTransparency = 1}, 0.15):Play()
-                            end
-                        end
-                    end
-                end
                 tab.Content.Visible = false
-                Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.2):Play()
-                Tween(tab.Button, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.2):Play()
+                Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}, 0.15):Play()
+                Tween(tab.Button, {TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.15):Play()
             end
-            task.wait(0.15)
-            TabContent.Visible = true
-            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.2):Play()
-            Tween(TabBtn, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2):Play()
             
-            -- Animar componentes da nova tab
-            task.spawn(function()
-                for i, child in pairs(TabContent:GetChildren()) do
-                    if child:IsA("GuiObject") and child.ClassName ~= "UIListLayout" and child.ClassName ~= "UIPadding" then
-                        task.spawn(function()
-                            local delay = 0.08 * (i - 1)
-                            task.wait(delay)
-                            Tween(child, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.5):Play()
-                            if child:IsA("TextButton") or child:IsA("TextLabel") then
-                                Tween(child, {TextTransparency = 0}, 0.5):Play()
-                            end
-                        end)
-                    end
-                end
-            end)
+            TabContent.Visible = true
+            Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255)}, 0.15):Play()
+            Tween(TabBtn, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.15):Play()
         end)
         
         if #Window.Tabs == 0 then
