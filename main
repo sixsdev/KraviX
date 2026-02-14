@@ -427,22 +427,6 @@ function KraviX:CreateWindow(config)
             TabContent.Visible = true
             TabBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            -- Animar componentes da primeira tab
-            task.spawn(function()
-                task.wait(0.1)
-                for i, child in pairs(TabContent:GetChildren()) do
-                    if child:IsA("GuiObject") and child.ClassName ~= "UIListLayout" and child.ClassName ~= "UIPadding" then
-                        task.spawn(function()
-                            local delay = 0.08 * (i - 1)
-                            task.wait(delay)
-                            Tween(child, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.5):Play()
-                            if child:IsA("TextButton") or child:IsA("TextLabel") then
-                                Tween(child, {TextTransparency = 0}, 0.5):Play()
-                            end
-                        end)
-                    end
-                end
-            end)
         end
         
         Tab.Button = TabBtn
@@ -453,22 +437,12 @@ function KraviX:CreateWindow(config)
             local Btn = Instance.new("TextButton", TabContent)
             Btn.Size = UDim2.new(1, 0, 0, 38)
             Btn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Btn.BackgroundTransparency = 1
-            Btn.Position = UDim2.new(0, 0, 0, -20)
             Btn.Text = text
             Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Btn.TextTransparency = 1
             Btn.TextSize = 13
             Btn.Font = Enum.Font.GothamSemibold
             Btn.AutoButtonColor = false
             Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Btn, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-                Tween(Btn, {TextTransparency = 0}, 0.3):Play()
-            end)
             
             Btn.MouseEnter:Connect(function()
                 Tween(Btn, {BackgroundColor3 = Color3.fromRGB(22, 22, 22)}, 0.2):Play()
@@ -492,15 +466,7 @@ function KraviX:CreateWindow(config)
             local Frame = Instance.new("Frame", TabContent)
             Frame.Size = UDim2.new(1, 0, 0, 38)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Frame.BackgroundTransparency = 1
-            Frame.Position = UDim2.new(0, 0, 0, -20)
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Frame, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-            end)
             
             local Label = Instance.new("TextLabel", Frame)
             Label.Size = UDim2.new(1, -60, 1, 0)
@@ -539,15 +505,7 @@ function KraviX:CreateWindow(config)
             local Frame = Instance.new("Frame", TabContent)
             Frame.Size = UDim2.new(1, 0, 0, 50)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Frame.BackgroundTransparency = 1
-            Frame.Position = UDim2.new(0, 0, 0, -20)
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Frame, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-            end)
             
             local Label = Instance.new("TextLabel", Frame)
             Label.Size = UDim2.new(1, -60, 0, 20)
@@ -603,21 +561,11 @@ function KraviX:CreateWindow(config)
             local Label = Instance.new("TextLabel", TabContent)
             Label.Size = UDim2.new(1, 0, 0, 32)
             Label.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Label.BackgroundTransparency = 1
-            Label.Position = UDim2.new(0, 0, 0, -20)
             Label.Text = text
             Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Label.TextTransparency = 1
             Label.TextSize = 13
             Label.Font = Enum.Font.GothamSemibold
             Instance.new("UICorner", Label).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Label, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-                Tween(Label, {TextTransparency = 0}, 0.3):Play()
-            end)
             
             return {
                 SetText = function(self, newText)
@@ -633,16 +581,8 @@ function KraviX:CreateWindow(config)
             local Frame = Instance.new("Frame", TabContent)
             Frame.Size = UDim2.new(1, 0, 0, 38)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Frame.BackgroundTransparency = 1
-            Frame.Position = UDim2.new(0, 0, 0, -20)
             Frame.ClipsDescendants = true
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Frame, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-            end)
             
             local Label = Instance.new("TextLabel", Frame)
             Label.Size = UDim2.new(1, -110, 0, 38)
@@ -714,15 +654,7 @@ function KraviX:CreateWindow(config)
             local Frame = Instance.new("Frame", TabContent)
             Frame.Size = UDim2.new(1, 0, 0, 38)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-            Frame.BackgroundTransparency = 1
-            Frame.Position = UDim2.new(0, 0, 0, -20)
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-            
-            task.spawn(function()
-                local delay = 0.05 * (#TabContent:GetChildren() - 1)
-                task.wait(delay)
-                Tween(Frame, {BackgroundTransparency = 0, Position = UDim2.new(0, 0, 0, 0)}, 0.3):Play()
-            end)
             
             local Label = Instance.new("TextLabel", Frame)
             Label.Size = UDim2.new(0, 110, 1, 0)
@@ -752,6 +684,53 @@ function KraviX:CreateWindow(config)
             Input.FocusLost:Connect(function(enter)
                 if enter then
                     callback(Input.Text)
+                end
+            end)
+        end
+        
+        function Tab:CreateKeybind(text, default, callback)
+            local currentKey = default or Enum.KeyCode.E
+            local listening = false
+            
+            local Frame = Instance.new("Frame", TabContent)
+            Frame.Size = UDim2.new(1, 0, 0, 38)
+            Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+            Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
+            
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Size = UDim2.new(1, -110, 1, 0)
+            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.BackgroundTransparency = 1
+            Label.Text = text
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextSize = 13
+            Label.Font = Enum.Font.GothamSemibold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local KeyBtn = Instance.new("TextButton", Frame)
+            KeyBtn.Size = UDim2.new(0, 95, 0, 24)
+            KeyBtn.Position = UDim2.new(1, -103, 0.5, -12)
+            KeyBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+            KeyBtn.Text = currentKey.Name
+            KeyBtn.TextColor3 = Color3.fromRGB(150, 50, 255)
+            KeyBtn.TextSize = 12
+            KeyBtn.Font = Enum.Font.GothamBold
+            Instance.new("UICorner", KeyBtn).CornerRadius = UDim.new(0, 5)
+            
+            KeyBtn.MouseButton1Click:Connect(function()
+                listening = true
+                KeyBtn.Text = "..."
+                KeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end)
+            
+            local connection
+            connection = UserInputService.InputBegan:Connect(function(input)
+                if listening and input.UserInputType == Enum.UserInputType.Keyboard then
+                    listening = false
+                    currentKey = input.KeyCode
+                    KeyBtn.Text = currentKey.Name
+                    KeyBtn.TextColor3 = Color3.fromRGB(150, 50, 255)
+                    callback(currentKey)
                 end
             end)
         end
