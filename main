@@ -1,252 +1,132 @@
--- KraviX / Givenchy UI STYLE (1:1 image-based)
+local KraviX = {}
 
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
-if game.CoreGui:FindFirstChild("GivenchyUI") then
-    game.CoreGui.GivenchyUI:Destroy()
-end
-
--- THEME (tirado da imagem)
 local Theme = {
-    Bg = Color3.fromRGB(18, 19, 24),
-    Top = Color3.fromRGB(22, 23, 28),
-    Panel = Color3.fromRGB(20, 21, 26),
-    Item = Color3.fromRGB(24, 25, 30),
-
+    Bg = Color3.fromRGB(18,19,24),
+    Top = Color3.fromRGB(22,23,28),
+    Panel = Color3.fromRGB(20,21,26),
     Text = Color3.fromRGB(235,235,235),
     Muted = Color3.fromRGB(150,150,150),
-
-    Yellow = Color3.fromRGB(255, 204, 77),
-    Purple = Color3.fromRGB(160, 120, 255),
-    White = Color3.fromRGB(220,220,220),
-
+    Yellow = Color3.fromRGB(255,204,77),
+    Purple = Color3.fromRGB(160,120,255),
     Font = Enum.Font.Gotham,
     FontBold = Enum.Font.GothamSemibold
 }
 
--- GUI
-local Gui = Instance.new("ScreenGui", game.CoreGui)
-Gui.Name = "GivenchyUI"
-Gui.ResetOnSpawn = false
+function KraviX:CreateWindow(config)
+    local Window = {}
+    Window.Tabs = {}
 
--- MAIN
-local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.new(0, 920, 0, 520)
-Main.Position = UDim2.new(0.5, -460, 0.5, -260)
-Main.BackgroundColor3 = Theme.Bg
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.Draggable = true
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "KraviX_Givenchy"
+    ScreenGui.Parent = game.CoreGui
 
--- TOP BAR
-local Top = Instance.new("Frame", Main)
-Top.Size = UDim2.new(1,0,0,48)
-Top.BackgroundColor3 = Theme.Top
-Top.BorderSizePixel = 0
+    -- MAIN
+    local Main = Instance.new("Frame", ScreenGui)
+    Main.Size = UDim2.new(0, 920, 0, 520)
+    Main.Position = UDim2.new(0.5, -460, 0.5, -260)
+    Main.BackgroundColor3 = Theme.Bg
+    Main.BorderSizePixel = 0
+    Instance.new("UICorner", Main).CornerRadius = UDim.new(0,6)
 
--- TITLE
-local Title = Instance.new("TextLabel", Top)
-Title.Size = UDim2.new(0,160,1,0)
-Title.Position = UDim2.new(0,14,0,0)
-Title.BackgroundTransparency = 1
-Title.Text = "Givenchy"
-Title.Font = Theme.FontBold
-Title.TextSize = 18
-Title.TextColor3 = Theme.Text
-Title.TextXAlignment = Enum.TextXAlignment.Left
+    -- TOP BAR
+    local TopBar = Instance.new("Frame", Main)
+    TopBar.Size = UDim2.new(1,0,0,48)
+    TopBar.BackgroundColor3 = Theme.Top
+    TopBar.BorderSizePixel = 0
 
--- TOP TABS
-local Tabs = {"Combat","Visuals","Exploits","Misc"}
-local TabHolder = Instance.new("Frame", Top)
-TabHolder.Size = UDim2.new(0,360,1,0)
-TabHolder.Position = UDim2.new(0,220,0,0)
-TabHolder.BackgroundTransparency = 1
+    local Title = Instance.new("TextLabel", TopBar)
+    Title.Size = UDim2.new(0,200,1,0)
+    Title.Position = UDim2.new(0,16,0,0)
+    Title.BackgroundTransparency = 1
+    Title.Text = config.Title or "Givenchy"
+    Title.Font = Theme.FontBold
+    Title.TextSize = 18
+    Title.TextColor3 = Theme.Text
+    Title.TextXAlignment = Enum.TextXAlignment.Left
 
-local TabLayout = Instance.new("UIListLayout", TabHolder)
-TabLayout.FillDirection = Enum.FillDirection.Horizontal
-TabLayout.Padding = UDim.new(0,24)
-TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    -- TAB HOLDER (HORIZONTAL TOP)
+    local TabHolder = Instance.new("Frame", TopBar)
+    TabHolder.Size = UDim2.new(0,500,1,0)
+    TabHolder.Position = UDim2.new(0,240,0,0)
+    TabHolder.BackgroundTransparency = 1
 
-for _,t in ipairs(Tabs) do
-    local B = Instance.new("TextButton", TabHolder)
-    B.BackgroundTransparency = 1
-    B.Text = t
-    B.Font = Theme.FontBold
-    B.TextSize = 13
-    B.TextColor3 = t=="Visuals" and Theme.Text or Theme.Muted
-    B.AutoButtonColor = false
+    local TabLayout = Instance.new("UIListLayout", TabHolder)
+    TabLayout.FillDirection = Enum.FillDirection.Horizontal
+    TabLayout.Padding = UDim.new(0,26)
+    TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+    -- CONTENT AREA
+    local Content = Instance.new("Frame", Main)
+    Content.Size = UDim2.new(1,-40,1,-64)
+    Content.Position = UDim2.new(0,20,0,56)
+    Content.BackgroundTransparency = 1
+
+    -- LEFT PANEL
+    local LeftPanel = Instance.new("Frame", Content)
+    LeftPanel.Size = UDim2.new(0.48,0,1,0)
+    LeftPanel.BackgroundColor3 = Theme.Panel
+    LeftPanel.BorderSizePixel = 0
+    Instance.new("UICorner", LeftPanel).CornerRadius = UDim.new(0,4)
+
+    local LPadding = Instance.new("UIPadding", LeftPanel)
+    LPadding.PaddingTop = UDim.new(0,12)
+    LPadding.PaddingLeft = UDim.new(0,12)
+    LPadding.PaddingRight = UDim.new(0,12)
+
+    local LLayout = Instance.new("UIListLayout", LeftPanel)
+    LLayout.Padding = UDim.new(0,6)
+
+    -- RIGHT PANEL
+    local RightPanel = Instance.new("Frame", Content)
+    RightPanel.Size = UDim2.new(0.48,0,1,0)
+    RightPanel.Position = UDim2.new(0.52,0,0,0)
+    RightPanel.BackgroundColor3 = Theme.Panel
+    RightPanel.BorderSizePixel = 0
+    Instance.new("UICorner", RightPanel).CornerRadius = UDim.new(0,4)
+
+    local RPadding = Instance.new("UIPadding", RightPanel)
+    RPadding.PaddingTop = UDim.new(0,12)
+    RPadding.PaddingLeft = UDim.new(0,12)
+    RPadding.PaddingRight = UDim.new(0,12)
+
+    local RLayout = Instance.new("UIListLayout", RightPanel)
+    RLayout.Padding = UDim.new(0,10)
+
+    -- CREATE TAB
+    function Window:CreateTab(name)
+        local Tab = {}
+        Tab.Name = name
+
+        -- TAB BUTTON (TOP)
+        local TabButton = Instance.new("TextButton", TabHolder)
+        TabButton.Size = UDim2.new(0,80,1,0)
+        TabButton.BackgroundTransparency = 1
+        TabButton.Text = name
+        TabButton.Font = Theme.FontBold
+        TabButton.TextSize = 13
+        TabButton.TextColor3 = Theme.Muted
+        TabButton.AutoButtonColor = false
+
+        -- CONTENT FOLDER
+        local TabContent = Instance.new("Folder", Content)
+        TabContent.Name = name
+
+        Tab.Button = TabButton
+        Tab.Content = TabContent
+
+        table.insert(Window.Tabs, Tab)
+
+        return Tab
+    end
+
+    Window.Main = Main
+    Window.LeftPanel = LeftPanel
+    Window.RightPanel = RightPanel
+
+    return Window
 end
 
--- CONTENT
-local Content = Instance.new("Frame", Main)
-Content.Size = UDim2.new(1,-40,1,-60)
-Content.Position = UDim2.new(0,20,0,52)
-Content.BackgroundTransparency = 1
-
--- LEFT COLUMN
-local Left = Instance.new("Frame", Content)
-Left.Size = UDim2.new(0.48,0,1,0)
-Left.BackgroundColor3 = Theme.Panel
-Left.BorderSizePixel = 0
-
-local LL = Instance.new("UIListLayout", Left)
-LL.Padding = UDim.new(0,6)
-
-local LP = Instance.new("UIPadding", Left)
-LP.PaddingTop = UDim.new(0,10)
-LP.PaddingLeft = UDim.new(0,10)
-LP.PaddingRight = UDim.new(0,10)
-
--- RIGHT COLUMN
-local Right = Instance.new("Frame", Content)
-Right.Size = UDim2.new(0.48,0,1,0)
-Right.Position = UDim2.new(0.52,0,0,0)
-Right.BackgroundColor3 = Theme.Panel
-Right.BorderSizePixel = 0
-
-local RL = Instance.new("UIListLayout", Right)
-RL.Padding = UDim.new(0,10)
-
-local RP = Instance.new("UIPadding", Right)
-RP.PaddingTop = UDim.new(0,10)
-RP.PaddingLeft = UDim.new(0,10)
-RP.PaddingRight = UDim.new(0,10)
-
--- LEFT HEADER
-local LH = Instance.new("TextLabel", Left)
-LH.Size = UDim2.new(1,0,0,26)
-LH.BackgroundTransparency = 1
-LH.Text = "Visuals"
-LH.Font = Theme.FontBold
-LH.TextSize = 14
-LH.TextColor3 = Theme.Yellow
-LH.TextXAlignment = Enum.TextXAlignment.Left
-
--- DROPDOWN (Player Filter)
-local function Dropdown(text, value)
-    local F = Instance.new("Frame", Left)
-    F.Size = UDim2.new(1,0,0,36)
-    F.BackgroundColor3 = Theme.Item
-
-    local L = Instance.new("TextLabel", F)
-    L.Size = UDim2.new(0.6,0,1,0)
-    L.Position = UDim2.new(0,10,0,0)
-    L.BackgroundTransparency = 1
-    L.Text = text
-    L.Font = Theme.Font
-    L.TextSize = 13
-    L.TextColor3 = Theme.Text
-    L.TextXAlignment = Enum.TextXAlignment.Left
-
-    local V = Instance.new("TextLabel", F)
-    V.Size = UDim2.new(0.35,0,1,0)
-    V.Position = UDim2.new(0.65,0,0,0)
-    V.BackgroundTransparency = 1
-    V.Text = value
-    V.Font = Theme.FontBold
-    V.TextSize = 12
-    V.TextColor3 = Theme.Muted
-    V.TextXAlignment = Enum.TextXAlignment.Right
-end
-
--- TOGGLE (bolinha colorida)
-local function Toggle(text, color)
-    local F = Instance.new("Frame", Left)
-    F.Size = UDim2.new(1,0,0,36)
-    F.BackgroundColor3 = Theme.Item
-
-    local L = Instance.new("TextLabel", F)
-    L.Size = UDim2.new(1,-40,1,0)
-    L.Position = UDim2.new(0,10,0,0)
-    L.BackgroundTransparency = 1
-    L.Text = text
-    L.Font = Theme.Font
-    L.TextSize = 13
-    L.TextColor3 = Theme.Text
-    L.TextXAlignment = Enum.TextXAlignment.Left
-
-    local Dot = Instance.new("Frame", F)
-    Dot.Size = UDim2.new(0,10,0,10)
-    Dot.Position = UDim2.new(1,-20,0.5,-5)
-    Dot.BackgroundColor3 = color
-    Instance.new("UICorner", Dot).CornerRadius = UDim.new(1,0)
-end
-
-Dropdown("Player Filter", "Everyone Except Local")
-Toggle("Box", Theme.Purple)
-Toggle("Filled Box", Theme.White)
-Toggle("Gradient", Theme.White)
-Toggle("Display Username", Theme.Purple)
-Toggle("Distance", Theme.White)
-Toggle("Tool", Theme.White)
-Toggle("Weapon Icon", Theme.White)
-
--- RIGHT HEADER
-local RH = Instance.new("TextLabel", Right)
-RH.Size = UDim2.new(1,0,0,26)
-RH.BackgroundTransparency = 1
-RH.Text = "Visuals Settings"
-RH.Font = Theme.FontBold
-RH.TextSize = 14
-RH.TextColor3 = Theme.Text
-RH.TextXAlignment = Enum.TextXAlignment.Left
-
--- SLIDER
-local Slider = Instance.new("Frame", Right)
-Slider.Size = UDim2.new(1,0,0,44)
-Slider.BackgroundColor3 = Theme.Item
-
-local SL = Instance.new("TextLabel", Slider)
-SL.Size = UDim2.new(0.7,0,0,20)
-SL.Position = UDim2.new(0,10,0,6)
-SL.BackgroundTransparency = 1
-SL.Text = "Box Thickness"
-SL.Font = Theme.Font
-SL.TextSize = 13
-SL.TextColor3 = Theme.Text
-SL.TextXAlignment = Enum.TextXAlignment.Left
-
-local SV = Instance.new("TextLabel", Slider)
-SV.Size = UDim2.new(0.25,0,0,20)
-SV.Position = UDim2.new(0.75,0,0,6)
-SV.BackgroundTransparency = 1
-SV.Text = "1.2"
-SV.Font = Theme.FontBold
-SV.TextSize = 12
-SV.TextColor3 = Theme.Muted
-SV.TextXAlignment = Enum.TextXAlignment.Right
-
-local Bar = Instance.new("Frame", Slider)
-Bar.Size = UDim2.new(1,-20,0,3)
-Bar.Position = UDim2.new(0,10,1,-10)
-Bar.BackgroundColor3 = Color3.fromRGB(50,50,55)
-
-local Fill = Instance.new("Frame", Bar)
-Fill.Size = UDim2.new(0.35,0,1,0)
-Fill.BackgroundColor3 = Theme.Yellow
-
--- DROPDOWN RIGHT
-local BS = Instance.new("Frame", Right)
-BS.Size = UDim2.new(1,0,0,36)
-BS.BackgroundColor3 = Theme.Item
-
-local BL = Instance.new("TextLabel", BS)
-BL.Size = UDim2.new(0.6,0,1,0)
-BL.Position = UDim2.new(0,10,0,0)
-BL.BackgroundTransparency = 1
-BL.Text = "Box Style"
-BL.Font = Theme.Font
-BL.TextSize = 13
-BL.TextColor3 = Theme.Text
-BL.TextXAlignment = Enum.TextXAlignment.Left
-
-local BV = Instance.new("TextLabel", BS)
-BV.Size = UDim2.new(0.35,0,1,0)
-BV.Position = UDim2.new(0.65,0,0,0)
-BV.BackgroundTransparency = 1
-BV.Text = "Corner Box"
-BV.Font = Theme.FontBold
-BV.TextSize = 12
-BV.TextColor3 = Theme.Muted
-BV.TextXAlignment = Enum.TextXAlignment.Right
+return KraviX
