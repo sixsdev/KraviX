@@ -365,7 +365,7 @@ function KraviX:CreateWindow(config)
         end
     end)
     
-    -- Botão Mobile
+    
     local MobileBtn
     if isMobile then
         MobileBtn = Instance.new("TextButton", ScreenGui)
@@ -384,7 +384,7 @@ function KraviX:CreateWindow(config)
         MobileStroke.Thickness = 2
         MobileStroke.Transparency = 0.5
         
-        -- Arrastar botão mobile
+        
         local mobileDragging = false
         local mobileDragStart, mobileStartPos
         
