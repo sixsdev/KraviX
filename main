@@ -61,6 +61,8 @@ function KraviX:CreateWindow(config)
     local Window = {Tabs = {}, Keybind = config.Keybind or Enum.KeyCode.RightControl}
     Window.Notify = CreateNotification
     
+    local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "KraviX"
     ScreenGui.Parent = game.CoreGui
@@ -317,7 +319,11 @@ function KraviX:CreateWindow(config)
         Main.Visible = false
         Main.Size = UDim2.new(0, 700, 0, 450)
         Main.Position = UDim2.new(0.5, -350, 0.5, -225)
-        CreateNotification("KraviX", "Press " .. Window.Keybind.Name .. " to reopen", 3)
+        if isMobile and MobileBtn then
+            MobileBtn.Visible = true
+            Tween(MobileBtn, {Size = UDim2.new(0, 60, 0, 60)}, 0.3, Enum.EasingStyle.Back):Play()
+        end
+        CreateNotification("KraviX", isMobile and "Tap button to reopen" or "Press " .. Window.Keybind.Name .. " to reopen", 3)
     end)
     
     
@@ -372,6 +378,9 @@ function KraviX:CreateWindow(config)
         if input.KeyCode == Window.Keybind then
             Main.Visible = not Main.Visible
             if Main.Visible then
+                if isMobile and MobileBtn then
+                    MobileBtn.Visible = false
+                end
                 Main.Size = UDim2.new(0, 0, 0, 0)
                 Main.Position = UDim2.new(0.5, 0, 0.5, 0)
                 Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
@@ -381,9 +390,66 @@ function KraviX:CreateWindow(config)
                 Main.Visible = false
                 Main.Size = UDim2.new(0, 700, 0, 450)
                 Main.Position = UDim2.new(0.5, -350, 0.5, -225)
+                if isMobile and MobileBtn then
+                    MobileBtn.Visible = true
+                    Tween(MobileBtn, {Size = UDim2.new(0, 60, 0, 60)}, 0.3, Enum.EasingStyle.Back):Play()
+                end
             end
         end
     end)
+    
+    -- Botão Mobile
+    local MobileBtn
+    if isMobile then
+        MobileBtn = Instance.new("TextButton", ScreenGui)
+        MobileBtn.Size = UDim2.new(0, 0, 0, 0)
+        MobileBtn.Position = UDim2.new(0, 20, 0, 100)
+        MobileBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
+        MobileBtn.Text = "K"
+        MobileBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        MobileBtn.TextSize = 24
+        MobileBtn.Font = Enum.Font.GothamBold
+        MobileBtn.Visible = false
+        Instance.new("UICorner", MobileBtn).CornerRadius = UDim.new(0, 12)
+        
+        local MobileStroke = Instance.new("UIStroke", MobileBtn)
+        MobileStroke.Color = Color3.fromRGB(255, 255, 255)
+        MobileStroke.Thickness = 2
+        MobileStroke.Transparency = 0.5
+        
+        -- Arrastar botão mobile
+        local mobileDragging = false
+        local mobileDragStart, mobileStartPos
+        
+        MobileBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                mobileDragging = true
+                mobileDragStart = input.Position
+                mobileStartPos = MobileBtn.Position
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if mobileDragging and input.UserInputType == Enum.UserInputType.Touch then
+                local delta = input.Position - mobileDragStart
+                MobileBtn.Position = UDim2.new(mobileStartPos.X.Scale, mobileStartPos.X.Offset + delta.X, mobileStartPos.Y.Scale, mobileStartPos.Y.Offset + delta.Y)
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                mobileDragging = false
+            end
+        end)
+        
+        MobileBtn.MouseButton1Click:Connect(function()
+            MobileBtn.Visible = false
+            Main.Visible = true
+            Main.Size = UDim2.new(0, 0, 0, 0)
+            Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+            Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
+        end)
+    end
     
     function Window:CreateTab(name)
         local Tab = {}
