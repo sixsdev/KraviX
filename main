@@ -365,7 +365,7 @@ function KraviX:CreateWindow(config)
         end
     end)
     
-    
+    -- Botão Mobile
     local MobileBtn
     if isMobile then
         MobileBtn = Instance.new("TextButton", ScreenGui)
@@ -384,7 +384,7 @@ function KraviX:CreateWindow(config)
         MobileStroke.Thickness = 2
         MobileStroke.Transparency = 0.5
         
-        
+        -- Arrastar botão mobile
         local mobileDragging = false
         local mobileDragStart, mobileStartPos
         
@@ -787,6 +787,247 @@ function KraviX:CreateWindow(config)
                     callback(currentKey)
                 end
             end)
+        end
+        
+        function Tab:CreateColorPicker(text, default, callback)
+            local currentColor = default or Color3.fromRGB(255, 255, 255)
+            local pickerOpen = false
+            
+            local Frame = Instance.new("Frame", TabContent)
+            Frame.Size = UDim2.new(1, 0, 0, 38)
+            Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+            Frame.ClipsDescendants = true
+            Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
+            
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Size = UDim2.new(1, -110, 0, 38)
+            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.BackgroundTransparency = 1
+            Label.Text = text
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextSize = 13
+            Label.Font = Enum.Font.GothamSemibold
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local ColorBox = Instance.new("TextButton", Frame)
+            ColorBox.Size = UDim2.new(0, 95, 0, 24)
+            ColorBox.Position = UDim2.new(1, -103, 0, 7)
+            ColorBox.BackgroundColor3 = currentColor
+            ColorBox.Text = ""
+            Instance.new("UICorner", ColorBox).CornerRadius = UDim.new(0, 5)
+            
+            local ColorStroke = Instance.new("UIStroke", ColorBox)
+            ColorStroke.Color = Color3.fromRGB(255, 255, 255)
+            ColorStroke.Thickness = 1
+            ColorStroke.Transparency = 0.7
+            
+            -- Picker Container
+            local PickerContainer = Instance.new("Frame", Frame)
+            PickerContainer.Size = UDim2.new(1, -20, 0, 180)
+            PickerContainer.Position = UDim2.new(0, 10, 0, 45)
+            PickerContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+            Instance.new("UICorner", PickerContainer).CornerRadius = UDim.new(0, 5)
+            
+            -- Gradient Canvas
+            local Canvas = Instance.new("ImageButton", PickerContainer)
+            Canvas.Size = UDim2.new(1, -70, 1, -40)
+            Canvas.Position = UDim2.new(0, 10, 0, 10)
+            Canvas.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Instance.new("UICorner", Canvas).CornerRadius = UDim.new(0, 4)
+            
+            local CanvasGradient = Instance.new("UIGradient", Canvas)
+            CanvasGradient.Color = ColorSequence.new(Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 0, 0))
+            CanvasGradient.Rotation = 0
+            
+            local Darkness = Instance.new("Frame", Canvas)
+            Darkness.Size = UDim2.new(1, 0, 1, 0)
+            Darkness.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            Darkness.BackgroundTransparency = 0
+            Instance.new("UICorner", Darkness).CornerRadius = UDim.new(0, 4)
+            
+            local DarknessGradient = Instance.new("UIGradient", Darkness)
+            DarknessGradient.Transparency = NumberSequence.new{
+                NumberSequenceKeypoint.new(0, 1),
+                NumberSequenceKeypoint.new(1, 0)
+            }
+            DarknessGradient.Rotation = 90
+            
+            local Cursor = Instance.new("Frame", Canvas)
+            Cursor.Size = UDim2.new(0, 8, 0, 8)
+            Cursor.Position = UDim2.new(1, -4, 0, -4)
+            Cursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Cursor.BorderSizePixel = 2
+            Cursor.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            Instance.new("UICorner", Cursor).CornerRadius = UDim.new(1, 0)
+            
+            -- Hue Slider
+            local HueSlider = Instance.new("ImageButton", PickerContainer)
+            HueSlider.Size = UDim2.new(0, 20, 1, -40)
+            HueSlider.Position = UDim2.new(1, -30, 0, 10)
+            HueSlider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Instance.new("UICorner", HueSlider).CornerRadius = UDim.new(0, 4)
+            
+            local HueGradient = Instance.new("UIGradient", HueSlider)
+            HueGradient.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+                ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+                ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+            }
+            HueGradient.Rotation = 90
+            
+            local HueCursor = Instance.new("Frame", HueSlider)
+            HueCursor.Size = UDim2.new(1, 4, 0, 3)
+            HueCursor.Position = UDim2.new(0, -2, 0, 0)
+            HueCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            HueCursor.BorderSizePixel = 1
+            HueCursor.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            
+            -- RGB Inputs
+            local RGBContainer = Instance.new("Frame", PickerContainer)
+            RGBContainer.Size = UDim2.new(1, -20, 0, 25)
+            RGBContainer.Position = UDim2.new(0, 10, 1, -30)
+            RGBContainer.BackgroundTransparency = 1
+            
+            local function createRGBInput(pos, letter, value)
+                local Input = Instance.new("TextBox", RGBContainer)
+                Input.Size = UDim2.new(0, 50, 0, 22)
+                Input.Position = UDim2.new(0, pos, 0, 0)
+                Input.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                Input.Text = tostring(value)
+                Input.TextColor3 = Color3.fromRGB(255, 255, 255)
+                Input.TextSize = 11
+                Input.Font = Enum.Font.Gotham
+                Input.PlaceholderText = letter
+                Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 4)
+                
+                local InputLabel = Instance.new("TextLabel", Input)
+                InputLabel.Size = UDim2.new(0, 15, 1, 0)
+                InputLabel.Position = UDim2.new(0, -18, 0, 0)
+                InputLabel.BackgroundTransparency = 1
+                InputLabel.Text = letter
+                InputLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+                InputLabel.TextSize = 11
+                InputLabel.Font = Enum.Font.GothamBold
+                
+                return Input
+            end
+            
+            local RInput = createRGBInput(20, "R", math.floor(currentColor.R * 255))
+            local GInput = createRGBInput(90, "G", math.floor(currentColor.G * 255))
+            local BInput = createRGBInput(160, "B", math.floor(currentColor.B * 255))
+            
+            local function updateColor(color)
+                currentColor = color
+                ColorBox.BackgroundColor3 = color
+                RInput.Text = tostring(math.floor(color.R * 255))
+                GInput.Text = tostring(math.floor(color.G * 255))
+                BInput.Text = tostring(math.floor(color.B * 255))
+                callback(color)
+            end
+            
+            local hue, sat, val = 0, 1, 1
+            
+            local function updateFromHSV()
+                local color = Color3.fromHSV(hue, sat, val)
+                updateColor(color)
+                CanvasGradient.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1), Color3.fromHSV(hue, 1, 1))
+            end
+            
+            -- Canvas Dragging
+            local canvasDragging = false
+            Canvas.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    canvasDragging = true
+                end
+            end)
+            
+            Canvas.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    canvasDragging = false
+                end
+            end)
+            
+            UserInputService.InputChanged:Connect(function(input)
+                if canvasDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local posX = math.clamp((input.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
+                    local posY = math.clamp((input.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
+                    sat = posX
+                    val = 1 - posY
+                    Cursor.Position = UDim2.new(posX, -4, posY, -4)
+                    updateFromHSV()
+                end
+            end)
+            
+            -- Hue Dragging
+            local hueDragging = false
+            HueSlider.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    hueDragging = true
+                end
+            end)
+            
+            HueSlider.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    hueDragging = false
+                end
+            end)
+            
+            UserInputService.InputChanged:Connect(function(input)
+                if hueDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local posY = math.clamp((input.Position.Y - HueSlider.AbsolutePosition.Y) / HueSlider.AbsoluteSize.Y, 0, 1)
+                    hue = posY
+                    HueCursor.Position = UDim2.new(0, -2, posY, -1.5)
+                    updateFromHSV()
+                end
+            end)
+            
+            -- RGB Input Changes
+            local function onRGBChange()
+                local r = math.clamp(tonumber(RInput.Text) or 0, 0, 255)
+                local g = math.clamp(tonumber(GInput.Text) or 0, 0, 255)
+                local b = math.clamp(tonumber(BInput.Text) or 0, 0, 255)
+                local color = Color3.fromRGB(r, g, b)
+                hue, sat, val = color:ToHSV()
+                updateColor(color)
+                Cursor.Position = UDim2.new(sat, -4, 1 - val, -4)
+                HueCursor.Position = UDim2.new(0, -2, hue, -1.5)
+                CanvasGradient.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1), Color3.fromHSV(hue, 1, 1))
+            end
+            
+            RInput.FocusLost:Connect(onRGBChange)
+            GInput.FocusLost:Connect(onRGBChange)
+            BInput.FocusLost:Connect(onRGBChange)
+            
+            -- Toggle Picker
+            ColorBox.MouseButton1Click:Connect(function()
+                pickerOpen = not pickerOpen
+                Tween(Frame, {Size = pickerOpen and UDim2.new(1, 0, 0, 233) or UDim2.new(1, 0, 0, 38)}, 0.2):Play()
+            end)
+            
+            -- Initialize
+            hue, sat, val = currentColor:ToHSV()
+            Cursor.Position = UDim2.new(sat, -4, 1 - val, -4)
+            HueCursor.Position = UDim2.new(0, -2, hue, -1.5)
+            CanvasGradient.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1), Color3.fromHSV(hue, 1, 1))
+            
+            return {
+                SetColor = function(self, color)
+                    currentColor = color
+                    ColorBox.BackgroundColor3 = color
+                    hue, sat, val = color:ToHSV()
+                    Cursor.Position = UDim2.new(sat, -4, 1 - val, -4)
+                    HueCursor.Position = UDim2.new(0, -2, hue, -1.5)
+                    CanvasGradient.Color = ColorSequence.new(Color3.fromHSV(hue, 1, 1), Color3.fromHSV(hue, 1, 1))
+                    RInput.Text = tostring(math.floor(color.R * 255))
+                    GInput.Text = tostring(math.floor(color.G * 255))
+                    BInput.Text = tostring(math.floor(color.B * 255))
+                    callback(color)
+                end
+            }
         end
         
         return Tab
