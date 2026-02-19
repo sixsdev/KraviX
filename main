@@ -549,8 +549,8 @@ function KraviX:CreateWindow(config)
             ToggleObject.Value = toggled
             
             local function UpdateVisual()
-                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+                ToggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)
+                Circle.Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
                 ToggleObject.Value = toggled
             end
             
