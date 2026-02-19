@@ -545,6 +545,8 @@ function KraviX:CreateWindow(config)
             Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
             
+            local ToggleObject = {}
+            
             ToggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
@@ -552,13 +554,13 @@ function KraviX:CreateWindow(config)
                 callback(toggled)
             end)
             
-            return {
-                SetValue = function(self, value)
-                    toggled = value
-                    Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                    Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
-                end
-            }
+            function ToggleObject:SetValue(value)
+                toggled = value
+                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
+                Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+            end
+            
+            return ToggleObject
         end
         
         function Tab:CreateSlider(text, min, max, default, callback)
