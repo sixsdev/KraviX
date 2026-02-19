@@ -551,6 +551,14 @@ function KraviX:CreateWindow(config)
                 Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
                 callback(toggled)
             end)
+            
+            return {
+                SetValue = function(self, value)
+                    toggled = value
+                    Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
+                    Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+                end
+            }
         end
         
         function Tab:CreateSlider(text, min, max, default, callback)
