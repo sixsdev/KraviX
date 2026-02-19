@@ -546,18 +546,23 @@ function KraviX:CreateWindow(config)
             Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
             
             local ToggleObject = {}
+            ToggleObject.Value = toggled
+            
+            local function UpdateVisual()
+                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
+                Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+                ToggleObject.Value = toggled
+            end
             
             ToggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
-                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+                UpdateVisual()
                 callback(toggled)
             end)
             
             function ToggleObject:SetValue(value)
                 toggled = value
-                Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                Tween(Circle, {Position = toggled and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)}, 0.2):Play()
+                UpdateVisual()
             end
             
             return ToggleObject
