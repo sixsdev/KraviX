@@ -261,6 +261,26 @@ function KraviX:CreateWindow(config)
     Subtitle.Font = Enum.Font.Gotham
     Subtitle.TextXAlignment = Enum.TextXAlignment.Left
     
+    local MobileBtn
+    if isMobile then
+        MobileBtn = Instance.new("TextButton", ScreenGui)
+        MobileBtn.Size = UDim2.new(0, 60, 0, 60)
+        MobileBtn.Position = UDim2.new(0, 20, 0, 100)
+        MobileBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
+        MobileBtn.Text = "K"
+        MobileBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        MobileBtn.TextSize = 28
+        MobileBtn.Font = Enum.Font.GothamBold
+        MobileBtn.Visible = false
+        MobileBtn.ZIndex = 999
+        Instance.new("UICorner", MobileBtn).CornerRadius = UDim.new(0, 12)
+        
+        local MobileStroke = Instance.new("UIStroke", MobileBtn)
+        MobileStroke.Color = Color3.fromRGB(255, 255, 255)
+        MobileStroke.Thickness = 2
+        MobileStroke.Transparency = 0.5
+    end
+    
     local CloseBtn = Instance.new("TextButton", TopBar)
     CloseBtn.Size = UDim2.new(0, 32, 0, 32)
     CloseBtn.Position = UDim2.new(1, -40, 0.5, -16)
@@ -346,25 +366,7 @@ function KraviX:CreateWindow(config)
     end)
     
     
-    local MobileBtn
     if isMobile then
-        MobileBtn = Instance.new("TextButton", ScreenGui)
-        MobileBtn.Size = UDim2.new(0, 60, 0, 60)
-        MobileBtn.Position = UDim2.new(0, 20, 0, 100)
-        MobileBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
-        MobileBtn.Text = "K"
-        MobileBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        MobileBtn.TextSize = 28
-        MobileBtn.Font = Enum.Font.GothamBold
-        MobileBtn.Visible = false
-        MobileBtn.ZIndex = 999
-        Instance.new("UICorner", MobileBtn).CornerRadius = UDim.new(0, 12)
-        
-        local MobileStroke = Instance.new("UIStroke", MobileBtn)
-        MobileStroke.Color = Color3.fromRGB(255, 255, 255)
-        MobileStroke.Thickness = 2
-        MobileStroke.Transparency = 0.5
-        
         local mobileDragging = false
         local mobileDragStart, mobileStartPos
         local dragThreshold = 10
