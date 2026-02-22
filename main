@@ -320,7 +320,7 @@ function KraviX:CreateWindow(config)
     
     local dragging, dragInput, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = Main.Position
@@ -328,44 +328,38 @@ function KraviX:CreateWindow(config)
     end)
     
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
     
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
     end)
     
     
-    UserInputService.InputBegan:Connect(function(input)
-        if input.KeyCode == Window.Keybind then
-            Main.Visible = not Main.Visible
-            if Main.Visible then
-                if isMobile and MobileBtn then
-                    MobileBtn.Visible = false
-                end
-                Main.Size = UDim2.new(0, 0, 0, 0)
-                Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-                Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
-            else
-                Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
-                task.wait(0.2)
-                Main.Visible = false
-                Main.Size = UDim2.new(0, 700, 0, 450)
-                Main.Position = UDim2.new(0.5, -350, 0.5, -225)
-                if isMobile and MobileBtn then
-                    MobileBtn.Visible = true
-                    Tween(MobileBtn, {Size = UDim2.new(0, 60, 0, 60)}, 0.3, Enum.EasingStyle.Back):Play()
+    if not isMobile then
+        UserInputService.InputBegan:Connect(function(input)
+            if input.KeyCode == Window.Keybind then
+                Main.Visible = not Main.Visible
+                if Main.Visible then
+                    Main.Size = UDim2.new(0, 0, 0, 0)
+                    Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+                    Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
+                else
+                    Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
+                    task.wait(0.2)
+                    Main.Visible = false
+                    Main.Size = UDim2.new(0, 700, 0, 450)
+                    Main.Position = UDim2.new(0.5, -350, 0.5, -225)
                 end
             end
-        end
-    end)
+        end)
+    end
     
-    -- Botão Mobile
     local MobileBtn
     if isMobile then
         MobileBtn = Instance.new("TextButton", ScreenGui)
@@ -384,13 +378,15 @@ function KraviX:CreateWindow(config)
         MobileStroke.Thickness = 2
         MobileStroke.Transparency = 0.5
         
-        -- Arrastar botão mobile
         local mobileDragging = false
         local mobileDragStart, mobileStartPos
+        local dragThreshold = 10
+        local hasMoved = false
         
         MobileBtn.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.Touch then
                 mobileDragging = true
+                hasMoved = false
                 mobileDragStart = input.Position
                 mobileStartPos = MobileBtn.Position
             end
@@ -399,22 +395,24 @@ function KraviX:CreateWindow(config)
         UserInputService.InputChanged:Connect(function(input)
             if mobileDragging and input.UserInputType == Enum.UserInputType.Touch then
                 local delta = input.Position - mobileDragStart
-                MobileBtn.Position = UDim2.new(mobileStartPos.X.Scale, mobileStartPos.X.Offset + delta.X, mobileStartPos.Y.Scale, mobileStartPos.Y.Offset + delta.Y)
+                if math.abs(delta.X) > dragThreshold or math.abs(delta.Y) > dragThreshold then
+                    hasMoved = true
+                    MobileBtn.Position = UDim2.new(mobileStartPos.X.Scale, mobileStartPos.X.Offset + delta.X, mobileStartPos.Y.Scale, mobileStartPos.Y.Offset + delta.Y)
+                end
             end
         end)
         
         UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Touch then
+            if input.UserInputType == Enum.UserInputType.Touch and mobileDragging then
                 mobileDragging = false
+                if not hasMoved then
+                    MobileBtn.Visible = false
+                    Main.Visible = true
+                    Main.Size = UDim2.new(0, 0, 0, 0)
+                    Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+                    Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
+                end
             end
-        end)
-        
-        MobileBtn.MouseButton1Click:Connect(function()
-            MobileBtn.Visible = false
-            Main.Visible = true
-            Main.Size = UDim2.new(0, 0, 0, 0)
-            Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-            Tween(Main, {Size = UDim2.new(0, 700, 0, 450), Position = UDim2.new(0.5, -350, 0.5, -225)}, 0.3, Enum.EasingStyle.Back):Play()
         end)
     end
     
@@ -609,14 +607,23 @@ function KraviX:CreateWindow(config)
             
             local dragging = false
             SliderBar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                    dragging = true
+                    local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+                    value = math.floor(min + (max - min) * pos)
+                    ValueLabel.Text = tostring(value)
+                    Fill.Size = UDim2.new(pos, 0, 1, 0)
+                    callback(value)
+                end
             end)
             SliderBar.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                    dragging = false 
+                end
             end)
             
             UserInputService.InputChanged:Connect(function(input)
-                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                     local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     value = math.floor(min + (max - min) * pos)
                     ValueLabel.Text = tostring(value)
@@ -955,19 +962,8 @@ function KraviX:CreateWindow(config)
             -- Canvas Dragging
             local canvasDragging = false
             Canvas.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     canvasDragging = true
-                end
-            end)
-            
-            Canvas.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    canvasDragging = false
-                end
-            end)
-            
-            UserInputService.InputChanged:Connect(function(input)
-                if canvasDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                     local posX = math.clamp((input.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
                     local posY = math.clamp((input.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
                     sat = posX
@@ -977,22 +973,42 @@ function KraviX:CreateWindow(config)
                 end
             end)
             
-            -- Hue Dragging
+            Canvas.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    canvasDragging = false
+                end
+            end)
+            
+            UserInputService.InputChanged:Connect(function(input)
+                if canvasDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    local posX = math.clamp((input.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
+                    local posY = math.clamp((input.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
+                    sat = posX
+                    val = 1 - posY
+                    Cursor.Position = UDim2.new(posX, -4, posY, -4)
+                    updateFromHSV()
+                end
+            end)
+            
             local hueDragging = false
             HueSlider.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     hueDragging = true
+                    local posY = math.clamp((input.Position.Y - HueSlider.AbsolutePosition.Y) / HueSlider.AbsoluteSize.Y, 0, 1)
+                    hue = posY
+                    HueCursor.Position = UDim2.new(0, -2, posY, -1.5)
+                    updateFromHSV()
                 end
             end)
             
             HueSlider.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     hueDragging = false
                 end
             end)
             
             UserInputService.InputChanged:Connect(function(input)
-                if hueDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                if hueDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                     local posY = math.clamp((input.Position.Y - HueSlider.AbsolutePosition.Y) / HueSlider.AbsoluteSize.Y, 0, 1)
                     hue = posY
                     HueCursor.Position = UDim2.new(0, -2, posY, -1.5)
@@ -1048,7 +1064,11 @@ function KraviX:CreateWindow(config)
         return Tab
     end
     
-    CreateNotification("KraviX", "Loaded! Press " .. Window.Keybind.Name .. " to toggle", 3)
+    if isMobile then
+        CreateNotification("KraviX", "Loaded! Tap button to toggle UI", 3)
+    else
+        CreateNotification("KraviX", "Loaded! Press " .. Window.Keybind.Name .. " to toggle", 3)
+    end
     return Window
 end
 
