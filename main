@@ -202,8 +202,8 @@ function KraviX:CreateWindow(config)
     
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name = "Main"
-    Main.Size = UDim2.new(0, 700, 0, 450)
-    Main.Position = UDim2.new(0.5, -350, 0.5, -225)
+    Main.Size = UDim2.new(0, 500, 0, 350)
+    Main.Position = UDim2.new(0.5, -250, 0.5, -175)
     Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
     Main.BorderSizePixel = 0
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 6)
@@ -304,8 +304,8 @@ function KraviX:CreateWindow(config)
         Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
         task.wait(0.2)
         Main.Visible = false
-        Main.Size = UDim2.new(0, 700, 0, 450)
-        Main.Position = UDim2.new(0.5, -350, 0.5, -225)
+        Main.Size = UDim2.new(0, 500, 0, 350)
+        Main.Position = UDim2.new(0.5, -250, 0.5, -175)
         if isMobile then
             if MobileBtn then
                 MobileBtn.Visible = true
