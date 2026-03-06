@@ -244,7 +244,8 @@ function KraviX:CreateWindow(config)
         Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 5)
         
         local TabContent = Instance.new("Frame", ContentContainer)
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.Size = UDim2.new(1, -6, 0, 0)
+        TabContent.AutomaticSize = Enum.AutomaticSize.Y
         TabContent.BackgroundTransparency = 1
         TabContent.BorderSizePixel = 0
         TabContent.Visible = false
@@ -269,6 +270,7 @@ function KraviX:CreateWindow(config)
         
         if #Window.Tabs == 0 then
             ContentContainer.Visible = true
+            ContentContainer.Size = UDim2.new(1, -16, 1, -150)
             TabContent.Visible = true
             TabBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
