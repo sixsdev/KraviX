@@ -68,8 +68,8 @@ function KraviX:CreateWindow(config)
     
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name = "Main"
-    Main.Size = UDim2.new(0, 600, 0, 180)
-    Main.Position = UDim2.new(0.5, -300, 0, 20)
+    Main.Size = UDim2.new(0, 320, 0, 450)
+    Main.Position = UDim2.new(0.5, -160, 0.5, -225)
     Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
     Main.BorderSizePixel = 0
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 6)
@@ -152,11 +152,11 @@ function KraviX:CreateWindow(config)
     
     CloseBtn.MouseButton1Click:Connect(function()
         Window.Visible = false
-        Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0, 20)}, 0.2, Enum.EasingStyle.Back):Play()
+        Tween(Main, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.2, Enum.EasingStyle.Back):Play()
         task.wait(0.2)
         Main.Visible = false
-        Main.Size = UDim2.new(0, 600, 0, 180)
-        Main.Position = UDim2.new(0.5, -300, 0, 20)
+        Main.Size = UDim2.new(0, 320, 0, 450)
+        Main.Position = UDim2.new(0.5, -160, 0.5, -225)
         if isMobile then
             if MobileBtn then
                 MobileBtn.Visible = true
@@ -166,20 +166,24 @@ function KraviX:CreateWindow(config)
     end)
     
     local TabContainer = Instance.new("Frame", Main)
-    TabContainer.Size = UDim2.new(1, -16, 0, 28)
+    TabContainer.Size = UDim2.new(1, -16, 1, -78)
     TabContainer.Position = UDim2.new(0, 8, 0, 40)
     TabContainer.BackgroundTransparency = 1
     TabContainer.BorderSizePixel = 0
     
     local TabList = Instance.new("UIListLayout", TabContainer)
-    TabList.FillDirection = Enum.FillDirection.Horizontal
+    TabList.FillDirection = Enum.FillDirection.Vertical
     TabList.Padding = UDim.new(0, 5)
     
-    local ContentContainer = Instance.new("Frame", Main)
-    ContentContainer.Size = UDim2.new(1, -16, 1, -78)
-    ContentContainer.Position = UDim2.new(0, 8, 0, 72)
+    local ContentContainer = Instance.new("ScrollingFrame", Main)
+    ContentContainer.Size = UDim2.new(1, -16, 0, 0)
+    ContentContainer.Position = UDim2.new(0, 8, 0, 45)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.BorderSizePixel = 0
+    ContentContainer.ScrollBarThickness = 3
+    ContentContainer.ScrollBarImageColor3 = Color3.fromRGB(150, 50, 255)
+    ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ContentContainer.Visible = false
     
     local dragging, dragStart, startPos
     TopBar.InputBegan:Connect(function(input)
@@ -207,14 +211,14 @@ function KraviX:CreateWindow(config)
         MobileBtn.MouseButton1Click:Connect(function()
             MobileBtn.Visible = false
             Main.Visible = true
-            Tween(Main, {Size = UDim2.new(0, 600, 0, 180)}, 0.3, Enum.EasingStyle.Back):Play()
+            Tween(Main, {Size = UDim2.new(0, 320, 0, 450)}, 0.3, Enum.EasingStyle.Back):Play()
         end)
     else
         UserInputService.InputBegan:Connect(function(input)
             if input.KeyCode == Window.Keybind then
                 Main.Visible = not Main.Visible
                 if Main.Visible then
-                    Tween(Main, {Size = UDim2.new(0, 600, 0, 180)}, 0.3, Enum.EasingStyle.Back):Play()
+                    Tween(Main, {Size = UDim2.new(0, 320, 0, 450)}, 0.3, Enum.EasingStyle.Back):Play()
                 end
             end
         end)
@@ -224,7 +228,7 @@ function KraviX:CreateWindow(config)
         local Tab = {}
         
         local TabBtn = Instance.new("TextButton", TabContainer)
-        TabBtn.Size = UDim2.new(0, 80, 0, 26)
+        TabBtn.Size = UDim2.new(1, 0, 0, 32)
         TabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
         TabBtn.Text = name
         TabBtn.TextColor3 = Color3.fromRGB(130, 130, 130)
@@ -233,21 +237,18 @@ function KraviX:CreateWindow(config)
         TabBtn.AutoButtonColor = false
         Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 5)
         
-        local TabContent = Instance.new("ScrollingFrame", ContentContainer)
+        local TabContent = Instance.new("Frame", ContentContainer)
         TabContent.Size = UDim2.new(1, 0, 1, 0)
         TabContent.BackgroundTransparency = 1
         TabContent.BorderSizePixel = 0
-        TabContent.ScrollBarThickness = 3
-        TabContent.ScrollBarImageColor3 = Color3.fromRGB(150, 50, 255)
         TabContent.Visible = false
-        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         
         local ContentList = Instance.new("UIListLayout", TabContent)
-        ContentList.FillDirection = Enum.FillDirection.Horizontal
+        ContentList.FillDirection = Enum.FillDirection.Vertical
         ContentList.Padding = UDim.new(0, 6)
         
         ContentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            TabContent.CanvasSize = UDim2.new(0, ContentList.AbsoluteContentSize.X + 6, 0, 0)
+            ContentContainer.CanvasSize = UDim2.new(0, 0, 0, ContentList.AbsoluteContentSize.Y + 6)
         end)
         
         TabBtn.MouseButton1Click:Connect(function()
@@ -255,11 +256,13 @@ function KraviX:CreateWindow(config)
                 tab.Content.Visible = false
                 Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(18, 18, 18), TextColor3 = Color3.fromRGB(130, 130, 130)}, 0.15):Play()
             end
+            ContentContainer.Visible = true
             TabContent.Visible = true
             Tween(TabBtn, {BackgroundColor3 = Color3.fromRGB(150, 50, 255), TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.15):Play()
         end)
         
         if #Window.Tabs == 0 then
+            ContentContainer.Visible = true
             TabContent.Visible = true
             TabBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 255)
             TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -271,7 +274,7 @@ function KraviX:CreateWindow(config)
         
         function Tab:CreateButton(text, callback)
             local Btn = Instance.new("TextButton", TabContent)
-            Btn.Size = UDim2.new(0, 100, 0, 32)
+            Btn.Size = UDim2.new(1, 0, 0, 36)
             Btn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Btn.Text = text
             Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -292,37 +295,37 @@ function KraviX:CreateWindow(config)
             local toggled = default or false
             
             local Frame = Instance.new("Frame", TabContent)
-            Frame.Size = UDim2.new(0, 100, 0, 32)
+            Frame.Size = UDim2.new(1, 0, 0, 36)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 5)
             
             local Label = Instance.new("TextLabel", Frame)
-            Label.Size = UDim2.new(1, -40, 1, 0)
-            Label.Position = UDim2.new(0, 8, 0, 0)
+            Label.Size = UDim2.new(1, -50, 1, 0)
+            Label.Position = UDim2.new(0, 10, 0, 0)
             Label.BackgroundTransparency = 1
             Label.Text = text
             Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Label.TextSize = 10
+            Label.TextSize = 11
             Label.Font = Enum.Font.GothamSemibold
             Label.TextXAlignment = Enum.TextXAlignment.Left
             
             local ToggleBtn = Instance.new("TextButton", Frame)
-            ToggleBtn.Size = UDim2.new(0, 32, 0, 16)
-            ToggleBtn.Position = UDim2.new(1, -36, 0.5, -8)
+            ToggleBtn.Size = UDim2.new(0, 36, 0, 18)
+            ToggleBtn.Position = UDim2.new(1, -42, 0.5, -9)
             ToggleBtn.BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)
             ToggleBtn.Text = ""
             Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
             
             local Circle = Instance.new("Frame", ToggleBtn)
-            Circle.Size = UDim2.new(0, 12, 0, 12)
-            Circle.Position = toggled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+            Circle.Size = UDim2.new(0, 14, 0, 14)
+            Circle.Position = toggled and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
             Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
             
             ToggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 Tween(ToggleBtn, {BackgroundColor3 = toggled and Color3.fromRGB(150, 50, 255) or Color3.fromRGB(30, 30, 30)}, 0.2):Play()
-                Tween(Circle, {Position = toggled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}, 0.2):Play()
+                Tween(Circle, {Position = toggled and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)}, 0.2):Play()
                 callback(toggled)
             end)
         end
@@ -331,33 +334,33 @@ function KraviX:CreateWindow(config)
             local value = default or min
             
             local Frame = Instance.new("Frame", TabContent)
-            Frame.Size = UDim2.new(0, 120, 0, 32)
+            Frame.Size = UDim2.new(1, 0, 0, 48)
             Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
             Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 5)
             
             local Label = Instance.new("TextLabel", Frame)
-            Label.Size = UDim2.new(1, -45, 0, 14)
-            Label.Position = UDim2.new(0, 8, 0, 4)
+            Label.Size = UDim2.new(1, -50, 0, 18)
+            Label.Position = UDim2.new(0, 10, 0, 6)
             Label.BackgroundTransparency = 1
             Label.Text = text
             Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Label.TextSize = 10
+            Label.TextSize = 11
             Label.Font = Enum.Font.GothamSemibold
             Label.TextXAlignment = Enum.TextXAlignment.Left
             
             local ValueLabel = Instance.new("TextLabel", Frame)
-            ValueLabel.Size = UDim2.new(0, 40, 0, 14)
-            ValueLabel.Position = UDim2.new(1, -44, 0, 4)
+            ValueLabel.Size = UDim2.new(0, 45, 0, 18)
+            ValueLabel.Position = UDim2.new(1, -50, 0, 6)
             ValueLabel.BackgroundTransparency = 1
             ValueLabel.Text = tostring(value)
             ValueLabel.TextColor3 = Color3.fromRGB(150, 50, 255)
-            ValueLabel.TextSize = 10
+            ValueLabel.TextSize = 11
             ValueLabel.Font = Enum.Font.GothamBold
             ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
             
             local SliderBar = Instance.new("Frame", Frame)
-            SliderBar.Size = UDim2.new(1, -16, 0, 3)
-            SliderBar.Position = UDim2.new(0, 8, 1, -10)
+            SliderBar.Size = UDim2.new(1, -20, 0, 4)
+            SliderBar.Position = UDim2.new(0, 10, 1, -12)
             SliderBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
             Instance.new("UICorner", SliderBar).CornerRadius = UDim.new(1, 0)
             
