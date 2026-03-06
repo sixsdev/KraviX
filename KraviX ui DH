@@ -165,19 +165,25 @@ function KraviX:CreateWindow(config)
         end
     end)
     
-    local TabContainer = Instance.new("Frame", Main)
-    TabContainer.Size = UDim2.new(1, -16, 1, -78)
+    local TabContainer = Instance.new("ScrollingFrame", Main)
+    TabContainer.Size = UDim2.new(1, -16, 0, 100)
     TabContainer.Position = UDim2.new(0, 8, 0, 40)
     TabContainer.BackgroundTransparency = 1
     TabContainer.BorderSizePixel = 0
+    TabContainer.ScrollBarThickness = 0
+    TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
     
     local TabList = Instance.new("UIListLayout", TabContainer)
     TabList.FillDirection = Enum.FillDirection.Vertical
     TabList.Padding = UDim.new(0, 5)
     
+    TabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        TabContainer.CanvasSize = UDim2.new(0, 0, 0, TabList.AbsoluteContentSize.Y + 10)
+    end)
+    
     local ContentContainer = Instance.new("ScrollingFrame", Main)
-    ContentContainer.Size = UDim2.new(1, -16, 0, 0)
-    ContentContainer.Position = UDim2.new(0, 8, 0, 45)
+    ContentContainer.Size = UDim2.new(1, -16, 1, -150)
+    ContentContainer.Position = UDim2.new(0, 8, 0, 145)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.BorderSizePixel = 0
     ContentContainer.ScrollBarThickness = 3
