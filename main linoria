@@ -4,6 +4,7 @@
 -- ║  • Drag por touch (sem cursor)                      ║
 -- ║  • Botão toggle flutuante (abre/fecha UI)           ║
 -- ║  • Botão Hide UI (trava/destrava posição na tela)   ║
+-- ║  • Botões fixos no canto superior direito           ║
 -- ╚══════════════════════════════════════════════════════╝
 
 local InputService  = game:GetService('UserInputService')
@@ -18,7 +19,6 @@ local RenderStepped = RunService.RenderStepped
 local LocalPlayer   = Players.LocalPlayer
 local Mouse         = LocalPlayer:GetMouse()
 
--- Detecta se é mobile
 local IsMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
 
 local ProtectGui = protectgui
@@ -206,7 +206,6 @@ end))
 -- ─────────────────────────────────────────
 -- DRAG UNIVERSAL (mouse + touch)
 -- ─────────────────────────────────────────
--- Substitui o MakeDraggable original para funcionar no mobile
 function Library:MakeDraggable(Frame, Cutoff)
     Frame.Active = true
 
@@ -237,14 +236,12 @@ function Library:MakeDraggable(Frame, Cutoff)
         dragging = false
     end
 
-    -- Mouse
     Frame.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 then
             onBegan(Vector2.new(inp.Position.X, inp.Position.Y))
         end
     end)
 
-    -- Touch
     Frame.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.Touch then
             onBegan(Vector2.new(inp.Position.X, inp.Position.Y))
@@ -270,7 +267,7 @@ end
 -- Tooltip
 -- ─────────────────────────────────────────
 function Library:AddToolTip(InfoStr, HoverInst)
-    if IsMobile then return end  -- tooltips não fazem sentido no mobile
+    if IsMobile then return end
     local X, Y = Library:GetTextBounds(InfoStr, Library.Font, 14)
     local tip = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
@@ -655,7 +652,6 @@ do
             CP:Display()
         end
 
-        -- drag sat/vib — suporta touch
         local function dragSatVib(posX, posY)
             local minX = SatVibMap.AbsolutePosition.X
             local maxX = minX + SatVibMap.AbsoluteSize.X
@@ -686,7 +682,6 @@ do
             end
         end)
 
-        -- drag hue
         local hueDragging = false
         HueSelectorInner.InputBegan:Connect(function(inp)
             if inp.UserInputType==Enum.UserInputType.MouseButton1
@@ -1303,7 +1298,6 @@ do
             HorizontalAlignment=Enum.HorizontalAlignment.Right;
             SortOrder=Enum.SortOrder.LayoutOrder; Parent=togLabel;
         })
-        -- Região de clique maior para touch
         local region = Library:Create('Frame', {
             BackgroundTransparency=1;
             Size=UDim2.new(0,170,1,0); ZIndex=8; Parent=togOuter;
@@ -1435,10 +1429,8 @@ do
             Library:SafeCallback(Slider.Changed,  Slider.Value)
         end
 
-        -- Suporta touch no slider
         local sliderDragging = false
         local function handleSlider(posX)
-            local gPos = fill.Size.X.Offset
             local nX   = math.clamp(posX - fill.AbsolutePosition.X, 0, Slider.MaxSize)
             local nVal = Slider:GetValueFromX(nX)
             local old  = Slider.Value; Slider.Value=nVal; Slider:Display()
@@ -1728,10 +1720,7 @@ do
         return Depbox
     end
 
-    -- Resize compartilhado
-    function Funcs:Resize()
-        -- implementado por quem cria o groupbox
-    end
+    function Funcs:Resize() end
 
     BaseGroupbox.__index    = Funcs
     BaseGroupbox.__namecall = function(t,k,...) return Funcs[k](...) end
@@ -1906,11 +1895,11 @@ function Library:CreateWindow(...)
         Config.Title    = args[1]
         Config.AutoShow = args[2] or false
     end
-    if type(Config.Title)      ~='string' then Config.Title='No title' end
-    if type(Config.TabPadding) ~='number' then Config.TabPadding=0 end
+    if type(Config.Title)       ~='string' then Config.Title='No title' end
+    if type(Config.TabPadding)  ~='number' then Config.TabPadding=0 end
     if type(Config.MenuFadeTime)~='number' then Config.MenuFadeTime=0.2 end
-    if typeof(Config.Position)  ~='UDim2' then Config.Position=UDim2.fromOffset(175,50) end
-    if typeof(Config.Size)      ~='UDim2' then Config.Size=UDim2.fromOffset(550,600) end
+    if typeof(Config.Position)  ~='UDim2'  then Config.Position=UDim2.fromOffset(175,50) end
+    if typeof(Config.Size)      ~='UDim2'  then Config.Size=UDim2.fromOffset(550,600) end
     if Config.Center then
         Config.AnchorPoint = Vector2.new(0.5,0.5)
         Config.Position    = UDim2.fromScale(0.5,0.5)
@@ -1995,13 +1984,16 @@ function Library:CreateWindow(...)
 
     function Window:SetWindowTitle(t) WindowLabel.Text=t end
 
-    -- ── ══════════════════════════════════ ──
-    -- ██  BOTÃO TOGGLE (abre/fecha a UI)   ██
-    -- ██  Fica flutuante, sempre visível   ██
-    -- ── ══════════════════════════════════ ──
+    -- ── ══════════════════════════════════════ ──
+    -- ██  BOTÃO TOGGLE — canto superior direito ██
+    -- ██  Funciona em PC e Mobile               ██
+    -- ── ══════════════════════════════════════ ──
+    local btnSize   = IsMobile and 56 or 44
+    local btnOffset = IsMobile and 64 or 54  -- btnSize + 8px gap
+
     local ToggleBtn = Library:Create('TextButton', {
-        Size             = UDim2.new(0, IsMobile and 56 or 44, 0, IsMobile and 56 or 44);
-        Position         = UDim2.new(0, 10, 0.5, 0);
+        Size             = UDim2.new(0, btnSize, 0, btnSize);
+        Position         = UDim2.new(1, -(btnSize + 10), 0, 10);  -- canto superior direito
         BackgroundColor3 = Library.AccentColor;
         Text             = '☰';
         TextColor3       = Color3.new(1,1,1);
@@ -2013,56 +2005,12 @@ function Library:CreateWindow(...)
     })
     Library:Create('UICorner', { CornerRadius=UDim.new(0,10); Parent=ToggleBtn })
 
-    -- Indica estado: ON = UI visível, OFF = UI oculta
-    local toggleUIOpen = false
-
-    local function SetToggleBtnState(open)
-        toggleUIOpen = open
-        ToggleBtn.Text            = open and '✕' or '☰'
-        ToggleBtn.BackgroundColor3= open and Color3.fromRGB(200,50,50) or Library.AccentColor
-    end
-
-    -- Torna o botão arrastável no mobile
-    local tDrag, tDragStart, tBtnStart = false
-    ToggleBtn.InputBegan:Connect(function(inp)
-        if inp.UserInputType==Enum.UserInputType.Touch
-        or inp.UserInputType==Enum.UserInputType.MouseButton1 then
-            tDrag      = true
-            tDragStart = Vector2.new(inp.Position.X, inp.Position.Y)
-            tBtnStart  = ToggleBtn.Position
-        end
-    end)
-    local tMoved = false
-    InputService.InputChanged:Connect(function(inp)
-        if tDrag and (inp.UserInputType==Enum.UserInputType.Touch or inp.UserInputType==Enum.UserInputType.MouseMovement) then
-            local delta = Vector2.new(inp.Position.X,inp.Position.Y) - tDragStart
-            if delta.Magnitude > 5 then tMoved=true end
-            if tMoved then
-                ToggleBtn.Position = UDim2.new(
-                    tBtnStart.X.Scale, tBtnStart.X.Offset+delta.X,
-                    tBtnStart.Y.Scale, tBtnStart.Y.Offset+delta.Y
-                )
-            end
-        end
-    end)
-    InputService.InputEnded:Connect(function(inp)
-        if inp.UserInputType==Enum.UserInputType.Touch
-        or inp.UserInputType==Enum.UserInputType.MouseButton1 then
-            if tDrag and not tMoved then
-                -- clique real → toggle
-                if Library.Toggle then Library:Toggle() end
-            end
-            tDrag=false; tMoved=false
-        end
-    end)
-
-    -- ── ══════════════════════════════════ ──
-    -- ██  BOTÃO HIDE UI                    ██
-    -- ██  Trava/destrava arraste da janela ██
-    -- ── ══════════════════════════════════ ──
+    -- ── ══════════════════════════════════════ ──
+    -- ██  BOTÃO PIN — logo abaixo do Toggle     ██
+    -- ── ══════════════════════════════════════ ──
     local HideBtn = Library:Create('TextButton', {
-        Size             = UDim2.new(0, IsMobile and 56 or 44, 0, IsMobile and 44 or 30);
-        Position         = UDim2.new(0, 10, 0.5, (IsMobile and 56 or 44) + 8);
+        Size             = UDim2.new(0, btnSize, 0, IsMobile and 44 or 30);
+        Position         = UDim2.new(1, -(btnSize + 10), 0, 10 + btnOffset);  -- abaixo do ToggleBtn
         BackgroundColor3 = Color3.fromRGB(40,40,40);
         Text             = '📌 Pin';
         TextColor3       = Color3.fromRGB(200,200,200);
@@ -2073,56 +2021,90 @@ function Library:CreateWindow(...)
         Parent           = ScreenGui;
     })
     Library:Create('UICorner', { CornerRadius=UDim.new(0,8); Parent=HideBtn })
-    makeStroke = function(parent, color, thick, trans)
-        local s = Instance.new('UIStroke')
-        s.Color=color or Library.AccentColor
-        s.Thickness=thick or 1
-        s.Transparency=trans or 0.5
-        s.Parent=parent
-        return s
-    end
+
     local hbStroke = Instance.new('UIStroke')
     hbStroke.Color        = Library.AccentColor
     hbStroke.Thickness    = 1
     hbStroke.Transparency = 0.7
     hbStroke.Parent       = HideBtn
 
-    local isPinned = false  -- true = janela travada (não arrasta)
+    -- Estado dos botões
+    local toggleUIOpen = false
+    local isPinned     = false
 
-    HideBtn.MouseButton1Click:Connect(function()
-        isPinned = not isPinned
-        if isPinned then
-            HideBtn.Text             = '📌 Pinned'
-            HideBtn.BackgroundColor3 = Color3.fromRGB(0,60,0)
-            hbStroke.Color           = Color3.fromRGB(0,200,0)
-            -- Desativa drag da janela enquanto pinado
-            Outer.Active = false
-        else
-            HideBtn.Text             = '📌 Pin'
-            HideBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
-            hbStroke.Color           = Library.AccentColor
-            Outer.Active = true
+    local function SetToggleBtnState(open)
+        toggleUIOpen = open
+        ToggleBtn.Text             = open and '✕' or '☰'
+        ToggleBtn.BackgroundColor3 = open and Color3.fromRGB(200,50,50) or Library.AccentColor
+    end
+
+    -- ── Drag do ToggleBtn (mobile e PC) ──────
+    local tDrag, tDragStart, tBtnStart, tMoved = false, nil, nil, false
+
+    ToggleBtn.InputBegan:Connect(function(inp)
+        if inp.UserInputType==Enum.UserInputType.Touch
+        or inp.UserInputType==Enum.UserInputType.MouseButton1 then
+            tDrag      = true
+            tMoved     = false
+            tDragStart = Vector2.new(inp.Position.X, inp.Position.Y)
+            tBtnStart  = ToggleBtn.Position
         end
     end)
-    -- touch no HideBtn
-    HideBtn.InputBegan:Connect(function(inp)
-        if inp.UserInputType==Enum.UserInputType.Touch then
-            isPinned = not isPinned
-            if isPinned then
-                HideBtn.Text             = '📌 Pinned'
-                HideBtn.BackgroundColor3 = Color3.fromRGB(0,60,0)
-                hbStroke.Color           = Color3.fromRGB(0,200,0)
-                Outer.Active = false
-            else
-                HideBtn.Text             = '📌 Pin'
-                HideBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
-                hbStroke.Color           = Library.AccentColor
-                Outer.Active = true
+
+    InputService.InputChanged:Connect(function(inp)
+        if tDrag and (inp.UserInputType==Enum.UserInputType.Touch
+                   or inp.UserInputType==Enum.UserInputType.MouseMovement) then
+            local delta = Vector2.new(inp.Position.X, inp.Position.Y) - tDragStart
+            if delta.Magnitude > 5 then tMoved = true end
+            if tMoved then
+                ToggleBtn.Position = UDim2.new(
+                    tBtnStart.X.Scale, tBtnStart.X.Offset + delta.X,
+                    tBtnStart.Y.Scale, tBtnStart.Y.Offset + delta.Y
+                )
+                -- HideBtn acompanha o ToggleBtn
+                HideBtn.Position = UDim2.new(
+                    ToggleBtn.Position.X.Scale,
+                    ToggleBtn.Position.X.Offset,
+                    ToggleBtn.Position.Y.Scale,
+                    ToggleBtn.Position.Y.Offset + btnOffset
+                )
             end
         end
     end)
 
-    -- ── AddTab ───────────────────────────
+    InputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType==Enum.UserInputType.Touch
+        or inp.UserInputType==Enum.UserInputType.MouseButton1 then
+            if tDrag and not tMoved then
+                -- clique real → toggle UI
+                if Library.Toggle then Library:Toggle() end
+            end
+            tDrag = false; tMoved = false
+        end
+    end)
+
+    -- ── Lógica do Pin ────────────────────────
+    local function ApplyPin(pinned)
+        isPinned = pinned
+        if isPinned then
+            HideBtn.Text             = '📌 Pinned'
+            HideBtn.BackgroundColor3 = Color3.fromRGB(0,60,0)
+            hbStroke.Color           = Color3.fromRGB(0,200,0)
+            Outer.Active             = false   -- desativa drag da janela
+        else
+            HideBtn.Text             = '📌 Pin'
+            HideBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            hbStroke.Color           = Library.AccentColor
+            Outer.Active             = true
+        end
+    end
+
+    HideBtn.MouseButton1Click:Connect(function() ApplyPin(not isPinned) end)
+    HideBtn.InputBegan:Connect(function(inp)
+        if inp.UserInputType==Enum.UserInputType.Touch then ApplyPin(not isPinned) end
+    end)
+
+    -- ── AddTab ───────────────────────────────
     function Window:AddTab(Name)
         local Tab = { Groupboxes={}; Tabboxes={} }
         local tbW = Library:GetTextBounds(Name, Library.Font, 16)
@@ -2354,7 +2336,7 @@ function Library:CreateWindow(...)
         return Tab
     end
 
-    -- ── Toggle (fade) ─────────────────────
+    -- ── Toggle (fade) ─────────────────────────
     local ModalElement = Library:Create('TextButton', {
         BackgroundTransparency=1; Size=UDim2.new(0,0,0,0);
         Visible=true; Text=''; Modal=false; Parent=ScreenGui;
@@ -2372,7 +2354,6 @@ function Library:CreateWindow(...)
 
         if Toggled then
             Outer.Visible=true
-            -- Cursor customizado apenas no PC
             if not IsMobile then
                 task.spawn(function()
                     local state = InputService.MouseIconEnabled
@@ -2423,7 +2404,7 @@ function Library:CreateWindow(...)
         Fading=false
     end
 
-    -- Keybind (PC) + toggle btn já funciona em ambos
+    -- Keybind de teclado (PC) para abrir/fechar
     Library:GiveSignal(InputService.InputBegan:Connect(function(inp, processed)
         if type(Library.ToggleKeybind)=='table' and Library.ToggleKeybind.Type=='KeyPicker' then
             if inp.UserInputType==Enum.UserInputType.Keyboard
