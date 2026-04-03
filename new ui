@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v2.0          ║
+-- ║         KraviX UI Library v2.1          ║
 -- ║     Para uso em executors Roblox        ║
 -- ╚══════════════════════════════════════════╝
 
@@ -15,15 +15,9 @@ local SoundService     = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse       = LocalPlayer:GetMouse()
 
--- ─────────────────────────────────────────
--- IDs de áudio
--- ─────────────────────────────────────────
-local SOUND_NOTIF = "rbxassetid://72384898525651"   -- som de notificação
-local SOUND_OPEN  = "rbxassetid://76770767576477"   -- som de abertura da UI (pós-loader)
+local SOUND_NOTIF = "rbxassetid://72384898525651"
+local SOUND_OPEN  = "rbxassetid://76770767576477"
 
--- ─────────────────────────────────────────
--- Helper de áudio
--- ─────────────────────────────────────────
 local function PlaySound(id)
     local s = Instance.new("Sound")
     s.SoundId = id
@@ -33,9 +27,6 @@ local function PlaySound(id)
     game:GetService("Debris"):AddItem(s, 5)
 end
 
--- ─────────────────────────────────────────
--- Helpers
--- ─────────────────────────────────────────
 local function Tween(obj, props, t, style, dir)
     return TweenService:Create(
         obj,
@@ -80,7 +71,6 @@ local function makePadding(parent, top, bottom, left, right)
     return p
 end
 
--- Cores principais
 local C = {
     Bg        = Color3.fromRGB(8,   8,  16),
     Bg2       = Color3.fromRGB(12,  12, 22),
@@ -100,7 +90,6 @@ local C = {
 -- Notificação
 -- ─────────────────────────────────────────
 local function CreateNotification(title, text, duration)
-    -- Toca o som de notificação
     PlaySound(SOUND_NOTIF)
 
     local NotifGui = Instance.new("ScreenGui")
@@ -154,11 +143,10 @@ local function CreateNotification(title, text, duration)
 end
 
 -- ─────────────────────────────────────────
--- Neve (partículas 2D)
+-- Neve
 -- ─────────────────────────────────────────
 local function StartSnow(parent)
     local FLAKE_COUNT = 70
-
     local snowContainer = Instance.new("Frame", parent)
     snowContainer.Size              = UDim2.new(1, 0, 1, 0)
     snowContainer.BackgroundTransparency = 1
@@ -192,10 +180,7 @@ local function StartSnow(parent)
         for _, fl in ipairs(flakes) do
             fl.y = fl.y + fl.speed * dt * 60
             fl.x = fl.x + fl.drift * dt * 60
-            if fl.y > 1.05 then
-                fl.y = -0.05
-                fl.x = math.random(0, 1000) / 1000
-            end
+            if fl.y > 1.05 then fl.y = -0.05; fl.x = math.random(0, 1000) / 1000 end
             if fl.x < 0 then fl.x = 1 end
             if fl.x > 1 then fl.x = 0 end
             fl.frame.Position = UDim2.new(fl.x, 0, fl.y, 0)
@@ -427,12 +412,12 @@ function KraviX:CreateWindow(config)
     Backdrop.ZIndex            = 1
     Backdrop.Visible           = false
 
-    local snowContainer, snowConn = StartSnow(Backdrop)
+    local _, snowConn = StartSnow(Backdrop)
 
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name             = "KraviXMain"
-    Main.Size             = UDim2.new(0, 520, 0, 420)
-    Main.Position         = UDim2.new(0.5, -260, 0.5, -210)
+    Main.Size             = UDim2.new(0, 560, 0, 440)
+    Main.Position         = UDim2.new(0.5, -280, 0.5, -220)
     Main.BackgroundColor3 = C.Bg
     Main.BackgroundTransparency = 0.18
     Main.BorderSizePixel  = 0
@@ -505,7 +490,7 @@ function KraviX:CreateWindow(config)
     VerLbl.Size              = UDim2.new(0, 80, 0, 40)
     VerLbl.Position          = UDim2.new(1, -140, 0, 0)
     VerLbl.BackgroundTransparency = 1
-    VerLbl.Text              = "v2.0"
+    VerLbl.Text              = "v2.1"
     VerLbl.TextColor3        = C.Muted2
     VerLbl.TextSize          = 11
     VerLbl.Font              = Enum.Font.Gotham
@@ -537,8 +522,8 @@ function KraviX:CreateWindow(config)
         task.wait(0.25)
         Main.Visible     = false
         Backdrop.Visible = false
-        Main.Size        = UDim2.new(0, 520, 0, 420)
-        Main.Position    = UDim2.new(0.5, -260, 0.5, -210)
+        Main.Size        = UDim2.new(0, 560, 0, 440)
+        Main.Position    = UDim2.new(0.5, -280, 0.5, -220)
     end
 
     local function ShowWindow()
@@ -546,7 +531,7 @@ function KraviX:CreateWindow(config)
         Backdrop.Visible = true
         Main.Size        = UDim2.new(0, 0, 0, 0)
         Main.Position    = UDim2.new(0.5, 0, 0.5, 0)
-        Tween(Main, {Size = UDim2.new(0, 520, 0, 420), Position = UDim2.new(0.5, -260, 0.5, -210)}, 0.3, Enum.EasingStyle.Back):Play()
+        Tween(Main, {Size = UDim2.new(0, 560, 0, 440), Position = UDim2.new(0.5, -280, 0.5, -220)}, 0.3, Enum.EasingStyle.Back):Play()
     end
 
     CloseBtn.MouseButton1Click:Connect(function()
@@ -556,15 +541,27 @@ function KraviX:CreateWindow(config)
 
     MakeDraggable(Main, TopBar)
 
-    -- ── TAB BAR ──
-    local TabBar = Instance.new("Frame", Main)
-    TabBar.Size             = UDim2.new(1, 0, 0, 38)
-    TabBar.Position         = UDim2.new(0, 0, 0, 48)
-    TabBar.BackgroundColor3 = C.Bg2
+    -- ══════════════════════════════════════════
+    -- FIX PRINCIPAL: TabBar com ScrollingFrame
+    -- O problema original era que o TabBar usava
+    -- Frame simples com UIListLayout, mas sem width
+    -- suficiente os botões ficavam cortados ou
+    -- sumiam. Agora usamos ScrollingFrame horizontal
+    -- para suportar qualquer número de tabs.
+    -- ══════════════════════════════════════════
+    local TabBar = Instance.new("ScrollingFrame", Main)
+    TabBar.Size                 = UDim2.new(1, -10, 0, 38)
+    TabBar.Position             = UDim2.new(0, 5, 0, 50)
+    TabBar.BackgroundColor3     = C.Bg2
     TabBar.BackgroundTransparency = 0.3
-    TabBar.BorderSizePixel  = 0
-    TabBar.ZIndex           = 11
-    TabBar.ClipsDescendants = true
+    TabBar.BorderSizePixel      = 0
+    TabBar.ZIndex               = 11
+    TabBar.ClipsDescendants     = true
+    -- Scroll horizontal, sem scrollbar visível
+    TabBar.ScrollBarThickness   = 0
+    TabBar.ScrollingDirection   = Enum.ScrollingDirection.X
+    TabBar.CanvasSize           = UDim2.new(0, 0, 0, 0)  -- será atualizado automaticamente
+    TabBar.AutomaticCanvasSize  = Enum.AutomaticSize.X
 
     local TabBarBorder = Instance.new("Frame", TabBar)
     TabBarBorder.Size             = UDim2.new(1, 0, 0, 1)
@@ -578,12 +575,29 @@ function KraviX:CreateWindow(config)
     TabList.FillDirection       = Enum.FillDirection.Horizontal
     TabList.SortOrder           = Enum.SortOrder.LayoutOrder
     TabList.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    makePadding(TabBar, 0, 0, 8, 8)
+    TabList.VerticalAlignment   = Enum.VerticalAlignment.Center
+    TabList.Padding             = UDim.new(0, 2)
+
+    -- Padding interno da TabBar
+    local TabBarPad = Instance.new("UIPadding", TabBar)
+    TabBarPad.PaddingLeft  = UDim.new(0, 6)
+    TabBarPad.PaddingRight = UDim.new(0, 6)
+    TabBarPad.PaddingTop   = UDim.new(0, 4)
+    TabBarPad.PaddingBottom = UDim.new(0, 4)
+
+    -- Linha separadora abaixo da TabBar
+    local TabSep = Instance.new("Frame", Main)
+    TabSep.Size             = UDim2.new(1, -10, 0, 1)
+    TabSep.Position         = UDim2.new(0, 5, 0, 88)
+    TabSep.BackgroundColor3 = C.Accent
+    TabSep.BackgroundTransparency = 0.82
+    TabSep.BorderSizePixel  = 0
+    TabSep.ZIndex           = 11
 
     -- ── CONTEÚDO ──
     local ContentFrame = Instance.new("Frame", Main)
-    ContentFrame.Size             = UDim2.new(1, 0, 1, -90)
-    ContentFrame.Position         = UDim2.new(0, 0, 0, 90)
+    ContentFrame.Size             = UDim2.new(1, 0, 1, -92)
+    ContentFrame.Position         = UDim2.new(0, 0, 0, 92)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.BorderSizePixel  = 0
     ContentFrame.ZIndex           = 10
@@ -592,17 +606,12 @@ function KraviX:CreateWindow(config)
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if input.KeyCode == Window.Keybind then
-            if Main.Visible then
-                HideWindow()
-            else
-                ShowWindow()
-            end
+            if Main.Visible then HideWindow() else ShowWindow() end
         end
     end)
 
-    -- Loader → só toca o som de abertura DEPOIS que o loader terminar
     CreateLoader(ScreenGui, function()
-        PlaySound(SOUND_OPEN)   -- som de abertura pós-loader
+        PlaySound(SOUND_OPEN)
         ShowWindow()
         CreateNotification("KraviX", "Carregado! Pressione " .. Window.Keybind.Name .. " para fechar", 3)
     end)
@@ -622,8 +631,13 @@ function KraviX:CreateWindow(config)
         TabBtn.Font             = Enum.Font.GothamSemibold
         TabBtn.AutoButtonColor  = false
         TabBtn.ZIndex           = 12
+
+        -- Padding interno do botão de tab
+        local TabBtnPad = Instance.new("UIPadding", TabBtn)
+        TabBtnPad.PaddingLeft  = UDim.new(0, 12)
+        TabBtnPad.PaddingRight = UDim.new(0, 12)
+
         makeCorner(TabBtn, 7)
-        makePadding(TabBtn, 0, 0, 14, 14)
 
         local TabUnderline = Instance.new("Frame", TabBtn)
         TabUnderline.Size             = UDim2.new(1, 0, 0, 2)
@@ -1214,9 +1228,6 @@ function KraviX:CreateWindow(config)
                 Canvas.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
                 Canvas.ZIndex        = 101
                 makeCorner(Canvas, 5)
-
-                Instance.new("UIGradient", Canvas).Color = ColorSequence.new(
-                    Color3.fromRGB(255,255,255), Color3.fromRGB(255,255,255))
 
                 local Dark = Instance.new("Frame", Canvas)
                 Dark.Size            = UDim2.new(1, 0, 1, 0)
