@@ -98,10 +98,18 @@ local function CreateNotification(title, text, duration)
     local BG = Instance.new("UIGradient", Bar)
     BG.Color = ColorSequence.new(C.Accent2, C.Accent3); BG.Rotation = 90
 
-    local Icon = Instance.new("TextLabel", F)
-    Icon.Size = UDim2.new(0, 24, 0, 24); Icon.Position = UDim2.new(0, 12, 0.5, -12)
-    Icon.BackgroundTransparency = 1; Icon.Text = "✦"; Icon.TextColor3 = C.Accent3
-    Icon.TextSize = 14; Icon.Font = Enum.Font.GothamBold
+    -- Ícone X roxo igual ao botão fechar
+    local IconWrap = Instance.new("Frame", F)
+    IconWrap.Size = UDim2.new(0, 24, 0, 24); IconWrap.Position = UDim2.new(0, 10, 0.5, -12)
+    IconWrap.BackgroundColor3 = Color3.fromRGB(30, 10, 55)
+    IconWrap.BackgroundTransparency = 0.1; IconWrap.BorderSizePixel = 0; IconWrap.ZIndex = 12
+    makeCorner(IconWrap, 6); makeStroke(IconWrap, C.Accent, 1, 0.35)
+    local Icon = Instance.new("TextLabel", IconWrap)
+    Icon.Size = UDim2.new(1,0,1,0); Icon.BackgroundTransparency = 1
+    Icon.Text = "✕"; Icon.TextColor3 = C.Accent3
+    Icon.TextSize = 13; Icon.Font = Enum.Font.GothamBold
+    Icon.TextXAlignment = Enum.TextXAlignment.Center
+    Icon.TextYAlignment = Enum.TextYAlignment.Center; Icon.ZIndex = 13
 
     local T = Instance.new("TextLabel", F)
     T.Size = UDim2.new(1, -48, 0, 22); T.Position = UDim2.new(0, 40, 0, 8)
@@ -395,26 +403,35 @@ function KraviX:CreateWindow(config)
     VerLbl.TextColor3 = C.Muted2; VerLbl.TextSize = 10; VerLbl.Font = Enum.Font.Gotham
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 12
 
-    -- BOTÃO X ROXO (substituindo os 3 círculos)
-    local CloseBtn = Instance.new("TextButton", TopBar)
-    CloseBtn.Size = UDim2.new(0, 22, 0, 22)
-    CloseBtn.Position = UDim2.new(1, -30, 0.5, -11)
-    CloseBtn.BackgroundColor3 = C.AccentDim
-    CloseBtn.BackgroundTransparency = 0.3
+    -- BOTÃO X ROXO — quadrado arredondado, igual à imagem de referência
+    local CloseBtnWrap = Instance.new("Frame", TopBar)
+    CloseBtnWrap.Size = UDim2.new(0, 26, 0, 26)
+    CloseBtnWrap.Position = UDim2.new(1, -34, 0.5, -13)
+    CloseBtnWrap.BackgroundColor3 = Color3.fromRGB(30, 10, 55)
+    CloseBtnWrap.BackgroundTransparency = 0.1
+    CloseBtnWrap.BorderSizePixel = 0
+    CloseBtnWrap.ZIndex = 12
+    makeCorner(CloseBtnWrap, 7)
+    makeStroke(CloseBtnWrap, C.Accent, 1, 0.35)
+
+    local CloseBtn = Instance.new("TextButton", CloseBtnWrap)
+    CloseBtn.Size = UDim2.new(1, 0, 1, 0)
+    CloseBtn.BackgroundTransparency = 1
     CloseBtn.Text = "✕"
     CloseBtn.TextColor3 = C.Accent3
-    CloseBtn.TextSize = 13
+    CloseBtn.TextSize = 14
     CloseBtn.Font = Enum.Font.GothamBold
     CloseBtn.AutoButtonColor = false
-    CloseBtn.ZIndex = 12
+    CloseBtn.ZIndex = 13
     CloseBtn.BorderSizePixel = 0
-    makeCorner(CloseBtn, 6)
-    makeStroke(CloseBtn, C.Accent, 1, 0.4)
+
     CloseBtn.MouseEnter:Connect(function()
-        Tween(CloseBtn, {BackgroundColor3 = C.Accent, BackgroundTransparency = 0, TextColor3 = C.White}, 0.14):Play()
+        Tween(CloseBtnWrap, {BackgroundColor3 = C.Accent, BackgroundTransparency = 0}, 0.14):Play()
+        Tween(CloseBtn, {TextColor3 = C.White}, 0.14):Play()
     end)
     CloseBtn.MouseLeave:Connect(function()
-        Tween(CloseBtn, {BackgroundColor3 = C.AccentDim, BackgroundTransparency = 0.3, TextColor3 = C.Accent3}, 0.14):Play()
+        Tween(CloseBtnWrap, {BackgroundColor3 = Color3.fromRGB(30,10,55), BackgroundTransparency = 0.1}, 0.14):Play()
+        Tween(CloseBtn, {TextColor3 = C.Accent3}, 0.14):Play()
     end)
 
     local function HideWindow()
