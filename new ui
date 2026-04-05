@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.1          ║
+-- ║         KraviX UI Library v3.2          ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -90,7 +90,12 @@ local function CreateNotification(title, text, duration)
     local F = Instance.new("Frame", G)
     F.Size = UDim2.new(0, 300, 0, 72); F.Position = UDim2.new(1, 20, 0, 18)
     F.BackgroundColor3 = C.Bg2; F.BorderSizePixel = 0
-    makeCorner(F, 8); makeStroke(F, C.Accent, 1, 0.5)
+    makeCorner(F, 8)
+    local FStroke = Instance.new("UIStroke", F)
+    FStroke.Color = Color3.fromRGB(168, 85, 247)
+    FStroke.Thickness = 1.5
+    FStroke.Transparency = 0
+    FStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
     local Bar = Instance.new("Frame", F)
     Bar.Size = UDim2.new(0, 3, 1, 0); Bar.BackgroundColor3 = C.Accent
@@ -524,10 +529,22 @@ function KraviX:CreateWindow(config)
             activeTabIndex = tabIndex
             for _, t in ipairs(Window.Tabs) do
                 local on = t.Index == activeTabIndex
-                t.Container.Visible = on
+                -- fade out tabs inativas
+                if not on and t.Container.Visible then
+                    t.Container.GroupTransparency = 0
+                    Tween(t.Container, {GroupTransparency = 1}, 0.12):Play()
+                    task.delay(0.13, function() t.Container.Visible = false; t.Container.GroupTransparency = 0 end)
+                end
                 t.Btn.TextColor3 = on and C.Text or C.Muted
                 t.Btn.BackgroundTransparency = on and 0.82 or 1
                 t.Line.Visible = on
+            end
+            -- fade in tab ativa
+            local active = Window.Tabs[activeTabIndex]
+            if active then
+                active.Container.Visible = true
+                active.Container.GroupTransparency = 1
+                Tween(active.Container, {GroupTransparency = 0}, 0.22, Enum.EasingStyle.Quad):Play()
             end
         end
 
