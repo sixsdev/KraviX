@@ -180,17 +180,15 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- LOADING SCREEN (estilo original v2.2 + melhorias visuais)
+-- LOADING SCREEN
 local function CreateLoader(screenGui, onDone)
     local Loader = Instance.new("Frame", screenGui)
     Loader.Name = "Loader"; Loader.Size = UDim2.new(1,0,1,0)
     Loader.BackgroundColor3 = C.Bg; Loader.BackgroundTransparency = 0
     Loader.ZIndex = 200; Loader.BorderSizePixel = 0
 
-    -- neve no loader
     StartSnow(Loader)
 
-    -- "KraviX" canto superior direito
     local Brand = Instance.new("TextLabel", Loader)
     Brand.Size = UDim2.new(0, 120, 0, 28); Brand.Position = UDim2.new(1, -132, 0, 14)
     Brand.BackgroundTransparency = 1; Brand.Text = "KraviX"
@@ -201,7 +199,6 @@ local function CreateLoader(screenGui, onDone)
     Center.Size = UDim2.new(0, 440, 0, 96); Center.AnchorPoint = Vector2.new(.5, .5)
     Center.Position = UDim2.new(.5, 0, .5, 0); Center.BackgroundTransparency = 1; Center.ZIndex = 201
 
-    -- "Kx" grande com gradiente animado (idêntico ao v2.2)
     local KxLbl = Instance.new("TextLabel", Center)
     KxLbl.Size = UDim2.new(0, 140, 0, 96); KxLbl.BackgroundTransparency = 1
     KxLbl.Text = "Kx"; KxLbl.TextColor3 = C.Accent
@@ -226,7 +223,6 @@ local function CreateLoader(screenGui, onDone)
         end
     end)
 
-    -- separador vertical brilhante
     local Sep = Instance.new("Frame", Center)
     Sep.Size = UDim2.new(0, 1, 0, 70); Sep.Position = UDim2.new(0, 152, 0, 13)
     Sep.BackgroundColor3 = C.Accent; Sep.BackgroundTransparency = 0.4; Sep.BorderSizePixel = 0; Sep.ZIndex = 202
@@ -237,7 +233,6 @@ local function CreateLoader(screenGui, onDone)
         ColorSequenceKeypoint.new(1, Color3.new(0,0,0))
     }); SepG.Rotation = 90
 
-    -- caixa de status
     local StatusBox = Instance.new("Frame", Center)
     StatusBox.Size = UDim2.new(0, 252, 0, 42); StatusBox.Position = UDim2.new(0, 166, 0, 14)
     StatusBox.BackgroundColor3 = C.Bg3; StatusBox.BackgroundTransparency = 0.1
@@ -260,7 +255,6 @@ local function CreateLoader(screenGui, onDone)
     StatusLbl.TextColor3 = C.Sub; StatusLbl.TextSize = 12; StatusLbl.Font = Enum.Font.Gotham
     StatusLbl.TextXAlignment = Enum.TextXAlignment.Left; StatusLbl.ZIndex = 203
 
-    -- barra de progresso
     local BarTrack = Instance.new("Frame", Center)
     BarTrack.Size = UDim2.new(0, 252, 0, 3); BarTrack.Position = UDim2.new(0, 166, 0, 64)
     BarTrack.BackgroundColor3 = C.Bg4; BarTrack.BorderSizePixel = 0; BarTrack.ZIndex = 202; makeCorner(BarTrack, 3)
@@ -312,7 +306,6 @@ function KraviX:CreateWindow(config)
     ScreenGui.ResetOnSpawn = false; ScreenGui.IgnoreGuiInset = true
     protect(ScreenGui)
 
-    -- backdrop com neve
     local Backdrop = Instance.new("Frame", ScreenGui)
     Backdrop.Size = UDim2.new(1,0,1,0); Backdrop.BackgroundColor3 = C.Black
     Backdrop.BackgroundTransparency = 0.5; Backdrop.BorderSizePixel = 0
@@ -330,7 +323,6 @@ function KraviX:CreateWindow(config)
     makeCorner(Main, 10)
     makeStroke(Main, C.Border, 1, 0)
 
-    -- linha brilhante no topo (gradiente animado)
     local GlowLine = Instance.new("Frame", Main)
     GlowLine.Size = UDim2.new(1, 0, 0, 1); GlowLine.BackgroundColor3 = C.Accent
     GlowLine.BackgroundTransparency = 0; GlowLine.BorderSizePixel = 0; GlowLine.ZIndex = 20
@@ -351,7 +343,6 @@ function KraviX:CreateWindow(config)
         end
     end)
 
-    -- sombra
     local Shadow = Instance.new("ImageLabel", Main)
     Shadow.Size = UDim2.new(1, 60, 1, 60); Shadow.Position = UDim2.new(0, -30, 0, -30)
     Shadow.BackgroundTransparency = 1; Shadow.Image = "rbxassetid://6015897843"
@@ -404,18 +395,27 @@ function KraviX:CreateWindow(config)
     VerLbl.TextColor3 = C.Muted2; VerLbl.TextSize = 10; VerLbl.Font = Enum.Font.Gotham
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 12
 
-    local function WinBtn(color, xOff)
-        local btn = Instance.new("TextButton", TopBar)
-        btn.Size = UDim2.new(0, 11, 0, 11); btn.Position = UDim2.new(1, xOff, 0.5, -5)
-        btn.BackgroundColor3 = color; btn.Text = ""; btn.AutoButtonColor = false
-        btn.ZIndex = 12; btn.BorderSizePixel = 0; makeCorner(btn, 6)
-        btn.MouseEnter:Connect(function() Tween(btn, {BackgroundTransparency = 0.35}, 0.12):Play() end)
-        btn.MouseLeave:Connect(function() Tween(btn, {BackgroundTransparency = 0}, 0.12):Play() end)
-        return btn
-    end
-    local CloseBtn = WinBtn(Color3.fromRGB(239, 68, 68), -18)
-    WinBtn(Color3.fromRGB(245, 158, 11), -34)
-    WinBtn(Color3.fromRGB(34, 197, 94), -50)
+    -- BOTÃO X ROXO (substituindo os 3 círculos)
+    local CloseBtn = Instance.new("TextButton", TopBar)
+    CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+    CloseBtn.Position = UDim2.new(1, -30, 0.5, -11)
+    CloseBtn.BackgroundColor3 = C.AccentDim
+    CloseBtn.BackgroundTransparency = 0.3
+    CloseBtn.Text = "✕"
+    CloseBtn.TextColor3 = C.Accent3
+    CloseBtn.TextSize = 13
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.AutoButtonColor = false
+    CloseBtn.ZIndex = 12
+    CloseBtn.BorderSizePixel = 0
+    makeCorner(CloseBtn, 6)
+    makeStroke(CloseBtn, C.Accent, 1, 0.4)
+    CloseBtn.MouseEnter:Connect(function()
+        Tween(CloseBtn, {BackgroundColor3 = C.Accent, BackgroundTransparency = 0, TextColor3 = C.White}, 0.14):Play()
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        Tween(CloseBtn, {BackgroundColor3 = C.AccentDim, BackgroundTransparency = 0.3, TextColor3 = C.Accent3}, 0.14):Play()
+    end)
 
     local function HideWindow()
         Tween(Main, {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)}, 0.2, Enum.EasingStyle.Back):Play()
@@ -468,7 +468,7 @@ function KraviX:CreateWindow(config)
         CreateNotification("KraviX", "Carregado! Pressione "..Window.Keybind.Name.." para fechar", 3)
     end)
 
-    -- CreateTab (duas colunas)
+    -- CreateTab
     function Window:CreateTab(name, icon)
         local Tab      = {}
         local tabIndex = #Window.Tabs + 1
@@ -537,7 +537,6 @@ function KraviX:CreateWindow(config)
         end)
         if #Window.Tabs == 1 then SelectTab() end
 
-        -- AddSection(name, "Left"|"Right")
         function Tab:AddSection(sectionName, column)
             local Section = {}
             local scroll = (column == "Right") and RightScroll or LeftScroll
@@ -555,7 +554,6 @@ function KraviX:CreateWindow(config)
 
             local function AddItem(item) item.Parent = scroll end
 
-            -- TOGGLE
             function Section:AddToggle(cfg)
                 cfg = cfg or {}
                 local toggled = cfg.Default or false
@@ -629,7 +627,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Toggle
             end
 
-            -- SLIDER
             function Section:AddSlider(cfg)
                 cfg = cfg or {}
                 local min = cfg.Min or 0; local max = cfg.Max or 100
@@ -705,7 +702,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Slider
             end
 
-            -- DROPDOWN
             function Section:AddDropdown(cfg)
                 cfg = cfg or {}
                 local options = cfg.Values or {}; local selected = cfg.Default or options[1]
@@ -769,7 +765,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Dropdown
             end
 
-            -- BUTTON
             function Section:AddButton(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -788,7 +783,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Btn)
             end
 
-            -- TEXTBOX
             function Section:AddTextbox(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -815,7 +809,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row)
             end
 
-            -- KEYBIND
             function Section:AddKeybind(cfg)
                 cfg = cfg or {}
                 local cur = cfg.Default or Enum.KeyCode.E; local listen = false
@@ -846,7 +839,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Keybind
             end
 
-            -- COLOR PICKER
             function Section:AddColorPicker(cfg)
                 cfg = cfg or {}
                 local color = cfg.Default or Color3.fromRGB(168,85,247)
@@ -914,7 +906,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Picker
             end
 
-            -- LABEL
             function Section:AddLabel(cfg)
                 cfg = cfg or {}
                 local L = Instance.new("TextLabel")
@@ -926,7 +917,6 @@ function KraviX:CreateWindow(config)
                 return { SetText = function(_, t) L.Text = t end }
             end
 
-            -- SEPARATOR
             function Section:AddSeparator()
                 local S = Instance.new("Frame")
                 S.Size = UDim2.new(1,0,0,1); S.BackgroundColor3 = C.Border; S.BorderSizePixel = 0; S.ZIndex = 13
