@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v2.1          ║
+-- ║         KraviX UI Library v2.2          ║
 -- ║     Para uso em executors Roblox        ║
 -- ╚══════════════════════════════════════════╝
 
@@ -36,13 +36,24 @@ local function Tween(obj, props, t, style, dir)
 end
 
 local function protect(gui)
+    -- Limpa instâncias anteriores com o mesmo nome
+    for _, v in ipairs(CoreGui:GetChildren()) do
+        if v.Name == gui.Name then v:Destroy() end
+    end
+    if gethui then
+        for _, v in ipairs(gethui():GetChildren()) do
+            if v.Name == gui.Name then v:Destroy() end
+        end
+    end
+
     if syn and syn.protect_gui then
         syn.protect_gui(gui)
+        gui.Parent = CoreGui
     elseif gethui then
         gui.Parent = gethui()
-        return
+    else
+        gui.Parent = CoreGui
     end
-    gui.Parent = CoreGui
 end
 
 local function makeCorner(parent, radius)
@@ -95,7 +106,17 @@ local function CreateNotification(title, text, duration)
     local NotifGui = Instance.new("ScreenGui")
     NotifGui.Name            = "KraviXNotif_" .. tostring(tick())
     NotifGui.IgnoreGuiInset  = true
-    protect(NotifGui)
+    NotifGui.ZIndexBehavior  = Enum.ZIndexBehavior.Global
+    NotifGui.ResetOnSpawn    = false
+
+    if syn and syn.protect_gui then
+        syn.protect_gui(NotifGui)
+        NotifGui.Parent = CoreGui
+    elseif gethui then
+        NotifGui.Parent = gethui()
+    else
+        NotifGui.Parent = CoreGui
+    end
 
     local Notif = Instance.new("Frame", NotifGui)
     Notif.Size              = UDim2.new(0, 310, 0, 80)
@@ -105,11 +126,11 @@ local function CreateNotification(title, text, duration)
     makeCorner(Notif, 8)
     makeStroke(Notif, C.Accent, 1, 0.55)
 
-    local Accent = Instance.new("Frame", Notif)
-    Accent.Size             = UDim2.new(0, 3, 1, 0)
-    Accent.BackgroundColor3 = C.Accent
-    Accent.BorderSizePixel  = 0
-    makeCorner(Accent, 4)
+    local AccentBar = Instance.new("Frame", Notif)
+    AccentBar.Size             = UDim2.new(0, 3, 1, 0)
+    AccentBar.BackgroundColor3 = C.Accent
+    AccentBar.BorderSizePixel  = 0
+    makeCorner(AccentBar, 4)
 
     local TitleLbl = Instance.new("TextLabel", Notif)
     TitleLbl.Size              = UDim2.new(1, -20, 0, 24)
@@ -146,36 +167,35 @@ end
 -- Neve
 -- ─────────────────────────────────────────
 local function StartSnow(parent)
-    local FLAKE_COUNT = 70
+    local FLAKE_COUNT   = 70
     local snowContainer = Instance.new("Frame", parent)
-    snowContainer.Size              = UDim2.new(1, 0, 1, 0)
+    snowContainer.Size                   = UDim2.new(1, 0, 1, 0)
     snowContainer.BackgroundTransparency = 1
-    snowContainer.ClipsDescendants  = true
-    snowContainer.ZIndex            = 0
-    snowContainer.Name              = "SnowContainer"
+    snowContainer.ClipsDescendants       = true
+    snowContainer.ZIndex                 = 0
+    snowContainer.Name                   = "SnowContainer"
 
     local flakes = {}
     for i = 1, FLAKE_COUNT do
         local size = math.random(2, 5)
         local f = Instance.new("Frame", snowContainer)
-        f.Size             = UDim2.new(0, size, 0, size)
-        f.BackgroundColor3 = C.White
+        f.Size                   = UDim2.new(0, size, 0, size)
+        f.BackgroundColor3       = C.White
         f.BackgroundTransparency = math.random(30, 65) / 100
-        f.BorderSizePixel  = 0
-        f.ZIndex           = 1
+        f.BorderSizePixel        = 0
+        f.ZIndex                 = 1
         makeCorner(f, size)
-
         flakes[i] = {
-            frame  = f,
-            x      = math.random(0, 1000) / 1000,
-            y      = math.random(-20, 100) / 100,
-            speed  = math.random(3, 9) / 1000,
-            drift  = (math.random(-4, 4)) / 10000,
+            frame = f,
+            x     = math.random(0, 1000) / 1000,
+            y     = math.random(-20, 100) / 100,
+            speed = math.random(3, 9) / 1000,
+            drift = math.random(-4, 4) / 10000,
         }
         f.Position = UDim2.new(flakes[i].x, 0, flakes[i].y, 0)
     end
 
-    local conn = RunService.Heartbeat:Connect(function(dt)
+    RunService.Heartbeat:Connect(function(dt)
         if not snowContainer or not snowContainer.Parent then return end
         for _, fl in ipairs(flakes) do
             fl.y = fl.y + fl.speed * dt * 60
@@ -186,8 +206,6 @@ local function StartSnow(parent)
             fl.frame.Position = UDim2.new(fl.x, 0, fl.y, 0)
         end
     end)
-
-    return snowContainer, conn
 end
 
 -- ─────────────────────────────────────────
@@ -232,41 +250,41 @@ end
 -- ─────────────────────────────────────────
 local function CreateLoader(screenGui, onDone)
     local Loader = Instance.new("Frame", screenGui)
-    Loader.Name             = "Loader"
-    Loader.Size             = UDim2.new(1, 0, 1, 0)
-    Loader.BackgroundColor3 = C.Bg
+    Loader.Name                   = "Loader"
+    Loader.Size                   = UDim2.new(1, 0, 1, 0)
+    Loader.BackgroundColor3       = C.Bg
     Loader.BackgroundTransparency = 0
-    Loader.ZIndex           = 200
-    Loader.BorderSizePixel  = 0
+    Loader.ZIndex                 = 200
+    Loader.BorderSizePixel        = 0
 
     local BrandLbl = Instance.new("TextLabel", Loader)
-    BrandLbl.Size              = UDim2.new(0, 120, 0, 28)
-    BrandLbl.Position          = UDim2.new(1, -130, 0, 12)
+    BrandLbl.Size                   = UDim2.new(0, 120, 0, 28)
+    BrandLbl.Position               = UDim2.new(1, -130, 0, 12)
     BrandLbl.BackgroundTransparency = 1
-    BrandLbl.Text              = "KraviX"
-    BrandLbl.TextColor3        = C.Accent
-    BrandLbl.TextSize          = 20
-    BrandLbl.Font              = Enum.Font.GothamBold
-    BrandLbl.TextXAlignment    = Enum.TextXAlignment.Right
-    BrandLbl.ZIndex            = 201
+    BrandLbl.Text                   = "KraviX"
+    BrandLbl.TextColor3             = C.Accent
+    BrandLbl.TextSize               = 20
+    BrandLbl.Font                   = Enum.Font.GothamBold
+    BrandLbl.TextXAlignment         = Enum.TextXAlignment.Right
+    BrandLbl.ZIndex                 = 201
 
     local Center = Instance.new("Frame", Loader)
-    Center.Size             = UDim2.new(0, 420, 0, 90)
-    Center.AnchorPoint      = Vector2.new(0.5, 0.5)
-    Center.Position         = UDim2.new(0.5, 0, 0.5, 0)
+    Center.Size                   = UDim2.new(0, 420, 0, 90)
+    Center.AnchorPoint            = Vector2.new(0.5, 0.5)
+    Center.Position               = UDim2.new(0.5, 0, 0.5, 0)
     Center.BackgroundTransparency = 1
-    Center.ZIndex           = 201
+    Center.ZIndex                 = 201
 
     local KxLbl = Instance.new("TextLabel", Center)
-    KxLbl.Size              = UDim2.new(0, 130, 0, 90)
-    KxLbl.Position          = UDim2.new(0, 0, 0, 0)
+    KxLbl.Size                   = UDim2.new(0, 130, 0, 90)
+    KxLbl.Position               = UDim2.new(0, 0, 0, 0)
     KxLbl.BackgroundTransparency = 1
-    KxLbl.Text              = "Kx"
-    KxLbl.TextColor3        = C.Accent
-    KxLbl.TextSize          = 78
-    KxLbl.Font              = Enum.Font.GothamBold
-    KxLbl.ZIndex            = 202
-    KxLbl.TextXAlignment    = Enum.TextXAlignment.Left
+    KxLbl.Text                   = "Kx"
+    KxLbl.TextColor3             = C.Accent
+    KxLbl.TextSize               = 78
+    KxLbl.Font                   = Enum.Font.GothamBold
+    KxLbl.ZIndex                 = 202
+    KxLbl.TextXAlignment         = Enum.TextXAlignment.Left
 
     local KxGrad = Instance.new("UIGradient", KxLbl)
     KxGrad.Color = ColorSequence.new({
@@ -276,7 +294,6 @@ local function CreateLoader(screenGui, onDone)
         ColorSequenceKeypoint.new(0.6, C.Accent),
         ColorSequenceKeypoint.new(1,   C.Accent3),
     })
-    KxGrad.Rotation = 0
 
     task.spawn(function()
         while KxLbl.Parent do
@@ -290,20 +307,20 @@ local function CreateLoader(screenGui, onDone)
     end)
 
     local Sep = Instance.new("Frame", Center)
-    Sep.Size             = UDim2.new(0, 1, 0, 65)
-    Sep.Position         = UDim2.new(0, 148, 0, 13)
-    Sep.BackgroundColor3 = C.Accent
+    Sep.Size                   = UDim2.new(0, 1, 0, 65)
+    Sep.Position               = UDim2.new(0, 148, 0, 13)
+    Sep.BackgroundColor3       = C.Accent
     Sep.BackgroundTransparency = 0.5
-    Sep.BorderSizePixel  = 0
-    Sep.ZIndex           = 202
+    Sep.BorderSizePixel        = 0
+    Sep.ZIndex                 = 202
 
     local StatusBox = Instance.new("Frame", Center)
-    StatusBox.Size             = UDim2.new(0, 240, 0, 40)
-    StatusBox.Position         = UDim2.new(0, 162, 0, 15)
-    StatusBox.BackgroundColor3 = C.Bg3
+    StatusBox.Size                   = UDim2.new(0, 240, 0, 40)
+    StatusBox.Position               = UDim2.new(0, 162, 0, 15)
+    StatusBox.BackgroundColor3       = C.Bg3
     StatusBox.BackgroundTransparency = 0.15
-    StatusBox.BorderSizePixel  = 0
-    StatusBox.ZIndex           = 202
+    StatusBox.BorderSizePixel        = 0
+    StatusBox.ZIndex                 = 202
     makeCorner(StatusBox, 8)
     makeStroke(StatusBox, C.Accent, 1, 0.6)
 
@@ -316,15 +333,15 @@ local function CreateLoader(screenGui, onDone)
     makeCorner(DotFrame, 4)
 
     local StatusLbl = Instance.new("TextLabel", StatusBox)
-    StatusLbl.Size              = UDim2.new(1, -36, 1, 0)
-    StatusLbl.Position          = UDim2.new(0, 26, 0, 0)
+    StatusLbl.Size                   = UDim2.new(1, -36, 1, 0)
+    StatusLbl.Position               = UDim2.new(0, 26, 0, 0)
     StatusLbl.BackgroundTransparency = 1
-    StatusLbl.Text              = "Iniciando..."
-    StatusLbl.TextColor3        = C.Muted
-    StatusLbl.TextSize          = 12
-    StatusLbl.Font              = Enum.Font.Gotham
-    StatusLbl.TextXAlignment    = Enum.TextXAlignment.Left
-    StatusLbl.ZIndex            = 203
+    StatusLbl.Text                   = "Iniciando..."
+    StatusLbl.TextColor3             = C.Muted
+    StatusLbl.TextSize               = 12
+    StatusLbl.Font                   = Enum.Font.Gotham
+    StatusLbl.TextXAlignment         = Enum.TextXAlignment.Left
+    StatusLbl.ZIndex                 = 203
 
     local BarTrack = Instance.new("Frame", Center)
     BarTrack.Size             = UDim2.new(0, 240, 0, 3)
@@ -340,9 +357,7 @@ local function CreateLoader(screenGui, onDone)
     BarFill.BorderSizePixel  = 0
     BarFill.ZIndex           = 203
     makeCorner(BarFill, 4)
-
-    local UIGrad = Instance.new("UIGradient", BarFill)
-    UIGrad.Color = ColorSequence.new(C.Accent2, C.Accent3)
+    Instance.new("UIGradient", BarFill).Color = ColorSequence.new(C.Accent2, C.Accent3)
 
     task.spawn(function()
         while DotFrame.Parent do
@@ -354,12 +369,12 @@ local function CreateLoader(screenGui, onDone)
     end)
 
     local steps = {
-        {text = "Iniciando módulos...",     pct = 0.12},
-        {text = "Verificando usuário...",   pct = 0.30},
-        {text = "Carregando scripts...",    pct = 0.52},
-        {text = "Conectando serviços...",   pct = 0.70},
-        {text = "Preparando interface...",  pct = 0.88},
-        {text = "Pronto! ✓",                pct = 1.00},
+        {text = "Iniciando módulos...",    pct = 0.12},
+        {text = "Verificando usuário...",  pct = 0.30},
+        {text = "Carregando scripts...",   pct = 0.52},
+        {text = "Conectando serviços...",  pct = 0.70},
+        {text = "Preparando interface...", pct = 0.88},
+        {text = "Pronto! ✓",              pct = 1.00},
     }
 
     task.spawn(function()
@@ -370,7 +385,6 @@ local function CreateLoader(screenGui, onDone)
             task.wait(i < #steps and 0.62 or 0.35)
         end
         task.wait(0.3)
-
         Tween(Loader, {BackgroundTransparency = 1}, 0.4):Play()
         for _, obj in ipairs(Loader:GetDescendants()) do
             if obj:IsA("TextLabel") or obj:IsA("Frame") then
@@ -382,47 +396,46 @@ local function CreateLoader(screenGui, onDone)
         Loader:Destroy()
         onDone()
     end)
-
-    return Loader
 end
 
 -- ─────────────────────────────────────────
 -- CreateWindow
 -- ─────────────────────────────────────────
 function KraviX:CreateWindow(config)
-    config = config or {}
+    config         = config or {}
     config.Name    = config.Name    or "KraviX"
     config.Keybind = config.Keybind or Enum.KeyCode.RightControl
 
+    -- índice da tab ativa (controla qual scroll está visível)
+    local activeTabIndex = 0
     local Window = {Tabs = {}, Keybind = config.Keybind}
     Window.Notify = CreateNotification
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name            = "KraviX"
-    ScreenGui.ZIndexBehavior  = Enum.ZIndexBehavior.Global
-    ScreenGui.ResetOnSpawn    = false
-    ScreenGui.IgnoreGuiInset  = true
+    ScreenGui.Name           = "KraviX"
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    ScreenGui.ResetOnSpawn   = false
+    ScreenGui.IgnoreGuiInset = true
     protect(ScreenGui)
 
     local Backdrop = Instance.new("Frame", ScreenGui)
-    Backdrop.Size              = UDim2.new(1, 0, 1, 0)
-    Backdrop.BackgroundColor3  = Color3.fromRGB(0, 0, 0)
+    Backdrop.Size                   = UDim2.new(1, 0, 1, 0)
+    Backdrop.BackgroundColor3       = Color3.fromRGB(0, 0, 0)
     Backdrop.BackgroundTransparency = 0.45
-    Backdrop.BorderSizePixel   = 0
-    Backdrop.ZIndex            = 1
-    Backdrop.Visible           = false
-
-    local _, snowConn = StartSnow(Backdrop)
+    Backdrop.BorderSizePixel        = 0
+    Backdrop.ZIndex                 = 1
+    Backdrop.Visible                = false
+    StartSnow(Backdrop)
 
     local Main = Instance.new("Frame", ScreenGui)
-    Main.Name             = "KraviXMain"
-    Main.Size             = UDim2.new(0, 560, 0, 440)
-    Main.Position         = UDim2.new(0.5, -280, 0.5, -220)
-    Main.BackgroundColor3 = C.Bg
+    Main.Name                   = "KraviXMain"
+    Main.Size                   = UDim2.new(0, 560, 0, 440)
+    Main.Position               = UDim2.new(0.5, -280, 0.5, -220)
+    Main.BackgroundColor3       = C.Bg
     Main.BackgroundTransparency = 0.18
-    Main.BorderSizePixel  = 0
-    Main.Visible          = false
-    Main.ZIndex           = 10
+    Main.BorderSizePixel        = 0
+    Main.Visible                = false
+    Main.ZIndex                 = 10
     makeCorner(Main, 12)
     makeStroke(Main, C.Accent, 1, 0.6)
 
@@ -437,33 +450,34 @@ function KraviX:CreateWindow(config)
     Shadow.ScaleType         = Enum.ScaleType.Slice
     Shadow.SliceCenter       = Rect.new(49, 49, 450, 450)
 
-    -- ── TOPBAR ──
+    -- TopBar
     local TopBar = Instance.new("Frame", Main)
-    TopBar.Size             = UDim2.new(1, 0, 0, 48)
-    TopBar.BackgroundColor3 = C.Bg2
+    TopBar.Size                   = UDim2.new(1, 0, 0, 48)
+    TopBar.BackgroundColor3       = C.Bg2
     TopBar.BackgroundTransparency = 0.25
-    TopBar.BorderSizePixel  = 0
-    TopBar.ZIndex           = 11
+    TopBar.BorderSizePixel        = 0
+    TopBar.ZIndex                 = 11
     makeCorner(TopBar, 12)
 
+    -- cobre cantos inferiores arredondados da topbar
     local TopFix = Instance.new("Frame", TopBar)
-    TopFix.Size             = UDim2.new(1, 0, 0, 12)
-    TopFix.Position         = UDim2.new(0, 0, 1, -12)
-    TopFix.BackgroundColor3 = C.Bg2
+    TopFix.Size                   = UDim2.new(1, 0, 0, 12)
+    TopFix.Position               = UDim2.new(0, 0, 1, -12)
+    TopFix.BackgroundColor3       = C.Bg2
     TopFix.BackgroundTransparency = 0.25
-    TopFix.BorderSizePixel  = 0
-    TopFix.ZIndex           = 11
+    TopFix.BorderSizePixel        = 0
+    TopFix.ZIndex                 = 11
 
     local LogoLbl = Instance.new("TextLabel", TopBar)
-    LogoLbl.Size              = UDim2.new(0, 80, 0, 40)
-    LogoLbl.Position          = UDim2.new(0, 12, 0, 4)
+    LogoLbl.Size                   = UDim2.new(0, 80, 0, 40)
+    LogoLbl.Position               = UDim2.new(0, 12, 0, 4)
     LogoLbl.BackgroundTransparency = 1
-    LogoLbl.Text              = "Kx"
-    LogoLbl.TextColor3        = C.Accent
-    LogoLbl.TextSize          = 32
-    LogoLbl.Font              = Enum.Font.GothamBold
-    LogoLbl.TextXAlignment    = Enum.TextXAlignment.Left
-    LogoLbl.ZIndex            = 12
+    LogoLbl.Text                   = "Kx"
+    LogoLbl.TextColor3             = C.Accent
+    LogoLbl.TextSize               = 32
+    LogoLbl.Font                   = Enum.Font.GothamBold
+    LogoLbl.TextXAlignment         = Enum.TextXAlignment.Left
+    LogoLbl.ZIndex                 = 12
 
     local LogoGrad = Instance.new("UIGradient", LogoLbl)
     LogoGrad.Color = ColorSequence.new({
@@ -473,8 +487,6 @@ function KraviX:CreateWindow(config)
         ColorSequenceKeypoint.new(0.55, C.Accent),
         ColorSequenceKeypoint.new(1,    C.Accent3),
     })
-    LogoGrad.Rotation = 0
-
     task.spawn(function()
         while LogoLbl.Parent do
             for r = -30, 210, 5 do
@@ -487,15 +499,15 @@ function KraviX:CreateWindow(config)
     end)
 
     local VerLbl = Instance.new("TextLabel", TopBar)
-    VerLbl.Size              = UDim2.new(0, 80, 0, 40)
-    VerLbl.Position          = UDim2.new(1, -140, 0, 0)
+    VerLbl.Size                   = UDim2.new(0, 80, 0, 40)
+    VerLbl.Position               = UDim2.new(1, -140, 0, 0)
     VerLbl.BackgroundTransparency = 1
-    VerLbl.Text              = "v2.1"
-    VerLbl.TextColor3        = C.Muted2
-    VerLbl.TextSize          = 11
-    VerLbl.Font              = Enum.Font.Gotham
-    VerLbl.TextXAlignment    = Enum.TextXAlignment.Right
-    VerLbl.ZIndex            = 12
+    VerLbl.Text                   = "v2.2"
+    VerLbl.TextColor3             = C.Muted2
+    VerLbl.TextSize               = 11
+    VerLbl.Font                   = Enum.Font.Gotham
+    VerLbl.TextXAlignment         = Enum.TextXAlignment.Right
+    VerLbl.ZIndex                 = 12
 
     local CloseBtn = Instance.new("TextButton", TopBar)
     CloseBtn.Size             = UDim2.new(0, 30, 0, 30)
@@ -541,36 +553,30 @@ function KraviX:CreateWindow(config)
 
     MakeDraggable(Main, TopBar)
 
-    -- ══════════════════════════════════════════
-    -- FIX PRINCIPAL: TabBar com ScrollingFrame
-    -- O problema original era que o TabBar usava
-    -- Frame simples com UIListLayout, mas sem width
-    -- suficiente os botões ficavam cortados ou
-    -- sumiam. Agora usamos ScrollingFrame horizontal
-    -- para suportar qualquer número de tabs.
-    -- ══════════════════════════════════════════
+    -- ══════════════════════════════════════
+    -- TAB BAR
+    -- FIX v2.2: ScrollingFrame horizontal com
+    -- AutomaticCanvasSize=X garante que todos
+    -- os botões ficam visíveis sem ser cortados.
+    -- ClipsDescendants=false permite que o
+    -- conteúdo interno seja visto corretamente.
+    -- ══════════════════════════════════════
     local TabBar = Instance.new("ScrollingFrame", Main)
-    TabBar.Size                 = UDim2.new(1, -10, 0, 38)
-    TabBar.Position             = UDim2.new(0, 5, 0, 50)
-    TabBar.BackgroundColor3     = C.Bg2
+    TabBar.Name                   = "TabBar"
+    TabBar.Size                   = UDim2.new(1, -10, 0, 36)
+    TabBar.Position               = UDim2.new(0, 5, 0, 51)
+    TabBar.BackgroundColor3       = C.Bg2
     TabBar.BackgroundTransparency = 0.3
-    TabBar.BorderSizePixel      = 0
-    TabBar.ZIndex               = 11
-    TabBar.ClipsDescendants     = true
-    -- Scroll horizontal, sem scrollbar visível
-    TabBar.ScrollBarThickness   = 0
-    TabBar.ScrollingDirection   = Enum.ScrollingDirection.X
-    TabBar.CanvasSize           = UDim2.new(0, 0, 0, 0)  -- será atualizado automaticamente
-    TabBar.AutomaticCanvasSize  = Enum.AutomaticSize.X
+    TabBar.BorderSizePixel        = 0
+    TabBar.ZIndex                 = 11
+    TabBar.ClipsDescendants       = true
+    TabBar.ScrollBarThickness     = 0          -- sem scrollbar visível
+    TabBar.ScrollingDirection     = Enum.ScrollingDirection.X
+    TabBar.AutomaticCanvasSize    = Enum.AutomaticSize.X
+    TabBar.CanvasSize             = UDim2.new(0, 0, 0, 0)
+    TabBar.ElasticBehavior        = Enum.ElasticBehavior.Never
 
-    local TabBarBorder = Instance.new("Frame", TabBar)
-    TabBarBorder.Size             = UDim2.new(1, 0, 0, 1)
-    TabBarBorder.Position         = UDim2.new(0, 0, 1, -1)
-    TabBarBorder.BackgroundColor3 = C.Accent
-    TabBarBorder.BackgroundTransparency = 0.72
-    TabBarBorder.BorderSizePixel  = 0
-    TabBarBorder.ZIndex           = 12
-
+    -- layout horizontal dos botões de tab
     local TabList = Instance.new("UIListLayout", TabBar)
     TabList.FillDirection       = Enum.FillDirection.Horizontal
     TabList.SortOrder           = Enum.SortOrder.LayoutOrder
@@ -578,31 +584,32 @@ function KraviX:CreateWindow(config)
     TabList.VerticalAlignment   = Enum.VerticalAlignment.Center
     TabList.Padding             = UDim.new(0, 2)
 
-    -- Padding interno da TabBar
+    -- padding lateral para respirar
     local TabBarPad = Instance.new("UIPadding", TabBar)
-    TabBarPad.PaddingLeft  = UDim.new(0, 6)
-    TabBarPad.PaddingRight = UDim.new(0, 6)
-    TabBarPad.PaddingTop   = UDim.new(0, 4)
-    TabBarPad.PaddingBottom = UDim.new(0, 4)
+    TabBarPad.PaddingLeft   = UDim.new(0, 6)
+    TabBarPad.PaddingRight  = UDim.new(0, 6)
+    TabBarPad.PaddingTop    = UDim.new(0, 3)
+    TabBarPad.PaddingBottom = UDim.new(0, 3)
 
-    -- Linha separadora abaixo da TabBar
+    -- linha separadora embaixo da tab bar
     local TabSep = Instance.new("Frame", Main)
     TabSep.Size             = UDim2.new(1, -10, 0, 1)
-    TabSep.Position         = UDim2.new(0, 5, 0, 88)
+    TabSep.Position         = UDim2.new(0, 5, 0, 87)
     TabSep.BackgroundColor3 = C.Accent
     TabSep.BackgroundTransparency = 0.82
     TabSep.BorderSizePixel  = 0
     TabSep.ZIndex           = 11
 
-    -- ── CONTEÚDO ──
+    -- área de conteúdo das tabs
     local ContentFrame = Instance.new("Frame", Main)
-    ContentFrame.Size             = UDim2.new(1, 0, 1, -92)
-    ContentFrame.Position         = UDim2.new(0, 0, 0, 92)
+    ContentFrame.Size                   = UDim2.new(1, 0, 1, -90)
+    ContentFrame.Position               = UDim2.new(0, 0, 0, 90)
     ContentFrame.BackgroundTransparency = 1
-    ContentFrame.BorderSizePixel  = 0
-    ContentFrame.ZIndex           = 10
-    ContentFrame.ClipsDescendants = true
+    ContentFrame.BorderSizePixel        = 0
+    ContentFrame.ZIndex                 = 10
+    ContentFrame.ClipsDescendants       = true
 
+    -- keybind para toggle
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if input.KeyCode == Window.Keybind then
@@ -610,34 +617,41 @@ function KraviX:CreateWindow(config)
         end
     end)
 
+    -- loader → abre UI uma única vez
     CreateLoader(ScreenGui, function()
         PlaySound(SOUND_OPEN)
         ShowWindow()
         CreateNotification("KraviX", "Carregado! Pressione " .. Window.Keybind.Name .. " para fechar", 3)
     end)
 
-    -- ── CreateTab ──
+    -- ══════════════════════════════════════
+    -- CreateTab
+    -- FIX v2.2: SelectTab usa índice numérico
+    -- em vez de checar .Visible, eliminando
+    -- o bug onde tabs 2+ nunca apareciam.
+    -- ══════════════════════════════════════
     function Window:CreateTab(name, icon)
-        local Tab = {Sections = {}}
+        local Tab       = {}
+        local tabIndex  = #Window.Tabs + 1  -- índice desta tab ANTES de inserir
 
+        -- botão da tab
         local TabBtn = Instance.new("TextButton", TabBar)
-        TabBtn.Size             = UDim2.new(0, 0, 1, 0)
-        TabBtn.AutomaticSize    = Enum.AutomaticSize.X
-        TabBtn.BackgroundColor3 = C.Bg3
+        TabBtn.Size                   = UDim2.new(0, 0, 1, 0)
+        TabBtn.AutomaticSize          = Enum.AutomaticSize.X
+        TabBtn.BackgroundColor3       = C.Bg3
         TabBtn.BackgroundTransparency = 1
-        TabBtn.Text             = (icon and icon .. "  " or "") .. name
-        TabBtn.TextColor3       = C.Muted
-        TabBtn.TextSize         = 12
-        TabBtn.Font             = Enum.Font.GothamSemibold
-        TabBtn.AutoButtonColor  = false
-        TabBtn.ZIndex           = 12
+        TabBtn.Text                   = (icon and icon .. "  " or "") .. name
+        TabBtn.TextColor3             = C.Muted
+        TabBtn.TextSize               = 12
+        TabBtn.Font                   = Enum.Font.GothamSemibold
+        TabBtn.AutoButtonColor        = false
+        TabBtn.ZIndex                 = 12
+        TabBtn.LayoutOrder            = tabIndex
+        makeCorner(TabBtn, 7)
 
-        -- Padding interno do botão de tab
         local TabBtnPad = Instance.new("UIPadding", TabBtn)
         TabBtnPad.PaddingLeft  = UDim.new(0, 12)
         TabBtnPad.PaddingRight = UDim.new(0, 12)
-
-        makeCorner(TabBtn, 7)
 
         local TabUnderline = Instance.new("Frame", TabBtn)
         TabUnderline.Size             = UDim2.new(1, 0, 0, 2)
@@ -648,15 +662,16 @@ function KraviX:CreateWindow(config)
         TabUnderline.Visible          = false
         makeCorner(TabUnderline, 2)
 
+        -- scroll de conteúdo desta tab
         local TabScroll = Instance.new("ScrollingFrame", ContentFrame)
-        TabScroll.Size              = UDim2.new(1, 0, 1, 0)
+        TabScroll.Size                 = UDim2.new(1, 0, 1, 0)
         TabScroll.BackgroundTransparency = 1
-        TabScroll.BorderSizePixel   = 0
-        TabScroll.ScrollBarThickness = 3
+        TabScroll.BorderSizePixel      = 0
+        TabScroll.ScrollBarThickness   = 3
         TabScroll.ScrollBarImageColor3 = C.Accent
-        TabScroll.CanvasSize        = UDim2.new(0, 0, 0, 0)
-        TabScroll.Visible           = false
-        TabScroll.ZIndex            = 11
+        TabScroll.CanvasSize           = UDim2.new(0, 0, 0, 0)
+        TabScroll.Visible              = false   -- começa oculto
+        TabScroll.ZIndex               = 11
 
         local ContentList = Instance.new("UIListLayout", TabScroll)
         ContentList.Padding             = UDim.new(0, 8)
@@ -668,32 +683,43 @@ function KraviX:CreateWindow(config)
             TabScroll.CanvasSize = UDim2.new(0, 0, 0, ContentList.AbsoluteContentSize.Y + 20)
         end)
 
+        -- insere na tabela ANTES de definir SelectTab
+        -- para que tabIndex bata com a posição real
+        table.insert(Window.Tabs, {
+            Btn       = TabBtn,
+            Scroll    = TabScroll,
+            Underline = TabUnderline,
+            Index     = tabIndex,
+        })
+
+        -- ── FIX PRINCIPAL ──
+        -- SelectTab usa o índice numérico para decidir
+        -- qual tab está ativa. Não depende de .Visible.
         local function SelectTab()
+            activeTabIndex = tabIndex
             for _, t in ipairs(Window.Tabs) do
-                t.Scroll.Visible             = false
-                t.Btn.TextColor3             = C.Muted
-                t.Btn.BackgroundTransparency = 1
-                t.Underline.Visible          = false
+                local isActive = (t.Index == activeTabIndex)
+                t.Scroll.Visible             = isActive
+                t.Btn.TextColor3             = isActive and C.Accent3 or C.Muted
+                t.Btn.BackgroundTransparency = isActive and 0.85 or 1
+                t.Underline.Visible          = isActive
             end
-            TabScroll.Visible             = true
-            TabBtn.TextColor3             = C.Accent3
-            TabBtn.BackgroundTransparency = 0.85
-            TabUnderline.Visible          = true
         end
 
         TabBtn.MouseButton1Click:Connect(SelectTab)
+
         TabBtn.MouseEnter:Connect(function()
-            if not TabScroll.Visible then
+            if tabIndex ~= activeTabIndex then
                 Tween(TabBtn, {TextColor3 = C.Text}, 0.15):Play()
             end
         end)
         TabBtn.MouseLeave:Connect(function()
-            if not TabScroll.Visible then
+            if tabIndex ~= activeTabIndex then
                 Tween(TabBtn, {TextColor3 = C.Muted}, 0.15):Play()
             end
         end)
 
-        table.insert(Window.Tabs, {Btn = TabBtn, Scroll = TabScroll, Underline = TabUnderline})
+        -- primeira tab criada já começa selecionada
         if #Window.Tabs == 1 then SelectTab() end
 
         -- ── AddSection ──
@@ -701,14 +727,14 @@ function KraviX:CreateWindow(config)
             local Section = {}
 
             local SecHdr = Instance.new("TextLabel", TabScroll)
-            SecHdr.Size              = UDim2.new(1, 0, 0, 18)
+            SecHdr.Size                   = UDim2.new(1, 0, 0, 18)
             SecHdr.BackgroundTransparency = 1
-            SecHdr.Text              = string.upper(sectionName or "")
-            SecHdr.TextColor3        = C.Muted2
-            SecHdr.TextSize          = 9
-            SecHdr.Font              = Enum.Font.GothamBold
-            SecHdr.TextXAlignment    = Enum.TextXAlignment.Left
-            SecHdr.ZIndex            = 12
+            SecHdr.Text                   = string.upper(sectionName or "")
+            SecHdr.TextColor3             = C.Muted2
+            SecHdr.TextSize               = 9
+            SecHdr.Font                   = Enum.Font.GothamBold
+            SecHdr.TextXAlignment         = Enum.TextXAlignment.Left
+            SecHdr.ZIndex                 = 12
 
             local HdrLine = Instance.new("Frame", SecHdr)
             HdrLine.Size             = UDim2.new(0.7, 0, 0, 1)
@@ -718,12 +744,12 @@ function KraviX:CreateWindow(config)
             HdrLine.BorderSizePixel  = 0
 
             local Card = Instance.new("Frame", TabScroll)
-            Card.Size             = UDim2.new(1, 0, 0, 0)
-            Card.AutomaticSize    = Enum.AutomaticSize.Y
-            Card.BackgroundColor3 = C.Bg3
+            Card.Size                   = UDim2.new(1, 0, 0, 0)
+            Card.AutomaticSize          = Enum.AutomaticSize.Y
+            Card.BackgroundColor3       = C.Bg3
             Card.BackgroundTransparency = 0.4
-            Card.BorderSizePixel  = 0
-            Card.ZIndex           = 12
+            Card.BorderSizePixel        = 0
+            Card.ZIndex                 = 12
             makeCorner(Card, 10)
             makeStroke(Card, C.Accent, 1, 0.78)
 
@@ -735,11 +761,11 @@ function KraviX:CreateWindow(config)
             local function AddRow(content)
                 if #Card:GetChildren() > 2 then
                     local Div = Instance.new("Frame", Card)
-                    Div.Size             = UDim2.new(1, 0, 0, 1)
-                    Div.BackgroundColor3 = C.Accent
+                    Div.Size                   = UDim2.new(1, 0, 0, 1)
+                    Div.BackgroundColor3       = C.Accent
                     Div.BackgroundTransparency = 0.88
-                    Div.BorderSizePixel  = 0
-                    Div.ZIndex           = 12
+                    Div.BorderSizePixel        = 0
+                    Div.ZIndex                 = 12
                 end
                 content.Parent = Card
             end
@@ -751,34 +777,34 @@ function KraviX:CreateWindow(config)
                 local callback = config2.Callback or function() end
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 44)
+                Row.Size                   = UDim2.new(1, 0, 0, 44)
                 Row.BackgroundTransparency = 1
-                Row.ZIndex           = 13
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(1, -70, 1, 0)
-                Lbl.Position         = UDim2.new(0, 14, 0, 0)
+                Lbl.Size                   = UDim2.new(1, -70, 1, 0)
+                Lbl.Position               = UDim2.new(0, 14, 0, 0)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Toggle"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Toggle"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 if config2.Description then
                     Lbl.Size     = UDim2.new(1, -70, 0, 20)
                     Lbl.Position = UDim2.new(0, 14, 0, 6)
                     local Sub = Instance.new("TextLabel", Row)
-                    Sub.Size         = UDim2.new(1, -70, 0, 16)
-                    Sub.Position     = UDim2.new(0, 14, 0, 24)
+                    Sub.Size                   = UDim2.new(1, -70, 0, 16)
+                    Sub.Position               = UDim2.new(0, 14, 0, 24)
                     Sub.BackgroundTransparency = 1
-                    Sub.Text         = config2.Description
-                    Sub.TextColor3   = C.Muted
-                    Sub.TextSize     = 10
-                    Sub.Font         = Enum.Font.Gotham
-                    Sub.TextXAlignment = Enum.TextXAlignment.Left
-                    Sub.ZIndex       = 14
+                    Sub.Text                   = config2.Description
+                    Sub.TextColor3             = C.Muted
+                    Sub.TextSize               = 10
+                    Sub.Font                   = Enum.Font.Gotham
+                    Sub.TextXAlignment         = Enum.TextXAlignment.Left
+                    Sub.ZIndex                 = 14
                 end
 
                 local Track = Instance.new("TextButton", Row)
@@ -824,61 +850,61 @@ function KraviX:CreateWindow(config)
             -- ── Slider ──
             function Section:AddSlider(config2)
                 config2 = config2 or {}
-                local min  = config2.Min      or 0
-                local max  = config2.Max      or 100
-                local val  = config2.Default  or min
-                local rnd  = config2.Rounding or 0
+                local min      = config2.Min      or 0
+                local max      = config2.Max      or 100
+                local val      = config2.Default  or min
+                local rnd      = config2.Rounding or 0
                 local callback = config2.Callback or function() end
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 52)
+                Row.Size                   = UDim2.new(1, 0, 0, 52)
                 Row.BackgroundTransparency = 1
-                Row.ZIndex           = 13
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(1, -70, 0, 20)
-                Lbl.Position         = UDim2.new(0, 14, 0, 8)
+                Lbl.Size                   = UDim2.new(1, -70, 0, 20)
+                Lbl.Position               = UDim2.new(0, 14, 0, 8)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Slider"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Slider"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 local ValLbl = Instance.new("TextLabel", Row)
-                ValLbl.Size          = UDim2.new(0, 55, 0, 20)
-                ValLbl.Position      = UDim2.new(1, -68, 0, 8)
+                ValLbl.Size                   = UDim2.new(0, 55, 0, 20)
+                ValLbl.Position               = UDim2.new(1, -68, 0, 8)
                 ValLbl.BackgroundTransparency = 1
-                ValLbl.Text          = tostring(val)
-                ValLbl.TextColor3    = C.Accent3
-                ValLbl.TextSize      = 12
-                ValLbl.Font          = Enum.Font.GothamBold
-                ValLbl.TextXAlignment = Enum.TextXAlignment.Right
-                ValLbl.ZIndex        = 14
+                ValLbl.Text                   = tostring(val)
+                ValLbl.TextColor3             = C.Accent3
+                ValLbl.TextSize               = 12
+                ValLbl.Font                   = Enum.Font.GothamBold
+                ValLbl.TextXAlignment         = Enum.TextXAlignment.Right
+                ValLbl.ZIndex                 = 14
 
                 local BarBg = Instance.new("Frame", Row)
-                BarBg.Size           = UDim2.new(1, -28, 0, 4)
-                BarBg.Position       = UDim2.new(0, 14, 1, -14)
+                BarBg.Size             = UDim2.new(1, -28, 0, 4)
+                BarBg.Position         = UDim2.new(0, 14, 1, -14)
                 BarBg.BackgroundColor3 = C.Bg4
-                BarBg.BorderSizePixel = 0
-                BarBg.ZIndex         = 14
+                BarBg.BorderSizePixel  = 0
+                BarBg.ZIndex           = 14
                 makeCorner(BarBg, 4)
 
-                local BarFill = Instance.new("Frame", BarBg)
-                BarFill.Size         = UDim2.new((val - min) / (max - min), 0, 1, 0)
-                BarFill.BackgroundColor3 = C.Accent
-                BarFill.BorderSizePixel = 0
-                BarFill.ZIndex       = 15
-                makeCorner(BarFill, 4)
-                Instance.new("UIGradient", BarFill).Color = ColorSequence.new(C.Accent2, C.Accent3)
+                local BarFill2 = Instance.new("Frame", BarBg)
+                BarFill2.Size             = UDim2.new((val - min) / (max - min), 0, 1, 0)
+                BarFill2.BackgroundColor3 = C.Accent
+                BarFill2.BorderSizePixel  = 0
+                BarFill2.ZIndex           = 15
+                makeCorner(BarFill2, 4)
+                Instance.new("UIGradient", BarFill2).Color = ColorSequence.new(C.Accent2, C.Accent3)
 
                 local SliderBtn = Instance.new("TextButton", BarBg)
-                SliderBtn.Size       = UDim2.new(1, 0, 0, 20)
-                SliderBtn.Position   = UDim2.new(0, 0, 0.5, -10)
+                SliderBtn.Size                   = UDim2.new(1, 0, 0, 20)
+                SliderBtn.Position               = UDim2.new(0, 0, 0.5, -10)
                 SliderBtn.BackgroundTransparency = 1
-                SliderBtn.Text       = ""
-                SliderBtn.ZIndex     = 16
+                SliderBtn.Text                   = ""
+                SliderBtn.ZIndex                 = 16
 
                 local Slider = {Value = val}
 
@@ -892,7 +918,7 @@ function KraviX:CreateWindow(config)
                     local newVal = Round(min + (max - min) * pct)
                     Slider.Value = newVal
                     ValLbl.Text  = tostring(newVal)
-                    BarFill.Size = UDim2.new(pct, 0, 1, 0)
+                    BarFill2.Size = UDim2.new(pct, 0, 1, 0)
                     callback(newVal)
                 end
 
@@ -914,9 +940,9 @@ function KraviX:CreateWindow(config)
 
                 function Slider:Set(v)
                     v = math.clamp(Round(v), min, max)
-                    Slider.Value = v
-                    ValLbl.Text  = tostring(v)
-                    BarFill.Size = UDim2.new((v - min) / (max - min), 0, 1, 0)
+                    Slider.Value  = v
+                    ValLbl.Text   = tostring(v)
+                    BarFill2.Size = UDim2.new((v - min) / (max - min), 0, 1, 0)
                     callback(v)
                 end
 
@@ -930,15 +956,15 @@ function KraviX:CreateWindow(config)
                 local callback = config2.Callback or function() end
 
                 local Btn = Instance.new("TextButton")
-                Btn.Size             = UDim2.new(1, 0, 0, 38)
-                Btn.BackgroundColor3 = C.Bg4
+                Btn.Size                   = UDim2.new(1, 0, 0, 38)
+                Btn.BackgroundColor3       = C.Bg4
                 Btn.BackgroundTransparency = 0.5
-                Btn.Text             = config2.Name or "Button"
-                Btn.TextColor3       = C.Muted
-                Btn.TextSize         = 12
-                Btn.Font             = Enum.Font.GothamSemibold
-                Btn.AutoButtonColor  = false
-                Btn.ZIndex           = 13
+                Btn.Text                   = config2.Name or "Button"
+                Btn.TextColor3             = C.Muted
+                Btn.TextSize               = 12
+                Btn.Font                   = Enum.Font.GothamSemibold
+                Btn.AutoButtonColor        = false
+                Btn.ZIndex                 = 13
 
                 Btn.MouseEnter:Connect(function()
                     Tween(Btn, {BackgroundColor3 = C.Accent, BackgroundTransparency = 0.2, TextColor3 = C.White}, 0.18):Play()
@@ -965,43 +991,43 @@ function KraviX:CreateWindow(config)
                 local opened   = false
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 44)
+                Row.Size                   = UDim2.new(1, 0, 0, 44)
                 Row.BackgroundTransparency = 1
-                Row.ClipsDescendants = false
-                Row.ZIndex           = 13
+                Row.ClipsDescendants       = false
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(0, 160, 1, 0)
-                Lbl.Position         = UDim2.new(0, 14, 0, 0)
+                Lbl.Size                   = UDim2.new(0, 160, 1, 0)
+                Lbl.Position               = UDim2.new(0, 14, 0, 0)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Dropdown"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Dropdown"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 local SelBtn = Instance.new("TextButton", Row)
-                SelBtn.Size          = UDim2.new(0, 120, 0, 26)
-                SelBtn.Position      = UDim2.new(1, -132, 0.5, -13)
+                SelBtn.Size             = UDim2.new(0, 120, 0, 26)
+                SelBtn.Position         = UDim2.new(1, -132, 0.5, -13)
                 SelBtn.BackgroundColor3 = C.Bg4
-                SelBtn.Text          = selected or "--"
-                SelBtn.TextColor3    = C.Accent3
-                SelBtn.TextSize      = 11
-                SelBtn.Font          = Enum.Font.GothamBold
-                SelBtn.AutoButtonColor = false
-                SelBtn.ZIndex        = 14
+                SelBtn.Text             = selected or "--"
+                SelBtn.TextColor3       = C.Accent3
+                SelBtn.TextSize         = 11
+                SelBtn.Font             = Enum.Font.GothamBold
+                SelBtn.AutoButtonColor  = false
+                SelBtn.ZIndex           = 14
                 makeCorner(SelBtn, 6)
                 makeStroke(SelBtn, C.Accent, 1, 0.65)
 
                 local Dropdown = {Value = selected}
 
                 local DropFrame = Instance.new("Frame", ScreenGui)
-                DropFrame.Size       = UDim2.new(0, 130, 0, #options * 28 + 4)
+                DropFrame.Size             = UDim2.new(0, 130, 0, #options * 28 + 4)
                 DropFrame.BackgroundColor3 = C.Bg3
-                DropFrame.BorderSizePixel = 0
-                DropFrame.Visible    = false
-                DropFrame.ZIndex     = 100
+                DropFrame.BorderSizePixel  = 0
+                DropFrame.Visible          = false
+                DropFrame.ZIndex           = 100
                 makeCorner(DropFrame, 7)
                 makeStroke(DropFrame, C.Accent, 1, 0.55)
 
@@ -1012,15 +1038,15 @@ function KraviX:CreateWindow(config)
 
                 for _, opt in ipairs(options) do
                     local OptBtn = Instance.new("TextButton", DropFrame)
-                    OptBtn.Size          = UDim2.new(1, 0, 0, 24)
-                    OptBtn.BackgroundColor3 = C.Bg4
+                    OptBtn.Size                   = UDim2.new(1, 0, 0, 24)
+                    OptBtn.BackgroundColor3       = C.Bg4
                     OptBtn.BackgroundTransparency = 1
-                    OptBtn.Text          = opt
-                    OptBtn.TextColor3    = opt == selected and C.Accent3 or C.Muted
-                    OptBtn.TextSize      = 11
-                    OptBtn.Font          = Enum.Font.Gotham
-                    OptBtn.AutoButtonColor = false
-                    OptBtn.ZIndex        = 101
+                    OptBtn.Text                   = opt
+                    OptBtn.TextColor3             = opt == selected and C.Accent3 or C.Muted
+                    OptBtn.TextSize               = 11
+                    OptBtn.Font                   = Enum.Font.Gotham
+                    OptBtn.AutoButtonColor        = false
+                    OptBtn.ZIndex                 = 101
                     makeCorner(OptBtn, 5)
 
                     OptBtn.MouseEnter:Connect(function()
@@ -1077,33 +1103,33 @@ function KraviX:CreateWindow(config)
                 local callback = config2.Callback or function() end
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 44)
+                Row.Size                   = UDim2.new(1, 0, 0, 44)
                 Row.BackgroundTransparency = 1
-                Row.ZIndex           = 13
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(0, 140, 1, 0)
-                Lbl.Position         = UDim2.new(0, 14, 0, 0)
+                Lbl.Size                   = UDim2.new(0, 140, 1, 0)
+                Lbl.Position               = UDim2.new(0, 14, 0, 0)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Input"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Input"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 local Box = Instance.new("TextBox", Row)
-                Box.Size             = UDim2.new(0, 135, 0, 26)
-                Box.Position         = UDim2.new(1, -147, 0.5, -13)
-                Box.BackgroundColor3 = C.Bg4
-                Box.PlaceholderText  = config2.Placeholder or "Digite aqui..."
-                Box.PlaceholderColor3 = C.Muted2
-                Box.Text             = config2.Default or ""
-                Box.TextColor3       = C.Text
-                Box.TextSize         = 11
-                Box.Font             = Enum.Font.Gotham
-                Box.ClearTextOnFocus = false
-                Box.ZIndex           = 14
+                Box.Size                   = UDim2.new(0, 135, 0, 26)
+                Box.Position               = UDim2.new(1, -147, 0.5, -13)
+                Box.BackgroundColor3       = C.Bg4
+                Box.PlaceholderText        = config2.Placeholder or "Digite aqui..."
+                Box.PlaceholderColor3      = C.Muted2
+                Box.Text                   = config2.Default or ""
+                Box.TextColor3             = C.Text
+                Box.TextSize               = 11
+                Box.Font                   = Enum.Font.Gotham
+                Box.ClearTextOnFocus       = false
+                Box.ZIndex                 = 14
                 makeCorner(Box, 6)
                 makeStroke(Box, C.Accent, 1, 0.65)
                 makePadding(Box, 0, 0, 8, 8)
@@ -1123,31 +1149,31 @@ function KraviX:CreateWindow(config)
                 local callback   = config2.Callback or function() end
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 44)
+                Row.Size                   = UDim2.new(1, 0, 0, 44)
                 Row.BackgroundTransparency = 1
-                Row.ZIndex           = 13
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(1, -120, 1, 0)
-                Lbl.Position         = UDim2.new(0, 14, 0, 0)
+                Lbl.Size                   = UDim2.new(1, -120, 1, 0)
+                Lbl.Position               = UDim2.new(0, 14, 0, 0)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Keybind"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Keybind"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 local KeyBtn = Instance.new("TextButton", Row)
-                KeyBtn.Size          = UDim2.new(0, 100, 0, 26)
-                KeyBtn.Position      = UDim2.new(1, -112, 0.5, -13)
+                KeyBtn.Size             = UDim2.new(0, 100, 0, 26)
+                KeyBtn.Position         = UDim2.new(1, -112, 0.5, -13)
                 KeyBtn.BackgroundColor3 = C.Bg4
-                KeyBtn.Text          = currentKey.Name
-                KeyBtn.TextColor3    = C.Accent3
-                KeyBtn.TextSize      = 11
-                KeyBtn.Font          = Enum.Font.GothamBold
-                KeyBtn.AutoButtonColor = false
-                KeyBtn.ZIndex        = 14
+                KeyBtn.Text             = currentKey.Name
+                KeyBtn.TextColor3       = C.Accent3
+                KeyBtn.TextSize         = 11
+                KeyBtn.Font             = Enum.Font.GothamBold
+                KeyBtn.AutoButtonColor  = false
+                KeyBtn.ZIndex           = 14
                 makeCorner(KeyBtn, 6)
                 makeStroke(KeyBtn, C.Accent, 1, 0.65)
 
@@ -1183,114 +1209,114 @@ function KraviX:CreateWindow(config)
                 local callback = config2.Callback or function() end
 
                 local Row = Instance.new("Frame")
-                Row.Size             = UDim2.new(1, 0, 0, 44)
+                Row.Size                   = UDim2.new(1, 0, 0, 44)
                 Row.BackgroundTransparency = 1
-                Row.ZIndex           = 13
+                Row.ZIndex                 = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size             = UDim2.new(1, -120, 1, 0)
-                Lbl.Position         = UDim2.new(0, 14, 0, 0)
+                Lbl.Size                   = UDim2.new(1, -120, 1, 0)
+                Lbl.Position               = UDim2.new(0, 14, 0, 0)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Name or "Cor"
-                Lbl.TextColor3       = C.Text
-                Lbl.TextSize         = 13
-                Lbl.Font             = Enum.Font.GothamSemibold
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.ZIndex           = 14
+                Lbl.Text                   = config2.Name or "Cor"
+                Lbl.TextColor3             = C.Text
+                Lbl.TextSize               = 13
+                Lbl.Font                   = Enum.Font.GothamSemibold
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.ZIndex                 = 14
 
                 local Swatch = Instance.new("TextButton", Row)
-                Swatch.Size          = UDim2.new(0, 60, 0, 26)
-                Swatch.Position      = UDim2.new(1, -72, 0.5, -13)
+                Swatch.Size             = UDim2.new(0, 60, 0, 26)
+                Swatch.Position         = UDim2.new(1, -72, 0.5, -13)
                 Swatch.BackgroundColor3 = color
-                Swatch.Text          = ""
-                Swatch.AutoButtonColor = false
-                Swatch.ZIndex        = 14
+                Swatch.Text             = ""
+                Swatch.AutoButtonColor  = false
+                Swatch.ZIndex           = 14
                 makeCorner(Swatch, 6)
                 makeStroke(Swatch, C.White, 1, 0.75)
 
-                local pickerOpen = false
+                local pickerOpen    = false
                 local hue, sat, val2 = color:ToHSV()
-                local Picker = {Value = color}
+                local Picker        = {Value = color}
 
                 local PickFrame = Instance.new("Frame", ScreenGui)
-                PickFrame.Size       = UDim2.new(0, 200, 0, 170)
+                PickFrame.Size             = UDim2.new(0, 200, 0, 170)
                 PickFrame.BackgroundColor3 = C.Bg3
-                PickFrame.BorderSizePixel = 0
-                PickFrame.Visible    = false
-                PickFrame.ZIndex     = 100
+                PickFrame.BorderSizePixel  = 0
+                PickFrame.Visible          = false
+                PickFrame.ZIndex           = 100
                 makeCorner(PickFrame, 8)
                 makeStroke(PickFrame, C.Accent, 1, 0.5)
                 makePadding(PickFrame, 8, 8, 8, 8)
 
                 local Canvas = Instance.new("ImageButton", PickFrame)
-                Canvas.Size          = UDim2.new(1, -30, 1, -30)
-                Canvas.Position      = UDim2.new(0, 0, 0, 0)
+                Canvas.Size             = UDim2.new(1, -30, 1, -30)
+                Canvas.Position         = UDim2.new(0, 0, 0, 0)
                 Canvas.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-                Canvas.ZIndex        = 101
+                Canvas.ZIndex           = 101
                 makeCorner(Canvas, 5)
 
                 local Dark = Instance.new("Frame", Canvas)
-                Dark.Size            = UDim2.new(1, 0, 1, 0)
-                Dark.BackgroundColor3 = Color3.new(0,0,0)
+                Dark.Size                   = UDim2.new(1, 0, 1, 0)
+                Dark.BackgroundColor3       = Color3.new(0, 0, 0)
                 Dark.BackgroundTransparency = 0
-                Dark.BorderSizePixel = 0
-                Dark.ZIndex          = 102
+                Dark.BorderSizePixel        = 0
+                Dark.ZIndex                 = 102
                 makeCorner(Dark, 5)
                 local DarkG = Instance.new("UIGradient", Dark)
-                DarkG.Transparency   = NumberSequence.new({
+                DarkG.Transparency = NumberSequence.new({
                     NumberSequenceKeypoint.new(0, 1),
-                    NumberSequenceKeypoint.new(1, 0)
+                    NumberSequenceKeypoint.new(1, 0),
                 })
                 DarkG.Rotation = 90
 
                 local SatGrad = Instance.new("UIGradient", Canvas)
-                SatGrad.Color = ColorSequence.new(Color3.fromRGB(255,255,255), Color3.fromHSV(hue,1,1))
+                SatGrad.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromHSV(hue, 1, 1))
 
                 local CCursor = Instance.new("Frame", Canvas)
-                CCursor.Size         = UDim2.new(0, 8, 0, 8)
-                CCursor.AnchorPoint  = Vector2.new(0.5, 0.5)
-                CCursor.Position     = UDim2.new(sat, 0, 1-val2, 0)
+                CCursor.Size             = UDim2.new(0, 8, 0, 8)
+                CCursor.AnchorPoint      = Vector2.new(0.5, 0.5)
+                CCursor.Position         = UDim2.new(sat, 0, 1 - val2, 0)
                 CCursor.BackgroundColor3 = C.White
-                CCursor.BorderSizePixel = 1
-                CCursor.BorderColor3 = C.Black
-                CCursor.ZIndex       = 103
+                CCursor.BorderSizePixel  = 1
+                CCursor.BorderColor3     = C.Black
+                CCursor.ZIndex           = 103
                 makeCorner(CCursor, 4)
 
                 local HueBar = Instance.new("ImageButton", PickFrame)
-                HueBar.Size          = UDim2.new(0, 16, 1, -30)
-                HueBar.Position      = UDim2.new(1, -16, 0, 0)
+                HueBar.Size             = UDim2.new(0, 16, 1, -30)
+                HueBar.Position         = UDim2.new(1, -16, 0, 0)
                 HueBar.BackgroundColor3 = C.White
-                HueBar.ZIndex        = 101
+                HueBar.ZIndex           = 101
                 makeCorner(HueBar, 4)
 
                 local HueGrad = Instance.new("UIGradient", HueBar)
                 HueGrad.Rotation = 90
-                HueGrad.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0,    Color3.fromRGB(255,0,0)),
-                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255,255,0)),
-                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0,255,0)),
-                    ColorSequenceKeypoint.new(0.5,  Color3.fromRGB(0,255,255)),
-                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0,0,255)),
-                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255,0,255)),
-                    ColorSequenceKeypoint.new(1,    Color3.fromRGB(255,0,0)),
+                HueGrad.Color    = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0,    Color3.fromRGB(255, 0,   0)),
+                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0,   255, 0)),
+                    ColorSequenceKeypoint.new(0.5,  Color3.fromRGB(0,   255, 255)),
+                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0,   0,   255)),
+                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0,   255)),
+                    ColorSequenceKeypoint.new(1,    Color3.fromRGB(255, 0,   0)),
                 })
 
                 local HCursor = Instance.new("Frame", HueBar)
-                HCursor.Size         = UDim2.new(1, 4, 0, 3)
-                HCursor.Position     = UDim2.new(0, -2, hue, 0)
+                HCursor.Size             = UDim2.new(1, 4, 0, 3)
+                HCursor.Position         = UDim2.new(0, -2, hue, 0)
                 HCursor.BackgroundColor3 = C.White
-                HCursor.BorderSizePixel = 1
-                HCursor.BorderColor3 = C.Black
-                HCursor.ZIndex       = 102
+                HCursor.BorderSizePixel  = 1
+                HCursor.BorderColor3     = C.Black
+                HCursor.ZIndex           = 102
 
                 local function UpdateColor()
                     local c = Color3.fromHSV(hue, sat, val2)
-                    Picker.Value              = c
-                    Swatch.BackgroundColor3   = c
-                    Canvas.BackgroundColor3   = Color3.fromHSV(hue, 1, 1)
-                    SatGrad.Color = ColorSequence.new(Color3.fromRGB(255,255,255), Color3.fromHSV(hue,1,1))
-                    CCursor.Position          = UDim2.new(sat, 0, 1-val2, 0)
-                    HCursor.Position          = UDim2.new(0, -2, hue, 0)
+                    Picker.Value            = c
+                    Swatch.BackgroundColor3 = c
+                    Canvas.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+                    SatGrad.Color           = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromHSV(hue, 1, 1))
+                    CCursor.Position        = UDim2.new(sat, 0, 1 - val2, 0)
+                    HCursor.Position        = UDim2.new(0, -2, hue, 0)
                     callback(c)
                 end
 
@@ -1311,7 +1337,9 @@ function KraviX:CreateWindow(config)
                     end
                 end)
                 UserInputService.InputEnded:Connect(function(i)
-                    if i.UserInputType == Enum.UserInputType.MouseButton1 then cDrag = false; hDrag = false end
+                    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                        cDrag = false; hDrag = false
+                    end
                 end)
                 UserInputService.InputChanged:Connect(function(i)
                     if i.UserInputType == Enum.UserInputType.MouseMovement then
@@ -1341,7 +1369,7 @@ function KraviX:CreateWindow(config)
                         local mPos = UserInputService:GetMouseLocation()
                         local fp   = PickFrame.AbsolutePosition
                         local fs   = PickFrame.AbsoluteSize
-                        if not (mPos.X >= fp.X and mPos.X <= fp.X+fs.X and mPos.Y >= fp.Y and mPos.Y <= fp.Y+fs.Y) then
+                        if not (mPos.X >= fp.X and mPos.X <= fp.X + fs.X and mPos.Y >= fp.Y and mPos.Y <= fp.Y + fs.Y) then
                             pickerOpen        = false
                             PickFrame.Visible = false
                         end
@@ -1363,31 +1391,28 @@ function KraviX:CreateWindow(config)
                 config2 = config2 or {}
 
                 local Lbl = Instance.new("TextLabel")
-                Lbl.Size             = UDim2.new(1, 0, 0, 36)
+                Lbl.Size                   = UDim2.new(1, 0, 0, 36)
                 Lbl.BackgroundTransparency = 1
-                Lbl.Text             = config2.Text or ""
-                Lbl.TextColor3       = config2.Color or C.Muted
-                Lbl.TextSize         = 11
-                Lbl.Font             = Enum.Font.Gotham
-                Lbl.TextXAlignment   = Enum.TextXAlignment.Left
-                Lbl.TextWrapped      = true
-                Lbl.ZIndex           = 13
-
+                Lbl.Text                   = config2.Text or ""
+                Lbl.TextColor3             = config2.Color or C.Muted
+                Lbl.TextSize               = 11
+                Lbl.Font                   = Enum.Font.Gotham
+                Lbl.TextXAlignment         = Enum.TextXAlignment.Left
+                Lbl.TextWrapped            = true
+                Lbl.ZIndex                 = 13
                 makePadding(Lbl, 0, 0, 14, 14)
                 AddRow(Lbl)
 
-                return {
-                    SetText = function(_, t) Lbl.Text = t end
-                }
+                return { SetText = function(_, t) Lbl.Text = t end }
             end
 
             return Section
-        end
+        end -- AddSection
 
         return Tab
-    end
+    end -- CreateTab
 
     return Window
-end
+end -- CreateWindow
 
 return KraviX
