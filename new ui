@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.3          ║
+-- ║         KraviX UI Library v3.4          ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -84,47 +84,68 @@ local function CreateNotification(title, text, duration)
     local G = Instance.new("ScreenGui")
     G.Name = "KxNotif_"..tostring(tick()); G.IgnoreGuiInset = true
     G.ZIndexBehavior = Enum.ZIndexBehavior.Global; G.ResetOnSpawn = false
+    -- ClipsDescendants no ScreenGui para evitar vazamento visual
     if syn and syn.protect_gui then syn.protect_gui(G); G.Parent = CoreGui
     elseif gethui then G.Parent = gethui() else G.Parent = CoreGui end
 
+    -- Frame principal começa invisível, fora da tela à direita
     local F = Instance.new("Frame", G)
-    F.Size = UDim2.new(0, 300, 0, 72); F.Position = UDim2.new(1, 20, 0, 18)
-    F.BackgroundColor3 = C.Bg2; F.BorderSizePixel = 0
+    F.Size = UDim2.new(0, 300, 0, 68)
+    F.Position = UDim2.new(1, 10, 0, 18)
+    F.BackgroundColor3 = C.Bg2
+    F.BackgroundTransparency = 1  -- começa transparente para fade in
+    F.BorderSizePixel = 0
     makeCorner(F, 8)
+
     local FStroke = Instance.new("UIStroke", F)
     FStroke.Color = Color3.fromRGB(168, 85, 247)
-    FStroke.Thickness = 1.5
-    FStroke.Transparency = 0
+    FStroke.Thickness = 1.2
+    FStroke.Transparency = 1  -- começa invisível
     FStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+    -- Barra lateral roxa
     local Bar = Instance.new("Frame", F)
-    Bar.Size = UDim2.new(0, 3, 1, 0); Bar.BackgroundColor3 = C.Accent
-    Bar.BorderSizePixel = 0; makeCorner(Bar, 3)
+    Bar.Size = UDim2.new(0, 3, 1, -16); Bar.Position = UDim2.new(0, 0, 0, 8)
+    Bar.BackgroundColor3 = C.Accent; Bar.BorderSizePixel = 0; makeCorner(Bar, 3)
     local BG = Instance.new("UIGradient", Bar)
     BG.Color = ColorSequence.new(C.Accent2, C.Accent3); BG.Rotation = 90
 
     -- Icone asset
     local Icon = Instance.new("ImageLabel", F)
-    Icon.Size = UDim2.new(0, 28, 0, 28); Icon.Position = UDim2.new(0, 8, 0.5, -14)
+    Icon.Size = UDim2.new(0, 26, 0, 26); Icon.Position = UDim2.new(0, 10, 0.5, -13)
     Icon.BackgroundTransparency = 1; Icon.BorderSizePixel = 0
     Icon.Image = "rbxassetid://13492315950"
-    Icon.ImageColor3 = C.Accent3; Icon.ZIndex = 12
+    Icon.ImageColor3 = C.Accent3; Icon.ImageTransparency = 1; Icon.ZIndex = 12
 
     local T = Instance.new("TextLabel", F)
-    T.Size = UDim2.new(1, -48, 0, 22); T.Position = UDim2.new(0, 40, 0, 8)
+    T.Size = UDim2.new(1, -46, 0, 20); T.Position = UDim2.new(0, 42, 0, 10)
     T.BackgroundTransparency = 1; T.Text = title; T.TextColor3 = C.Text
-    T.TextSize = 13; T.Font = Enum.Font.GothamBold; T.TextXAlignment = Enum.TextXAlignment.Left
+    T.TextSize = 13; T.Font = Enum.Font.GothamBold
+    T.TextXAlignment = Enum.TextXAlignment.Left; T.TextTransparency = 1
 
     local D = Instance.new("TextLabel", F)
-    D.Size = UDim2.new(1, -48, 0, 30); D.Position = UDim2.new(0, 40, 0, 30)
+    D.Size = UDim2.new(1, -46, 0, 28); D.Position = UDim2.new(0, 42, 0, 32)
     D.BackgroundTransparency = 1; D.Text = text; D.TextColor3 = C.Muted
     D.TextSize = 11; D.Font = Enum.Font.Gotham
-    D.TextXAlignment = Enum.TextXAlignment.Left; D.TextWrapped = true
+    D.TextXAlignment = Enum.TextXAlignment.Left
+    D.TextWrapped = true; D.TextTransparency = 1
 
-    Tween(F, {Position = UDim2.new(1, -316, 0, 18)}, 0.45, Enum.EasingStyle.Back):Play()
+    -- Animação: slide da direita + fade in suave (sem Back easing pra não vazar)
+    local targetX = UDim2.new(1, -316, 0, 18)
+    Tween(F, {Position = targetX, BackgroundTransparency = 0.06}, 0.3, Enum.EasingStyle.Quint):Play()
+    Tween(FStroke, {Transparency = 0}, 0.3, Enum.EasingStyle.Quint):Play()
+    Tween(Icon, {ImageTransparency = 0}, 0.35, Enum.EasingStyle.Quint):Play()
+    Tween(T, {TextTransparency = 0}, 0.35, Enum.EasingStyle.Quint):Play()
+    Tween(D, {TextTransparency = 0}, 0.4, Enum.EasingStyle.Quint):Play()
+
     task.delay(duration or 3, function()
-        Tween(F, {Position = UDim2.new(1, 20, 0, 18)}, 0.3):Play()
-        task.wait(0.35); G:Destroy()
+        -- fade out + slide pra direita
+        Tween(F, {Position = UDim2.new(1, 10, 0, 18), BackgroundTransparency = 1}, 0.28, Enum.EasingStyle.Quint):Play()
+        Tween(FStroke, {Transparency = 1}, 0.22):Play()
+        Tween(Icon, {ImageTransparency = 1}, 0.2):Play()
+        Tween(T, {TextTransparency = 1}, 0.2):Play()
+        Tween(D, {TextTransparency = 1}, 0.2):Play()
+        task.wait(0.32); G:Destroy()
     end)
 end
 
