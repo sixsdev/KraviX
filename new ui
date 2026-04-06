@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.46          ║
+-- ║         KraviX UI Library v3.47          ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -756,73 +756,150 @@ function KraviX:CreateWindow(config)
                     ValLbl.Text = tostring(v).."/"..tostring(max)
                     Fill.Size = UDim2.new((v-min)/(max-min),0,1,0); callback(v)
                 end
+
+                -- Dispara callback com valor default
+                task.defer(function() callback(val) end)
+
                 AddItem(Row); return Slider
             end
 
             -- --------------------------------------------------------
-            -- AddDropdown
+            -- AddDropdown  *** BUG CORRIGIDO ***
             -- --------------------------------------------------------
             function Section:AddDropdown(cfg)
                 cfg = cfg or {}
-                local options = cfg.Values or {}; local selected = cfg.Default or options[1]
-                local callback = cfg.Callback or function() end; local opened = false
+                local options = cfg.Values or {}
+                local selected = cfg.Default or options[1]
+                local callback = cfg.Callback or function() end
+                local opened = false
 
                 local Row = Instance.new("Frame")
-                Row.Size = UDim2.new(1,0,0,24); Row.BackgroundTransparency = 1
-                Row.ClipsDescendants = false; Row.ZIndex = 13
+                Row.Size = UDim2.new(1,0,0,24)
+                Row.BackgroundTransparency = 1
+                Row.ClipsDescendants = false
+                Row.ZIndex = 13
 
                 local Lbl = Instance.new("TextLabel", Row)
-                Lbl.Size = UDim2.new(0.45,0,1,0); Lbl.BackgroundTransparency = 1
-                Lbl.Text = cfg.Name or "Dropdown"; Lbl.TextColor3 = C.Sub
-                Lbl.TextSize = 11; Lbl.Font = Enum.Font.Gotham
-                Lbl.TextXAlignment = Enum.TextXAlignment.Left; Lbl.ZIndex = 14
+                Lbl.Size = UDim2.new(0.45,0,1,0)
+                Lbl.BackgroundTransparency = 1
+                Lbl.Text = cfg.Name or "Dropdown"
+                Lbl.TextColor3 = C.Sub
+                Lbl.TextSize = 11
+                Lbl.Font = Enum.Font.Gotham
+                Lbl.TextXAlignment = Enum.TextXAlignment.Left
+                Lbl.ZIndex = 14
 
                 local Sel = Instance.new("TextButton", Row)
-                Sel.Size = UDim2.new(0.55,-2,1,-4); Sel.Position = UDim2.new(0.45,2,0.5,-10)
-                Sel.BackgroundColor3 = C.Bg4; Sel.Text = (selected or "--").."  ▼"
-                Sel.TextColor3 = C.Text; Sel.TextSize = 10; Sel.Font = Enum.Font.GothamSemibold
-                Sel.AutoButtonColor = false; Sel.ZIndex = 14
-                makeCorner(Sel, 4); makeStroke(Sel, C.Border, 1, 0)
+                Sel.Size = UDim2.new(0.55,-2,1,-4)
+                Sel.Position = UDim2.new(0.45,2,0.5,-10)
+                Sel.BackgroundColor3 = C.Bg4
+                Sel.Text = (selected or "--").."  ▼"
+                Sel.TextColor3 = C.Text
+                Sel.TextSize = 10
+                Sel.Font = Enum.Font.GothamSemibold
+                Sel.AutoButtonColor = false
+                Sel.ZIndex = 14
+                makeCorner(Sel, 4)
+                makeStroke(Sel, C.Border, 1, 0)
 
                 local Dropdown = {Value = selected}
+
                 local DFrame = Instance.new("Frame", ScreenGui)
                 DFrame.Size = UDim2.new(0,130,0,#options*24+4)
-                DFrame.BackgroundColor3 = C.Bg3; DFrame.BorderSizePixel = 0
-                DFrame.Visible = false; DFrame.ZIndex = 100
-                makeCorner(DFrame, 6); makeStroke(DFrame, C.Accent, 1, 0.55)
+                DFrame.BackgroundColor3 = C.Bg3
+                DFrame.BorderSizePixel = 0
+                DFrame.Visible = false
+                DFrame.ZIndex = 100
+                makeCorner(DFrame, 6)
+                makeStroke(DFrame, C.Accent, 1, 0.55)
+
                 local DL = Instance.new("UIListLayout", DFrame)
-                DL.Padding = UDim.new(0,1); DL.SortOrder = Enum.SortOrder.LayoutOrder
+                DL.Padding = UDim.new(0,1)
+                DL.SortOrder = Enum.SortOrder.LayoutOrder
                 makePadding(DFrame, 3, 3, 4, 4)
+
+                -- Fecha dropdown ao trocar de aba
+                Main:GetPropertyChangedSignal("Visible"):Connect(function()
+                    opened = false; DFrame.Visible = false
+                end)
 
                 for _, opt in ipairs(options) do
                     local OBtn = Instance.new("TextButton", DFrame)
-                    OBtn.Size = UDim2.new(1,0,0,22); OBtn.BackgroundColor3 = C.Bg4
-                    OBtn.BackgroundTransparency = 1; OBtn.Text = opt
+                    OBtn.Size = UDim2.new(1,0,0,22)
+                    OBtn.BackgroundColor3 = C.Bg4
+                    OBtn.BackgroundTransparency = 1
+                    OBtn.Text = opt
                     OBtn.TextColor3 = opt == selected and C.Accent3 or C.Sub
-                    OBtn.TextSize = 11; OBtn.Font = Enum.Font.Gotham
-                    OBtn.AutoButtonColor = false; OBtn.ZIndex = 101; makeCorner(OBtn, 4)
-                    OBtn.MouseEnter:Connect(function() Tween(OBtn, {BackgroundTransparency=0.5, TextColor3=C.Text}, 0.12):Play() end)
-                    OBtn.MouseLeave:Connect(function() Tween(OBtn, {BackgroundTransparency=1, TextColor3=opt==Dropdown.Value and C.Accent3 or C.Sub}, 0.12):Play() end)
+                    OBtn.TextSize = 11
+                    OBtn.Font = Enum.Font.Gotham
+                    OBtn.AutoButtonColor = false
+                    OBtn.ZIndex = 101
+                    makeCorner(OBtn, 4)
+                    OBtn.MouseEnter:Connect(function()
+                        Tween(OBtn, {BackgroundTransparency=0.5, TextColor3=C.Text}, 0.12):Play()
+                    end)
+                    OBtn.MouseLeave:Connect(function()
+                        Tween(OBtn, {BackgroundTransparency=1, TextColor3=opt==Dropdown.Value and C.Accent3 or C.Sub}, 0.12):Play()
+                    end)
                     OBtn.MouseButton1Click:Connect(function()
-                        Dropdown.Value=opt; Sel.Text=opt.."  ▼"; opened=false; DFrame.Visible=false; callback(opt)
+                        Dropdown.Value = opt
+                        Sel.Text = opt.."  ▼"
+                        opened = false
+                        DFrame.Visible = false
+                        -- Atualiza cor de todos os botões da lista
+                        for _, child in ipairs(DFrame:GetChildren()) do
+                            if child:IsA("TextButton") then
+                                child.TextColor3 = child.Text == opt and C.Accent3 or C.Sub
+                            end
+                        end
+                        callback(opt)
                     end)
                 end
+
                 Sel.MouseButton1Click:Connect(function()
-                    opened = not opened; DFrame.Visible = opened
-                    if opened then local abs=Sel.AbsolutePosition; DFrame.Position=UDim2.fromOffset(abs.X, abs.Y+Sel.AbsoluteSize.Y+3) end
+                    opened = not opened
+                    DFrame.Visible = opened
+                    if opened then
+                        local abs = Sel.AbsolutePosition
+                        DFrame.Position = UDim2.fromOffset(abs.X, abs.Y + Sel.AbsoluteSize.Y + 3)
+                    end
                 end)
+
                 UserInputService.InputBegan:Connect(function(inp)
                     if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-                        local mp=UserInputService:GetMouseLocation(); local fp=DFrame.AbsolutePosition; local fs=DFrame.AbsoluteSize
+                        local mp = UserInputService:GetMouseLocation()
+                        local fp = DFrame.AbsolutePosition
+                        local fs = DFrame.AbsoluteSize
                         if not (mp.X>=fp.X and mp.X<=fp.X+fs.X and mp.Y>=fp.Y and mp.Y<=fp.Y+fs.Y) then
-                            opened=false; DFrame.Visible=false
+                            opened = false
+                            DFrame.Visible = false
                         end
                     end
                 end)
+
                 function Dropdown:Set(v)
-                    if table.find(options,v) then Dropdown.Value=v; Sel.Text=v.."  ▼"; callback(v) end
+                    if table.find(options, v) then
+                        Dropdown.Value = v
+                        Sel.Text = v.."  ▼"
+                        -- Atualiza cor dos botões
+                        for _, child in ipairs(DFrame:GetChildren()) do
+                            if child:IsA("TextButton") then
+                                child.TextColor3 = child.Text == v and C.Accent3 or C.Sub
+                            end
+                        end
+                        callback(v)
+                    end
                 end
-                AddItem(Row); return Dropdown
+
+                -- *** FIX PRINCIPAL: dispara callback com o valor default ***
+                if selected then
+                    task.defer(function()
+                        callback(selected)
+                    end)
+                end
+
+                AddItem(Row)
+                return Dropdown
             end
 
             -- --------------------------------------------------------
@@ -912,13 +989,11 @@ function KraviX:CreateWindow(config)
             end
 
             -- --------------------------------------------------------
-            -- AddMouseKeybind (teclado + mouse — NOVO)
-            -- Retorna bind no formato { type = "key"/"mouse", value = ... }
+            -- AddMouseKeybind (teclado + mouse)
             -- --------------------------------------------------------
             function Section:AddMouseKeybind(cfg)
                 cfg = cfg or {}
 
-                -- aceita Default como KeyCode simples ou como tabela {type, value}
                 local cur
                 if type(cfg.Default) == "table" and cfg.Default.type then
                     cur = cfg.Default
@@ -979,7 +1054,6 @@ function KraviX:CreateWindow(config)
                     if not listen then return end
                     if processed then return end
 
-                    -- Verifica botões do mouse primeiro
                     local isMouse = false
                     for _, mt in ipairs(MOUSE_TYPES) do
                         if inp.UserInputType == mt then
@@ -991,7 +1065,6 @@ function KraviX:CreateWindow(config)
 
                     if not isMouse then
                         if inp.UserInputType == Enum.UserInputType.Keyboard then
-                            -- Escape cancela sem alterar o bind atual
                             if inp.KeyCode == Enum.KeyCode.Escape then
                                 listen = false
                                 KB.Text = bindLabel(cur)
@@ -1000,7 +1073,7 @@ function KraviX:CreateWindow(config)
                             end
                             cur = { type = "key", value = inp.KeyCode }
                         else
-                            return -- ignora scroll, gamepad, etc.
+                            return
                         end
                     end
 
@@ -1093,6 +1166,10 @@ function KraviX:CreateWindow(config)
                         if not (mp.X>=fp.X and mp.X<=fp.X+fs.X and mp.Y>=fp.Y and mp.Y<=fp.Y+fs.Y) then pickerOpen=false; PF.Visible=false end
                     end
                 end)
+
+                -- Dispara callback com cor default
+                task.defer(function() callback(color) end)
+
                 function Picker:Set(c) Picker.Value=c; hue,sat,val2=c:ToHSV(); UpdateColor() end
                 AddItem(Row); return Picker
             end
