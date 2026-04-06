@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.45          ║
+-- ║         KraviX UI Library v3.46          ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -83,15 +83,11 @@ local MOUSE_NAMES = {
     [Enum.UserInputType.MouseButton1] = "Mouse1",
     [Enum.UserInputType.MouseButton2] = "Mouse2",
     [Enum.UserInputType.MouseButton3] = "Mouse3",
-    [Enum.UserInputType.MouseButton4] = "Mouse4",
-    [Enum.UserInputType.MouseButton5] = "Mouse5",
 }
 local MOUSE_TYPES = {
     Enum.UserInputType.MouseButton1,
     Enum.UserInputType.MouseButton2,
     Enum.UserInputType.MouseButton3,
-    Enum.UserInputType.MouseButton4,
-    Enum.UserInputType.MouseButton5,
 }
 
 -- NOTIFICACAO
