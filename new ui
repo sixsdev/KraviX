@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.4          ║
+-- ║         KraviX UI Library v3.45          ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -78,39 +78,51 @@ local C = {
     Black     = Color3.fromRGB(  0,   0,   0),
 }
 
+-- Nomes amigáveis para botões do mouse (usado em AddMouseKeybind)
+local MOUSE_NAMES = {
+    [Enum.UserInputType.MouseButton1] = "Mouse1",
+    [Enum.UserInputType.MouseButton2] = "Mouse2",
+    [Enum.UserInputType.MouseButton3] = "Mouse3",
+    [Enum.UserInputType.MouseButton4] = "Mouse4",
+    [Enum.UserInputType.MouseButton5] = "Mouse5",
+}
+local MOUSE_TYPES = {
+    Enum.UserInputType.MouseButton1,
+    Enum.UserInputType.MouseButton2,
+    Enum.UserInputType.MouseButton3,
+    Enum.UserInputType.MouseButton4,
+    Enum.UserInputType.MouseButton5,
+}
+
 -- NOTIFICACAO
 local function CreateNotification(title, text, duration)
     PlaySound(SOUND_NOTIF)
     local G = Instance.new("ScreenGui")
     G.Name = "KxNotif_"..tostring(tick()); G.IgnoreGuiInset = true
     G.ZIndexBehavior = Enum.ZIndexBehavior.Global; G.ResetOnSpawn = false
-    -- ClipsDescendants no ScreenGui para evitar vazamento visual
     if syn and syn.protect_gui then syn.protect_gui(G); G.Parent = CoreGui
     elseif gethui then G.Parent = gethui() else G.Parent = CoreGui end
 
-    -- Frame principal começa invisível, fora da tela à direita
     local F = Instance.new("Frame", G)
     F.Size = UDim2.new(0, 300, 0, 68)
     F.Position = UDim2.new(1, 10, 0, 18)
     F.BackgroundColor3 = C.Bg2
-    F.BackgroundTransparency = 1  -- começa transparente para fade in
+    F.BackgroundTransparency = 1
     F.BorderSizePixel = 0
     makeCorner(F, 8)
 
     local FStroke = Instance.new("UIStroke", F)
     FStroke.Color = Color3.fromRGB(168, 85, 247)
     FStroke.Thickness = 1.2
-    FStroke.Transparency = 1  -- começa invisível
+    FStroke.Transparency = 1
     FStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    -- Barra lateral roxa
     local Bar = Instance.new("Frame", F)
     Bar.Size = UDim2.new(0, 3, 1, -16); Bar.Position = UDim2.new(0, 0, 0, 8)
     Bar.BackgroundColor3 = C.Accent; Bar.BorderSizePixel = 0; makeCorner(Bar, 3)
     local BG = Instance.new("UIGradient", Bar)
     BG.Color = ColorSequence.new(C.Accent2, C.Accent3); BG.Rotation = 90
 
-    -- Icone asset
     local Icon = Instance.new("ImageLabel", F)
     Icon.Size = UDim2.new(0, 26, 0, 26); Icon.Position = UDim2.new(0, 10, 0.5, -13)
     Icon.BackgroundTransparency = 1; Icon.BorderSizePixel = 0
@@ -130,7 +142,6 @@ local function CreateNotification(title, text, duration)
     D.TextXAlignment = Enum.TextXAlignment.Left
     D.TextWrapped = true; D.TextTransparency = 1
 
-    -- Animação: slide da direita + fade in suave (sem Back easing pra não vazar)
     local targetX = UDim2.new(1, -316, 0, 18)
     Tween(F, {Position = targetX, BackgroundTransparency = 0.06}, 0.3, Enum.EasingStyle.Quint):Play()
     Tween(FStroke, {Transparency = 0}, 0.3, Enum.EasingStyle.Quint):Play()
@@ -139,7 +150,6 @@ local function CreateNotification(title, text, duration)
     Tween(D, {TextTransparency = 0}, 0.4, Enum.EasingStyle.Quint):Play()
 
     task.delay(duration or 3, function()
-        -- fade out + slide pra direita
         Tween(F, {Position = UDim2.new(1, 10, 0, 18), BackgroundTransparency = 1}, 0.28, Enum.EasingStyle.Quint):Play()
         Tween(FStroke, {Transparency = 1}, 0.22):Play()
         Tween(Icon, {ImageTransparency = 1}, 0.2):Play()
@@ -319,7 +329,9 @@ local function CreateLoader(screenGui, onDone)
     end)
 end
 
+-- ============================================================
 -- CREATEWINDOW
+-- ============================================================
 function KraviX:CreateWindow(config)
     config         = config or {}
     config.Name    = config.Name    or "KraviX"
@@ -419,11 +431,10 @@ function KraviX:CreateWindow(config)
 
     local VerLbl = Instance.new("TextLabel", TopBar)
     VerLbl.Size = UDim2.new(0, 60, 0, 28); VerLbl.Position = UDim2.new(1, -122, 0, 1)
-    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.0"
+    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.4"
     VerLbl.TextColor3 = C.Muted2; VerLbl.TextSize = 10; VerLbl.Font = Enum.Font.Gotham
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 12
 
-    -- BOTAO X ROXO — direto no TextButton
     local CloseBtn = Instance.new("TextButton", TopBar)
     CloseBtn.Size = UDim2.new(0, 26, 0, 26)
     CloseBtn.Position = UDim2.new(1, -34, 0.5, -13)
@@ -497,7 +508,9 @@ function KraviX:CreateWindow(config)
         CreateNotification("KraviX", "Carregado! Pressione "..Window.Keybind.Name.." para fechar", 3)
     end)
 
+    -- ============================================================
     -- CreateTab
+    -- ============================================================
     function Window:CreateTab(name, icon)
         local Tab      = {}
         local tabIndex = #Window.Tabs + 1
@@ -546,7 +559,6 @@ function KraviX:CreateWindow(config)
 
         table.insert(Window.Tabs, {Btn=TabBtn, Container=TwoCol, Line=TabLine, Index=tabIndex})
 
-        -- overlay de fade para esta tab
         local FadeOverlay = Instance.new("Frame", TwoCol)
         FadeOverlay.Size = UDim2.new(1, 0, 1, 0)
         FadeOverlay.BackgroundColor3 = C.Bg2
@@ -558,14 +570,11 @@ function KraviX:CreateWindow(config)
             activeTabIndex = tabIndex
             for _, t in ipairs(Window.Tabs) do
                 local on = t.Index == activeTabIndex
-                if not on then
-                    t.Container.Visible = false
-                end
+                if not on then t.Container.Visible = false end
                 t.Btn.TextColor3 = on and C.Text or C.Muted
                 t.Btn.BackgroundTransparency = on and 0.82 or 1
                 t.Line.Visible = on
             end
-            -- fade in: mostra container e anima overlay de opaco -> transparente
             TwoCol.Visible = true
             FadeOverlay.BackgroundTransparency = 0
             Tween(FadeOverlay, {BackgroundTransparency = 1}, 0.25, Enum.EasingStyle.Quad):Play()
@@ -580,6 +589,9 @@ function KraviX:CreateWindow(config)
         end)
         if #Window.Tabs == 1 then SelectTab() end
 
+        -- ============================================================
+        -- AddSection
+        -- ============================================================
         function Tab:AddSection(sectionName, column)
             local Section = {}
             local scroll = (column == "Right") and RightScroll or LeftScroll
@@ -597,6 +609,9 @@ function KraviX:CreateWindow(config)
 
             local function AddItem(item) item.Parent = scroll end
 
+            -- --------------------------------------------------------
+            -- AddToggle
+            -- --------------------------------------------------------
             function Section:AddToggle(cfg)
                 cfg = cfg or {}
                 local toggled = cfg.Default or false
@@ -670,6 +685,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Toggle
             end
 
+            -- --------------------------------------------------------
+            -- AddSlider
+            -- --------------------------------------------------------
             function Section:AddSlider(cfg)
                 cfg = cfg or {}
                 local min = cfg.Min or 0; local max = cfg.Max or 100
@@ -745,6 +763,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Slider
             end
 
+            -- --------------------------------------------------------
+            -- AddDropdown
+            -- --------------------------------------------------------
             function Section:AddDropdown(cfg)
                 cfg = cfg or {}
                 local options = cfg.Values or {}; local selected = cfg.Default or options[1]
@@ -808,6 +829,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Dropdown
             end
 
+            -- --------------------------------------------------------
+            -- AddButton
+            -- --------------------------------------------------------
             function Section:AddButton(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -826,6 +850,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Btn)
             end
 
+            -- --------------------------------------------------------
+            -- AddTextbox
+            -- --------------------------------------------------------
             function Section:AddTextbox(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -852,6 +879,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Row)
             end
 
+            -- --------------------------------------------------------
+            -- AddKeybind (somente teclado — legado)
+            -- --------------------------------------------------------
             function Section:AddKeybind(cfg)
                 cfg = cfg or {}
                 local cur = cfg.Default or Enum.KeyCode.E; local listen = false
@@ -875,6 +905,9 @@ function KraviX:CreateWindow(config)
                 end)
                 UserInputService.InputBegan:Connect(function(inp, proc)
                     if listen and not proc and inp.UserInputType == Enum.UserInputType.Keyboard then
+                        if inp.KeyCode == Enum.KeyCode.Escape then
+                            listen=false; KB.Text=cur.Name; KB.TextColor3=C.Accent3; return
+                        end
                         listen=false; cur=inp.KeyCode; Keybind.Value=cur
                         KB.Text=cur.Name; KB.TextColor3=C.Accent3; callback(cur)
                     end
@@ -882,6 +915,125 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Keybind
             end
 
+            -- --------------------------------------------------------
+            -- AddMouseKeybind (teclado + mouse — NOVO)
+            -- Retorna bind no formato { type = "key"/"mouse", value = ... }
+            -- --------------------------------------------------------
+            function Section:AddMouseKeybind(cfg)
+                cfg = cfg or {}
+
+                -- aceita Default como KeyCode simples ou como tabela {type, value}
+                local cur
+                if type(cfg.Default) == "table" and cfg.Default.type then
+                    cur = cfg.Default
+                else
+                    cur = { type = "key", value = cfg.Default or Enum.KeyCode.E }
+                end
+
+                local listen   = false
+                local callback = cfg.Callback or function() end
+
+                local function bindLabel(b)
+                    if b.type == "mouse" then
+                        return MOUSE_NAMES[b.value] or "Mouse?"
+                    else
+                        return b.value and b.value.Name or "?"
+                    end
+                end
+
+                local Row = Instance.new("Frame")
+                Row.Size = UDim2.new(1, 0, 0, 24)
+                Row.BackgroundTransparency = 1
+                Row.ZIndex = 13
+
+                local Lbl = Instance.new("TextLabel", Row)
+                Lbl.Size = UDim2.new(0.6, 0, 1, 0)
+                Lbl.BackgroundTransparency = 1
+                Lbl.Text = cfg.Name or "Keybind"
+                Lbl.TextColor3 = C.Sub
+                Lbl.TextSize = 11
+                Lbl.Font = Enum.Font.Gotham
+                Lbl.TextXAlignment = Enum.TextXAlignment.Left
+                Lbl.ZIndex = 14
+
+                local KB = Instance.new("TextButton", Row)
+                KB.Size = UDim2.new(0.4, -2, 1, -4)
+                KB.Position = UDim2.new(0.6, 2, 0.5, -10)
+                KB.BackgroundColor3 = C.Bg4
+                KB.Text = bindLabel(cur)
+                KB.TextColor3 = C.Accent3
+                KB.TextSize = 10
+                KB.Font = Enum.Font.GothamBold
+                KB.AutoButtonColor = false
+                KB.ZIndex = 14
+                makeCorner(KB, 4)
+                makeStroke(KB, C.Border, 1, 0)
+
+                local Bind = { Value = cur }
+
+                KB.MouseButton1Click:Connect(function()
+                    if not listen then
+                        listen = true
+                        KB.Text = "..."
+                        KB.TextColor3 = C.White
+                    end
+                end)
+
+                UserInputService.InputBegan:Connect(function(inp, processed)
+                    if not listen then return end
+                    if processed then return end
+
+                    -- Verifica botões do mouse primeiro
+                    local isMouse = false
+                    for _, mt in ipairs(MOUSE_TYPES) do
+                        if inp.UserInputType == mt then
+                            isMouse = true
+                            cur = { type = "mouse", value = inp.UserInputType }
+                            break
+                        end
+                    end
+
+                    if not isMouse then
+                        if inp.UserInputType == Enum.UserInputType.Keyboard then
+                            -- Escape cancela sem alterar o bind atual
+                            if inp.KeyCode == Enum.KeyCode.Escape then
+                                listen = false
+                                KB.Text = bindLabel(cur)
+                                KB.TextColor3 = C.Accent3
+                                return
+                            end
+                            cur = { type = "key", value = inp.KeyCode }
+                        else
+                            return -- ignora scroll, gamepad, etc.
+                        end
+                    end
+
+                    listen = false
+                    Bind.Value = cur
+                    KB.Text = bindLabel(cur)
+                    KB.TextColor3 = C.Accent3
+                    callback(cur)
+                end)
+
+                function Bind:Set(b)
+                    if type(b) == "table" and b.type then
+                        cur = b
+                    else
+                        cur = { type = "key", value = b }
+                    end
+                    Bind.Value = cur
+                    KB.Text = bindLabel(cur)
+                    KB.TextColor3 = C.Accent3
+                    callback(cur)
+                end
+
+                AddItem(Row)
+                return Bind
+            end
+
+            -- --------------------------------------------------------
+            -- AddColorPicker
+            -- --------------------------------------------------------
             function Section:AddColorPicker(cfg)
                 cfg = cfg or {}
                 local color = cfg.Default or Color3.fromRGB(168,85,247)
@@ -949,6 +1101,9 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Picker
             end
 
+            -- --------------------------------------------------------
+            -- AddLabel
+            -- --------------------------------------------------------
             function Section:AddLabel(cfg)
                 cfg = cfg or {}
                 local L = Instance.new("TextLabel")
@@ -960,6 +1115,9 @@ function KraviX:CreateWindow(config)
                 return { SetText = function(_, t) L.Text = t end }
             end
 
+            -- --------------------------------------------------------
+            -- AddSeparator
+            -- --------------------------------------------------------
             function Section:AddSeparator()
                 local S = Instance.new("Frame")
                 S.Size = UDim2.new(1,0,0,1); S.BackgroundColor3 = C.Border; S.BorderSizePixel = 0; S.ZIndex = 13
