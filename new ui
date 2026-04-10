@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.48     ║
+-- ║         KraviX UI Library v3.49        ║
 -- ║  Layout denso · Neve · Loader animado   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -316,6 +316,9 @@ function KraviX:CreateWindow(config)
     ScreenGui.ResetOnSpawn = false; ScreenGui.IgnoreGuiInset = true
     protect(ScreenGui)
 
+    -- Guarda referência da ScreenGui para o Destroy externo
+    Window._ScreenGui = ScreenGui
+
     local Backdrop = Instance.new("Frame", ScreenGui)
     Backdrop.Size = UDim2.new(1,0,1,0); Backdrop.BackgroundColor3 = C.Black
     Backdrop.BackgroundTransparency = 0.5; Backdrop.BorderSizePixel = 0
@@ -390,7 +393,7 @@ function KraviX:CreateWindow(config)
 
     local VerLbl = Instance.new("TextLabel", TopBar)
     VerLbl.Size = UDim2.new(0,60,0,28); VerLbl.Position = UDim2.new(1,-122,0,1)
-    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.47"
+    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.48"
     VerLbl.TextColor3 = C.Muted2; VerLbl.TextSize = 10; VerLbl.Font = Enum.Font.Gotham
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 12
 
@@ -409,25 +412,44 @@ function KraviX:CreateWindow(config)
         Tween(CloseBtn, {BackgroundColor3=Color3.fromRGB(30,10,55), BackgroundTransparency=0.1, TextColor3=C.Accent3}, 0.14):Play()
     end)
 
+    -- ══════════════════════════════════════════════════════════
+    -- HideWindow / ShowWindow / ToggleWindow
+    -- Expostos como Window.HideWindow / Window.ShowWindow / Window.ToggleWindow
+    -- para que scripts externos possam chamar diretamente
+    -- ══════════════════════════════════════════════════════════
     local function HideWindow()
+        if not Main.Visible then return end
         Tween(Main, {Size=UDim2.new(0,0,0,0), Position=UDim2.new(0.5,0,0.5,0)}, 0.2, Enum.EasingStyle.Back):Play()
         task.wait(0.23); Main.Visible=false; Backdrop.Visible=false
         Main.Size=UDim2.new(0,600,0,480); Main.Position=UDim2.new(0.5,-300,0.5,-240)
     end
     local function ShowWindow()
+        if Main.Visible then return end
         Main.Visible=true; Backdrop.Visible=true
         Main.Size=UDim2.new(0,0,0,0); Main.Position=UDim2.new(0.5,0,0.5,0)
         Tween(Main, {Size=UDim2.new(0,600,0,480), Position=UDim2.new(0.5,-300,0.5,-240)}, 0.32, Enum.EasingStyle.Back):Play()
     end
+    local function ToggleWindow()
+        if Main.Visible then HideWindow() else ShowWindow() end
+    end
+
+    -- Expõe para uso externo
+    Window.HideWindow   = HideWindow
+    Window.ShowWindow   = ShowWindow
+    Window.ToggleWindow = ToggleWindow
 
     CloseBtn.MouseButton1Click:Connect(function()
-        HideWindow(); CreateNotification("KraviX", "Pressione "..Window.Keybind.Name.." para reabrir", 3)
+        HideWindow()
+        CreateNotification("KraviX", "Pressione a tecla de menu para reabrir", 3)
     end)
     MakeDraggable(Main, TopBar)
+
+    -- Keybind padrão da library (RightControl) — ainda funciona como fallback
+    -- O script externo pode chamar Window.ToggleWindow diretamente
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if input.KeyCode == Window.Keybind then
-            if Main.Visible then HideWindow() else ShowWindow() end
+            ToggleWindow()
         end
     end)
 
@@ -456,7 +478,7 @@ function KraviX:CreateWindow(config)
 
     CreateLoader(ScreenGui, function()
         PlaySound(SOUND_OPEN); ShowWindow()
-        CreateNotification("KraviX", "Carregado! Pressione "..Window.Keybind.Name.." para fechar", 3)
+        CreateNotification("KraviX", "Carregado! Pressione RightControl (ou tecla configurada) para fechar", 3)
     end)
 
     function Window:CreateTab(name, icon)
@@ -673,15 +695,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Slider
             end
 
-            -- ════════════════════════════════════════════════
-            -- AddDropdown — CORRIGIDO
-            -- O bug era: UserInputService.InputBegan com MB1
-            -- fechava o DFrame ANTES do MouseButton1Click do
-            -- botão de opção disparar.
-            -- Solução: flag _dropHovered que impede o
-            -- fechamento externo enquanto o mouse está sobre
-            -- o dropdown.
-            -- ════════════════════════════════════════════════
             function Section:AddDropdown(cfg)
                 cfg = cfg or {}
                 local options  = cfg.Values or {}
@@ -711,19 +724,17 @@ function KraviX:CreateWindow(config)
                 local DFrame = Instance.new("Frame", ScreenGui)
                 DFrame.Size = UDim2.new(0,140,0,#options*24+8)
                 DFrame.BackgroundColor3 = C.Bg3; DFrame.BorderSizePixel = 0
-                DFrame.Visible = false; DFrame.ZIndex = 200   -- ZIndex alto para ficar sobre tudo
+                DFrame.Visible = false; DFrame.ZIndex = 200
                 makeCorner(DFrame, 6); makeStroke(DFrame, C.Accent, 1, 0.4)
 
                 local DL = Instance.new("UIListLayout", DFrame)
                 DL.Padding = UDim.new(0,2); DL.SortOrder = Enum.SortOrder.LayoutOrder
                 makePadding(DFrame, 4, 4, 4, 4)
 
-                -- ── flag: mouse está sobre o dropdown? ───────
                 local _dropHovered = false
                 DFrame.MouseEnter:Connect(function() _dropHovered = true  end)
                 DFrame.MouseLeave:Connect(function() _dropHovered = false end)
 
-                -- ── botões de opção ───────────────────────────
                 local optBtns = {}
                 for _, opt in ipairs(options) do
                     local OBtn = Instance.new("TextButton", DFrame)
@@ -744,50 +755,30 @@ function KraviX:CreateWindow(config)
                         end
                     end)
                     OBtn.MouseLeave:Connect(function()
-                        -- não desliga _dropHovered aqui; o DFrame.MouseLeave cuida disso
                         if OBtn.Text ~= Dropdown.Value then
                             Tween(OBtn, {BackgroundTransparency=1, TextColor3=C.Sub}, 0.1):Play()
                         end
                     end)
 
-                    -- ★ CLIQUE NA OPÇÃO — fecha DEPOIS de registrar
                     OBtn.MouseButton1Click:Connect(function()
                         local prev = Dropdown.Value
                         Dropdown.Value = opt
                         Sel.Text = opt.."  ▼"
-
-                        -- atualiza visual de todos os botões
                         for o, b in pairs(optBtns) do
-                            if o == opt then
-                                b.TextColor3 = C.Accent3
-                                b.BackgroundTransparency = 0.5
-                            else
-                                b.TextColor3 = C.Sub
-                                b.BackgroundTransparency = 1
-                            end
+                            if o == opt then b.TextColor3=C.Accent3; b.BackgroundTransparency=0.5
+                            else b.TextColor3=C.Sub; b.BackgroundTransparency=1 end
                         end
-
-                        -- fecha o dropdown
-                        opened = false
-                        DFrame.Visible = false
-                        _dropHovered = false
-
-                        if prev ~= opt then
-                            callback(opt)
-                        end
+                        opened = false; DFrame.Visible = false; _dropHovered = false
+                        if prev ~= opt then callback(opt) end
                     end)
                 end
 
-                -- ── abre / fecha ao clicar no Sel ────────────
                 Sel.MouseButton1Click:Connect(function()
-                    opened = not opened
-                    DFrame.Visible = opened
+                    opened = not opened; DFrame.Visible = opened
                     if opened then
-                        -- reposiciona
                         local abs = Sel.AbsolutePosition
                         local vpH = ScreenGui.AbsoluteSize.Y
                         local fH  = #options * 24 + 8
-                        -- abre para cima se não couber abaixo
                         if abs.Y + Sel.AbsoluteSize.Y + fH + 4 > vpH then
                             DFrame.Position = UDim2.fromOffset(abs.X, abs.Y - fH - 4)
                         else
@@ -796,27 +787,19 @@ function KraviX:CreateWindow(config)
                     end
                 end)
 
-                -- ── fecha ao clicar fora ──────────────────────
-                -- ★ CORREÇÃO PRINCIPAL: só fecha se o mouse
-                --   NÃO estiver sobre o DFrame (_dropHovered)
                 UserInputService.InputBegan:Connect(function(inp)
                     if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if not _dropHovered then
-                            opened = false
-                            DFrame.Visible = false
-                        end
+                        if not _dropHovered then opened=false; DFrame.Visible=false end
                     end
                 end)
 
-                -- fecha ao trocar de aba / minimizar janela
                 Main:GetPropertyChangedSignal("Visible"):Connect(function()
                     opened=false; DFrame.Visible=false; _dropHovered=false
                 end)
 
                 function Dropdown:Set(v)
                     if table.find(options, v) then
-                        Dropdown.Value = v
-                        Sel.Text = v.."  ▼"
+                        Dropdown.Value = v; Sel.Text = v.."  ▼"
                         for o, b in pairs(optBtns) do
                             b.TextColor3 = o==v and C.Accent3 or C.Sub
                             b.BackgroundTransparency = o==v and 0.5 or 1
@@ -825,11 +808,8 @@ function KraviX:CreateWindow(config)
                     end
                 end
 
-                -- dispara callback com o default
                 if selected then task.defer(function() callback(selected) end) end
-
-                AddItem(Row)
-                return Dropdown
+                AddItem(Row); return Dropdown
             end
 
             function Section:AddButton(cfg)
@@ -946,9 +926,7 @@ function KraviX:CreateWindow(config)
                     local isMouse = false
                     for _, mt in ipairs(MOUSE_TYPES) do
                         if inp.UserInputType == mt then
-                            isMouse = true
-                            cur = { type="mouse", value=inp.UserInputType }
-                            break
+                            isMouse = true; cur = { type="mouse", value=inp.UserInputType }; break
                         end
                     end
                     if not isMouse then
