@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.5          ║
+-- ║         KraviX UI Library v3.51          ║
 -- ║  Dense layout · Snow · Animated loader   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -358,7 +358,6 @@ function KraviX:CreateWindow(config)
     Shadow.ImageColor3 = C.Black; Shadow.ImageTransparency = 0.4; Shadow.ZIndex = 9
     Shadow.ScaleType = Enum.ScaleType.Slice; Shadow.SliceCenter = Rect.new(49,49,450,450)
 
-    -- TOPBAR
     local TopBar = Instance.new("Frame", Main)
     TopBar.Size = UDim2.new(1,0,0,30); TopBar.BackgroundColor3 = C.Bg
     TopBar.BackgroundTransparency = 0.1; TopBar.BorderSizePixel = 0; TopBar.ZIndex = 11
@@ -399,7 +398,7 @@ function KraviX:CreateWindow(config)
 
     local VerLbl = Instance.new("TextLabel", TopBar)
     VerLbl.Size = UDim2.new(0,60,0,28); VerLbl.Position = UDim2.new(1,-122,0,1)
-    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.49"
+    VerLbl.BackgroundTransparency = 1; VerLbl.Text = "v3.5"
     VerLbl.TextColor3 = C.Muted2; VerLbl.TextSize = 10; VerLbl.Font = Enum.Font.Gotham
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 12
 
@@ -417,9 +416,6 @@ function KraviX:CreateWindow(config)
         Tween(CloseBtn,{BackgroundColor3=Color3.fromRGB(30,10,55),BackgroundTransparency=0.1,TextColor3=C.Accent3},0.14):Play()
     end)
 
-    -- ============================================================
-    -- SHOW / HIDE / TOGGLE
-    -- ============================================================
     local function HideWindow()
         if not Main.Visible then return end
         Tween(Main,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0.5,0,0.5,0)},0.2,Enum.EasingStyle.Back):Play()
@@ -440,29 +436,25 @@ function KraviX:CreateWindow(config)
     Window.ShowWindow   = ShowWindow
     Window.ToggleWindow = ToggleWindow
 
-    -- helper to build a readable bind label for the notification
     local function bindLabelGlobal(b)
         if not b then return "RightControl" end
-        if b.type == "mouse" then return MOUSE_NAMES[b.value] or "Mouse?" end
+        if b.type=="mouse" then return MOUSE_NAMES[b.value] or "Mouse?" end
         return b.value and b.value.Name or "?"
     end
     Window._bindLabelGlobal = bindLabelGlobal
+    Window._menuBind = {type="key", value=config.Keybind}
 
     CloseBtn.MouseButton1Click:Connect(function()
         HideWindow()
-        -- notification text is updated by the script after setting the menu bind
         CreateNotification("KraviX", "Press "..bindLabelGlobal(Window._menuBind).." to open the UI", 3)
     end)
     MakeDraggable(Main, TopBar)
 
-    -- Default keybind fallback (script can override via Window._menuBind)
-    Window._menuBind = {type="key", value=config.Keybind}
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if input.KeyCode == Window.Keybind then ToggleWindow() end
     end)
 
-    -- TAB BAR
     local TabBar = Instance.new("ScrollingFrame", Main)
     TabBar.Name = "TabBar"; TabBar.Size = UDim2.new(1,0,0,28); TabBar.Position = UDim2.new(0,0,0,30)
     TabBar.BackgroundColor3 = C.Bg; TabBar.BackgroundTransparency = 0.12; TabBar.BorderSizePixel = 0
@@ -588,9 +580,6 @@ function KraviX:CreateWindow(config)
 
             local function AddItem(item) item.Parent = scroll end
 
-            -- --------------------------------------------------------
-            -- AddToggle
-            -- --------------------------------------------------------
             function Section:AddToggle(cfg)
                 cfg = cfg or {}
                 local toggled  = cfg.Default or false
@@ -645,9 +634,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Toggle
             end
 
-            -- --------------------------------------------------------
-            -- AddSlider
-            -- --------------------------------------------------------
             function Section:AddSlider(cfg)
                 cfg = cfg or {}
                 local min = cfg.Min or 0; local max = cfg.Max or 100
@@ -710,9 +696,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Slider
             end
 
-            -- --------------------------------------------------------
-            -- AddDropdown  (bug corrigido: callback no default + cor dos botões)
-            -- --------------------------------------------------------
             function Section:AddDropdown(cfg)
                 cfg = cfg or {}
                 local options  = cfg.Values or {}
@@ -822,9 +805,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Dropdown
             end
 
-            -- --------------------------------------------------------
-            -- AddButton
-            -- --------------------------------------------------------
             function Section:AddButton(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -843,9 +823,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Btn)
             end
 
-            -- --------------------------------------------------------
-            -- AddTextbox
-            -- --------------------------------------------------------
             function Section:AddTextbox(cfg)
                 cfg = cfg or {}
                 local callback = cfg.Callback or function() end
@@ -872,9 +849,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row)
             end
 
-            -- --------------------------------------------------------
-            -- AddKeybind (keyboard only — legacy)
-            -- --------------------------------------------------------
             function Section:AddKeybind(cfg)
                 cfg = cfg or {}
                 local cur = cfg.Default or Enum.KeyCode.E; local listen = false
@@ -909,9 +883,10 @@ function KraviX:CreateWindow(config)
             end
 
             -- --------------------------------------------------------
-            -- AddMouseKeybind  *** BUG CORRIGIDO ***
-            -- O mouse só é capturado quando listen=true (aguardando bind).
-            -- Fora desse estado Mouse1/Mouse2 NÃO são interceptados.
+            -- AddMouseKeybind — CORRIGIDO
+            -- O clique que abre o "listen" NÃO é capturado como bind.
+            -- Usamos uma flag _ignoreNextMouse1 que descarta o primeiro
+            -- InputBegan de Mouse1 logo após o botão ser pressionado.
             -- --------------------------------------------------------
             function Section:AddMouseKeybind(cfg)
                 cfg = cfg or {}
@@ -921,8 +896,9 @@ function KraviX:CreateWindow(config)
                 else
                     cur = { type="key", value=cfg.Default or Enum.KeyCode.E }
                 end
-                local listen   = false
-                local callback = cfg.Callback or function() end
+                local listen            = false
+                local _ignoreNextMouse1 = false  -- descarta o Mouse1 que abriu o listen
+                local callback          = cfg.Callback or function() end
 
                 local function bindLabel(b)
                     if b.type=="mouse" then return MOUSE_NAMES[b.value] or "Mouse?"
@@ -947,23 +923,32 @@ function KraviX:CreateWindow(config)
 
                 local Bind = {Value = cur}
 
-                -- Ao clicar no botão KB, entra em modo de escuta
-                -- IMPORTANTE: usa MouseButton1Up para não capturar o próprio clique
-                -- que ativaria o listen como "Mouse1"
+                -- Ao clicar no botão entra em modo listen.
+                -- Marca _ignoreNextMouse1 = true para descartar o próximo
+                -- InputBegan de MouseButton1 (que é esse mesmo clique, mas chega
+                -- ao handler global um pouco depois).
                 KB.MouseButton1Click:Connect(function()
-                    -- pequeno delay para garantir que o InputBegan do clique
-                    -- já foi processado antes de ligar o listen
-                    task.delay(0.05, function()
+                    if not listen then
                         listen = true
+                        _ignoreNextMouse1 = true  -- descarta o clique que activou o listen
                         KB.Text = "..."
                         KB.TextColor3 = C.White
-                    end)
+                    end
                 end)
 
-                -- Conexão GLOBAL de InputBegan — só age quando listen=true
+                -- Handler global — só age quando listen=true
                 UserInputService.InputBegan:Connect(function(inp, processed)
-                    if not listen then return end  -- ← FIX PRINCIPAL: sai imediatamente se não está escutando
+                    if not listen then return end
                     if processed then return end
+
+                    -- Se for Mouse1 e for o clique que abriu o listen, descarta
+                    if inp.UserInputType == Enum.UserInputType.MouseButton1 and _ignoreNextMouse1 then
+                        _ignoreNextMouse1 = false
+                        return
+                    end
+
+                    -- A partir daqui, qualquer outro clique é capturado
+                    _ignoreNextMouse1 = false  -- reset por segurança
 
                     local isMouse = false
                     for _, mt in ipairs(MOUSE_TYPES) do
@@ -1003,9 +988,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Bind
             end
 
-            -- --------------------------------------------------------
-            -- AddColorPicker
-            -- --------------------------------------------------------
             function Section:AddColorPicker(cfg)
                 cfg = cfg or {}
                 local color    = cfg.Default or Color3.fromRGB(168,85,247)
@@ -1074,9 +1056,6 @@ function KraviX:CreateWindow(config)
                 AddItem(Row); return Picker
             end
 
-            -- --------------------------------------------------------
-            -- AddLabel
-            -- --------------------------------------------------------
             function Section:AddLabel(cfg)
                 cfg = cfg or {}
                 local L = Instance.new("TextLabel")
@@ -1088,9 +1067,6 @@ function KraviX:CreateWindow(config)
                 return { SetText = function(_, t) L.Text = t end }
             end
 
-            -- --------------------------------------------------------
-            -- AddSeparator
-            -- --------------------------------------------------------
             function Section:AddSeparator()
                 local S = Instance.new("Frame")
                 S.Size = UDim2.new(1,0,0,1); S.BackgroundColor3 = C.Border; S.BorderSizePixel = 0; S.ZIndex = 13
