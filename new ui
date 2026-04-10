@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.51          ║
+-- ║         KraviX UI Library v3.52          ║
 -- ║  Dense layout · Snow · Animated loader   ║
 -- ╚══════════════════════════════════════════╝
 
@@ -883,10 +883,11 @@ function KraviX:CreateWindow(config)
             end
 
             -- --------------------------------------------------------
-            -- AddMouseKeybind — CORRIGIDO
-            -- O clique que abre o "listen" NÃO é capturado como bind.
-            -- Usamos uma flag _ignoreNextMouse1 que descarta o primeiro
-            -- InputBegan de Mouse1 logo após o botão ser pressionado.
+            -- AddMouseKeybind — CORRIGIDO v2
+            -- Usamos InputBegan LOCAL no botão KB para detectar o clique
+            -- de abertura, e só ligamos listen=true NO FRAME SEGUINTE
+            -- (Heartbeat:Wait). Assim o InputBegan global nunca vê o
+            -- clique que abriu o modo de escuta.
             -- --------------------------------------------------------
             function Section:AddMouseKeybind(cfg)
                 cfg = cfg or {}
@@ -896,9 +897,8 @@ function KraviX:CreateWindow(config)
                 else
                     cur = { type="key", value=cfg.Default or Enum.KeyCode.E }
                 end
-                local listen            = false
-                local _ignoreNextMouse1 = false  -- descarta o Mouse1 que abriu o listen
-                local callback          = cfg.Callback or function() end
+                local listen   = false
+                local callback = cfg.Callback or function() end
 
                 local function bindLabel(b)
                     if b.type=="mouse" then return MOUSE_NAMES[b.value] or "Mouse?"
@@ -923,32 +923,24 @@ function KraviX:CreateWindow(config)
 
                 local Bind = {Value = cur}
 
-                -- Ao clicar no botão entra em modo listen.
-                -- Marca _ignoreNextMouse1 = true para descartar o próximo
-                -- InputBegan de MouseButton1 (que é esse mesmo clique, mas chega
-                -- ao handler global um pouco depois).
-                KB.MouseButton1Click:Connect(function()
-                    if not listen then
+                -- Detecta o clique LOCAL no botão e ativa listen apenas
+                -- no frame seguinte — o InputBegan global desse clique
+                -- já terá sido processado antes de listen virar true.
+                KB.InputBegan:Connect(function(inp)
+                    if inp.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+                    if listen then return end
+                    task.spawn(function()
+                        RunService.Heartbeat:Wait() -- espera o frame acabar
                         listen = true
-                        _ignoreNextMouse1 = true  -- descarta o clique que activou o listen
                         KB.Text = "..."
                         KB.TextColor3 = C.White
-                    end
+                    end)
                 end)
 
                 -- Handler global — só age quando listen=true
                 UserInputService.InputBegan:Connect(function(inp, processed)
                     if not listen then return end
                     if processed then return end
-
-                    -- Se for Mouse1 e for o clique que abriu o listen, descarta
-                    if inp.UserInputType == Enum.UserInputType.MouseButton1 and _ignoreNextMouse1 then
-                        _ignoreNextMouse1 = false
-                        return
-                    end
-
-                    -- A partir daqui, qualquer outro clique é capturado
-                    _ignoreNextMouse1 = false  -- reset por segurança
 
                     local isMouse = false
                     for _, mt in ipairs(MOUSE_TYPES) do
