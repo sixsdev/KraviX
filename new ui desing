@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.51          ║
+-- ║         KraviX UI Library v1.2          ║
 -- ║  Axion Loader · Snow · Animated UI       ║
 -- ╚══════════════════════════════════════════╝
 
@@ -304,27 +304,36 @@ local function CreateLoader(screenGui, onDone)
     TagLine.TextXAlignment   = Enum.TextXAlignment.Center
     TagLine.ZIndex           = 202
 
-    -- Bolinha branca simples
-    local Dot = Instance.new("Frame", LogoWrap)
-    Dot.Size             = UDim2.new(0,8,0,8)
+    -- Container da órbita (invisível, só serve de pivô)
+    local OrbitCenter = Instance.new("Frame", LogoWrap)
+    OrbitCenter.Size                  = UDim2.new(0,0,0,0)
+    OrbitCenter.AnchorPoint           = Vector2.new(0.5,0.5)
+    OrbitCenter.Position              = UDim2.new(0.5,0,0,150)
+    OrbitCenter.BackgroundTransparency = 1
+    OrbitCenter.BorderSizePixel       = 0
+    OrbitCenter.ZIndex                = 202
+
+    -- Bolinha branca
+    local Dot = Instance.new("Frame", OrbitCenter)
+    Dot.Size             = UDim2.new(0,7,0,7)
     Dot.AnchorPoint      = Vector2.new(0.5,0.5)
-    Dot.Position         = UDim2.new(0.5,0,0,150)
+    Dot.Position         = UDim2.new(0,0,0,0)
     Dot.BackgroundColor3 = C.White
     Dot.BackgroundTransparency = 1
     Dot.BorderSizePixel  = 0
-    Dot.ZIndex           = 202
+    Dot.ZIndex           = 203
     makeCorner(Dot, 4)
 
-    -- Pulso da bolinha
-    local function PulseDot()
-        if not Dot.Parent then return end
-        Tween(Dot, { BackgroundTransparency = 0.2 }, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut):Play()
-        task.wait(0.5)
-        if not Dot.Parent then return end
-        Tween(Dot, { BackgroundTransparency = 0.75 }, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut):Play()
-        task.wait(0.5)
-        PulseDot()
-    end
+    -- Giro via Heartbeat
+    local spinAngle = 0
+    local RADIUS    = 14
+    local spinConn
+    spinConn = RunService.Heartbeat:Connect(function(dt)
+        if not Dot.Parent then spinConn:Disconnect(); return end
+        spinAngle = (spinAngle + dt * 300) % 360
+        local rad = math.rad(spinAngle)
+        Dot.Position = UDim2.new(0, math.sin(rad)*RADIUS - 3.5, 0, -math.cos(rad)*RADIUS - 3.5)
+    end)
 
     task.spawn(function()
         task.wait(0.4)
@@ -347,9 +356,8 @@ local function CreateLoader(screenGui, onDone)
         Tween(TagLine, { TextTransparency = 0.35 }, 0.4):Play()
         task.wait(0.28)
 
-        -- 5. Bolinha aparece e começa a pulsar
-        Tween(Dot, { BackgroundTransparency = 0.2 }, 0.3):Play()
-        task.spawn(PulseDot)
+        -- 5. Bolinha aparece e já está girando
+        Tween(Dot, { BackgroundTransparency = 0 }, 0.3):Play()
         task.wait(0.35)
 
         -- 6. Aguarda o loading
