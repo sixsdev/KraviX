@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v1.2          ║
+-- ║         KraviX UI Library v1.3          ║
 -- ║  Axion Loader · Snow · Animated UI       ║
 -- ╚══════════════════════════════════════════╝
 
@@ -313,7 +313,25 @@ local function CreateLoader(screenGui, onDone)
     OrbitCenter.BorderSizePixel       = 0
     OrbitCenter.ZIndex                = 202
 
-    -- Bolinha branca
+    -- Rastro: bolinhas menores que vão sumindo atrás
+    local TRAIL_COUNT = 8
+    local RADIUS      = 14
+    local trailDots   = {}
+    for i = 1, TRAIL_COUNT do
+        local t  = Instance.new("Frame", OrbitCenter)
+        local sz = math.max(2, 7 - i)
+        t.Size                   = UDim2.new(0, sz, 0, sz)
+        t.AnchorPoint            = Vector2.new(0.5, 0.5)
+        t.Position               = UDim2.new(0, 0, 0, 0)
+        t.BackgroundColor3       = C.White
+        t.BackgroundTransparency = 1
+        t.BorderSizePixel        = 0
+        t.ZIndex                 = 202
+        makeCorner(t, sz)
+        trailDots[i] = t
+    end
+
+    -- Bolinha principal
     local Dot = Instance.new("Frame", OrbitCenter)
     Dot.Size             = UDim2.new(0,7,0,7)
     Dot.AnchorPoint      = Vector2.new(0.5,0.5)
@@ -326,13 +344,20 @@ local function CreateLoader(screenGui, onDone)
 
     -- Giro via Heartbeat
     local spinAngle = 0
-    local RADIUS    = 14
     local spinConn
     spinConn = RunService.Heartbeat:Connect(function(dt)
         if not Dot.Parent then spinConn:Disconnect(); return end
         spinAngle = (spinAngle + dt * 300) % 360
         local rad = math.rad(spinAngle)
         Dot.Position = UDim2.new(0, math.sin(rad)*RADIUS - 3.5, 0, -math.cos(rad)*RADIUS - 3.5)
+        -- rastro: cada ponto N*14° atrás, ficando menor e mais transparente
+        for i = 1, TRAIL_COUNT do
+            local tr   = math.rad(spinAngle - i * 14)
+            local sz   = math.max(2, 7 - i)
+            local fade = i / (TRAIL_COUNT + 1)
+            trailDots[i].Position               = UDim2.new(0, math.sin(tr)*RADIUS - sz/2, 0, -math.cos(tr)*RADIUS - sz/2)
+            trailDots[i].BackgroundTransparency = Dot.BackgroundTransparency + (1 - Dot.BackgroundTransparency) * fade
+        end
     end)
 
     task.spawn(function()
