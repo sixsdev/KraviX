@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v3.52          ║
+-- ║         KraviX UI Library v3.51          ║
 -- ║  Axion Loader · Snow · Animated UI       ║
 -- ╚══════════════════════════════════════════╝
 
@@ -304,89 +304,27 @@ local function CreateLoader(screenGui, onDone)
     TagLine.TextXAlignment   = Enum.TextXAlignment.Center
     TagLine.ZIndex           = 202
 
-    -- ============================================================
-    -- SPINNER — bolinha girando no lugar da barra
-    -- ============================================================
-    local SpinnerArea = Instance.new("Frame", LogoWrap)
-    SpinnerArea.Size                  = UDim2.new(0,40,0,40)
-    SpinnerArea.AnchorPoint           = Vector2.new(0.5,0)
-    SpinnerArea.Position              = UDim2.new(0.5,0,0,138)
-    SpinnerArea.BackgroundTransparency = 1
-    SpinnerArea.ZIndex                = 202
+    -- Bolinha branca simples
+    local Dot = Instance.new("Frame", LogoWrap)
+    Dot.Size             = UDim2.new(0,8,0,8)
+    Dot.AnchorPoint      = Vector2.new(0.5,0.5)
+    Dot.Position         = UDim2.new(0.5,0,0,150)
+    Dot.BackgroundColor3 = C.White
+    Dot.BackgroundTransparency = 1
+    Dot.BorderSizePixel  = 0
+    Dot.ZIndex           = 202
+    makeCorner(Dot, 4)
 
-    -- Anel externo (trilho)
-    local SpinnerRing = Instance.new("Frame", SpinnerArea)
-    SpinnerRing.Size             = UDim2.new(1,0,1,0)
-    SpinnerRing.BackgroundTransparency = 1
-    SpinnerRing.BorderSizePixel  = 0
-    SpinnerRing.ZIndex           = 203
-    makeStroke(SpinnerRing, C.Muted2, 1.5, 0)
-    makeCorner(SpinnerRing, 20)
-
-    -- Bolinha que orbita
-    local SpinnerDot = Instance.new("Frame", SpinnerArea)
-    SpinnerDot.Size             = UDim2.new(0,8,0,8)
-    SpinnerDot.AnchorPoint      = Vector2.new(0.5,0.5)
-    SpinnerDot.Position         = UDim2.new(0.5,0,0,0)   -- topo do anel
-    SpinnerDot.BackgroundColor3 = C.Accent
-    SpinnerDot.BackgroundTransparency = 1
-    SpinnerDot.BorderSizePixel  = 0
-    SpinnerDot.ZIndex           = 204
-    makeCorner(SpinnerDot, 4)
-    local DotGrad = Instance.new("UIGradient", SpinnerDot)
-    DotGrad.Color = ColorSequence.new(C.Accent2, C.Accent3)
-
-    -- Rastro (glow) atrás da bolinha
-    local SpinnerGlow = Instance.new("Frame", SpinnerArea)
-    SpinnerGlow.Size             = UDim2.new(0,5,0,5)
-    SpinnerGlow.AnchorPoint      = Vector2.new(0.5,0.5)
-    SpinnerGlow.Position         = UDim2.new(0.5,0,0,0)
-    SpinnerGlow.BackgroundColor3 = C.Accent3
-    SpinnerGlow.BackgroundTransparency = 1
-    SpinnerGlow.BorderSizePixel  = 0
-    SpinnerGlow.ZIndex           = 203
-    makeCorner(SpinnerGlow, 3)
-
-    -- Status abaixo do spinner
-    local StatusLbl = Instance.new("TextLabel", LogoWrap)
-    StatusLbl.Size             = UDim2.new(1,0,0,14)
-    StatusLbl.Position         = UDim2.new(0,0,0,186)
-    StatusLbl.BackgroundTransparency = 1
-    StatusLbl.Text             = "Iniciando..."
-    StatusLbl.TextColor3       = C.Sub
-    StatusLbl.TextTransparency = 1
-    StatusLbl.TextSize         = 9
-    StatusLbl.Font             = Enum.Font.Gotham
-    StatusLbl.TextXAlignment   = Enum.TextXAlignment.Center
-    StatusLbl.ZIndex           = 203
-
-    -- Animação de órbita da bolinha
-    local spinAngle = 0
-    local spinConn
-    spinConn = RunService.Heartbeat:Connect(function(dt)
-        if not SpinnerDot.Parent then spinConn:Disconnect(); return end
-        spinAngle = spinAngle + dt * 280   -- graus por segundo
-        local rad = math.rad(spinAngle)
-        local radius = 16   -- metade do tamanho do anel (40/2)
-        local ox = math.sin(rad) * radius
-        local oy = -math.cos(rad) * radius
-        SpinnerDot.Position  = UDim2.new(0.5, ox - 4, 0.5, oy - 4)
-        -- rastro ligeiramente atrás (−30°)
-        local radG = math.rad(spinAngle - 30)
-        local gx = math.sin(radG) * radius
-        local gy = -math.cos(radG) * radius
-        SpinnerGlow.Position = UDim2.new(0.5, gx - 2.5, 0.5, gy - 2.5)
-    end)
-
-    -- Passos de loading (sem percentual, só texto)
-    local steps = {
-        { text = "Starting modules..."    },
-        { text = "Verifying user..."      },
-        { text = "Loading scripts..."     },
-        { text = "Connecting services..." },
-        { text = "Preparing interface..." },
-        { text = "Done! ✓"               },
-    }
+    -- Pulso da bolinha
+    local function PulseDot()
+        if not Dot.Parent then return end
+        Tween(Dot, { BackgroundTransparency = 0.2 }, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut):Play()
+        task.wait(0.5)
+        if not Dot.Parent then return end
+        Tween(Dot, { BackgroundTransparency = 0.75 }, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut):Play()
+        task.wait(0.5)
+        PulseDot()
+    end
 
     task.spawn(function()
         task.wait(0.4)
@@ -409,18 +347,13 @@ local function CreateLoader(screenGui, onDone)
         Tween(TagLine, { TextTransparency = 0.35 }, 0.4):Play()
         task.wait(0.28)
 
-        -- 5. Spinner e status aparecem
-        Tween(SpinnerDot,  { BackgroundTransparency = 0 },   0.3):Play()
-        Tween(SpinnerGlow, { BackgroundTransparency = 0.5 }, 0.3):Play()
-        Tween(StatusLbl,   { TextTransparency = 0.3 },       0.3):Play()
+        -- 5. Bolinha aparece e começa a pulsar
+        Tween(Dot, { BackgroundTransparency = 0.2 }, 0.3):Play()
+        task.spawn(PulseDot)
         task.wait(0.35)
 
-        -- 6. Passos de loading
-        for i, step in ipairs(steps) do
-            StatusLbl.Text = step.text
-            task.wait(i < #steps and 0.52 or 0.28)
-        end
-        task.wait(0.3)
+        -- 6. Aguarda o loading
+        task.wait(3.2)
 
         -- 7. KX sobe e some
         Tween(LogoWrap, {
