@@ -892,6 +892,8 @@ function KraviX:CreateWindow(config)
                 end
 
                 if selected then task.defer(function() callback(selected) end) end
+                Dropdown._Row = Row
+                Dropdown._DFrame = DFrame
                 AddItem(Row); return Dropdown
             end
 
