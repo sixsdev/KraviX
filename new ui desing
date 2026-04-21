@@ -1019,6 +1019,10 @@ function KraviX:CreateWindow(config)
                 UserInputService.InputBegan:Connect(function(inp, processed)
                     if not listen then return end
                     if processed then return end
+                    if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                        task.wait(0.05)
+                    if not listen then return end
+                    end
 
                     local isMouse=false
                     for _,mt in ipairs(MOUSE_TYPES) do
