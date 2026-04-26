@@ -15,7 +15,7 @@ local SoundService     = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse       = LocalPlayer:GetMouse()
 
-local SOUND_NOTIF = "rbxassetid://72384898525651"
+local SOUND_NOTIF = "rbxassetid://84596244576386"
 local SOUND_OPEN  = "rbxassetid://76770767576477"
 
 local function PlaySound(id)
