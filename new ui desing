@@ -16,7 +16,7 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse       = LocalPlayer:GetMouse()
 
 local SOUND_NOTIF = "rbxassetid://84596244576386"
-local SOUND_OPEN  = "rbxassetid://76770767576477"
+local SOUND_OPEN  = "rbxassetid://4807489774"
 
 local function PlaySound(id)
     local s = Instance.new("Sound")
