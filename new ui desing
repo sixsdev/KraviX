@@ -1,8 +1,3 @@
--- ╔══════════════════════════════════════════╗
--- ║         KraviX UI Library v1.3          ║
--- ║  Axion Loader · Snow · Animated UI       ║
--- ╚══════════════════════════════════════════╝
-
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -89,9 +84,6 @@ local MOUSE_TYPES = {
     Enum.UserInputType.MouseButton3,
 }
 
--- ============================================================
--- NOTIFICATION
--- ============================================================
 local function CreateNotification(title, text, duration)
     PlaySound(SOUND_NOTIF)
     local G = Instance.new("ScreenGui")
@@ -144,9 +136,6 @@ local function CreateNotification(title, text, duration)
     end)
 end
 
--- ============================================================
--- SNOW
--- ============================================================
 local function StartSnow(parent)
     local COUNT = 80
     local cont = Instance.new("Frame", parent)
@@ -174,9 +163,6 @@ local function StartSnow(parent)
     end)
 end
 
--- ============================================================
--- DRAGGABLE
--- ============================================================
 local function MakeDraggable(frame, handle)
     handle = handle or frame
     local drag, ds, sp
@@ -198,10 +184,6 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- ============================================================
--- LOADER — Axion Style
--- K surge (Back) · x desliza da direita (Back) · tagline · spinner
--- ============================================================
 local function CreateLoader(screenGui, onDone)
     local Loader = Instance.new("Frame", screenGui)
     Loader.Name = "Loader"
@@ -211,7 +193,6 @@ local function CreateLoader(screenGui, onDone)
     Loader.ZIndex = 200
     Loader.BorderSizePixel = 0
 
-    -- Tag "AXION" canto superior direito
     local AxionTag = Instance.new("TextLabel", Loader)
     AxionTag.Size             = UDim2.new(0,100,0,20)
     AxionTag.Position         = UDim2.new(1,-112,0,14)
@@ -224,7 +205,6 @@ local function CreateLoader(screenGui, onDone)
     AxionTag.TextXAlignment   = Enum.TextXAlignment.Right
     AxionTag.ZIndex           = 201
 
-    -- Container central
     local LogoWrap = Instance.new("Frame", Loader)
     LogoWrap.Size                  = UDim2.new(0,340,0,200)
     LogoWrap.AnchorPoint           = Vector2.new(0.5,0.5)
@@ -232,7 +212,6 @@ local function CreateLoader(screenGui, onDone)
     LogoWrap.BackgroundTransparency = 1
     LogoWrap.ZIndex                = 201
 
-    -- Linha do logo
     local LogoRow = Instance.new("Frame", LogoWrap)
     LogoRow.Size                  = UDim2.new(0,170,0,96)
     LogoRow.AnchorPoint           = Vector2.new(0.5,0)
@@ -248,7 +227,6 @@ local function CreateLoader(screenGui, onDone)
         ColorSequenceKeypoint.new(1,    C.Accent3),
     })
 
-    -- Letra K
     local KLbl = Instance.new("TextLabel", LogoRow)
     KLbl.Size             = UDim2.new(0,85,0,96)
     KLbl.Position         = UDim2.new(0,0,0,0)
@@ -263,10 +241,9 @@ local function CreateLoader(screenGui, onDone)
     local KGrad = Instance.new("UIGradient", KLbl)
     KGrad.Color = sharedGrad
 
-    -- Letra x — começa deslocada para a direita
     local XLbl = Instance.new("TextLabel", LogoRow)
     XLbl.Size             = UDim2.new(0,85,0,96)
-    XLbl.Position         = UDim2.new(0,120,0,0)   -- deslocado, vai animar para 80
+    XLbl.Position         = UDim2.new(0,120,0,0)
     XLbl.BackgroundTransparency = 1
     XLbl.Text             = "x"
     XLbl.TextColor3       = C.Accent3
@@ -278,7 +255,6 @@ local function CreateLoader(screenGui, onDone)
     local XGrad = Instance.new("UIGradient", XLbl)
     XGrad.Color = sharedGrad
 
-    -- Gradiente animado em sincronia
     task.spawn(function()
         while KLbl.Parent do
             for r = -30, 210, 4 do
@@ -291,7 +267,6 @@ local function CreateLoader(screenGui, onDone)
         end
     end)
 
-    -- Tagline
     local TagLine = Instance.new("TextLabel", LogoWrap)
     TagLine.Size             = UDim2.new(1,0,0,18)
     TagLine.Position         = UDim2.new(0,0,0,106)
@@ -304,7 +279,6 @@ local function CreateLoader(screenGui, onDone)
     TagLine.TextXAlignment   = Enum.TextXAlignment.Center
     TagLine.ZIndex           = 202
 
-    -- Container da órbita (invisível, só serve de pivô)
     local OrbitCenter = Instance.new("Frame", LogoWrap)
     OrbitCenter.Size                  = UDim2.new(0,0,0,0)
     OrbitCenter.AnchorPoint           = Vector2.new(0.5,0.5)
@@ -313,7 +287,6 @@ local function CreateLoader(screenGui, onDone)
     OrbitCenter.BorderSizePixel       = 0
     OrbitCenter.ZIndex                = 202
 
-    -- Rastro: bolinhas menores que vão sumindo atrás
     local TRAIL_COUNT = 8
     local RADIUS      = 14
     local trailDots   = {}
@@ -331,7 +304,6 @@ local function CreateLoader(screenGui, onDone)
         trailDots[i] = t
     end
 
-    -- Bolinha principal
     local Dot = Instance.new("Frame", OrbitCenter)
     Dot.Size             = UDim2.new(0,7,0,7)
     Dot.AnchorPoint      = Vector2.new(0.5,0.5)
@@ -342,7 +314,6 @@ local function CreateLoader(screenGui, onDone)
     Dot.ZIndex           = 203
     makeCorner(Dot, 4)
 
-    -- Giro via Heartbeat
     local spinAngle = 0
     local spinConn
     spinConn = RunService.Heartbeat:Connect(function(dt)
@@ -350,7 +321,6 @@ local function CreateLoader(screenGui, onDone)
         spinAngle = (spinAngle + dt * 300) % 360
         local rad = math.rad(spinAngle)
         Dot.Position = UDim2.new(0, math.sin(rad)*RADIUS - 3.5, 0, -math.cos(rad)*RADIUS - 3.5)
-        -- rastro: cada ponto N*14° atrás, ficando menor e mais transparente
         for i = 1, TRAIL_COUNT do
             local tr   = math.rad(spinAngle - i * 14)
             local sz   = math.max(2, 7 - i)
@@ -363,32 +333,25 @@ local function CreateLoader(screenGui, onDone)
     task.spawn(function()
         task.wait(0.4)
 
-        -- 1. Tag Axion aparece
         Tween(AxionTag, { TextTransparency = 0.35 }, 0.4):Play()
 
-        -- 2. K surge com fade + sobe (Back)
         Tween(KLbl, { TextTransparency = 0 }, 0.5, Enum.EasingStyle.Back):Play()
         task.wait(0.55)
 
-        -- 3. x desliza da direita com overshoot (Back)
         Tween(XLbl, {
             TextTransparency = 0,
             Position = UDim2.new(0, 80, 0, 0),
         }, 0.45, Enum.EasingStyle.Back):Play()
         task.wait(0.38)
 
-        -- 4. Tagline aparece
         Tween(TagLine, { TextTransparency = 0.35 }, 0.4):Play()
         task.wait(0.28)
 
-        -- 5. Bolinha aparece e já está girando
         Tween(Dot, { BackgroundTransparency = 0 }, 0.3):Play()
         task.wait(0.35)
 
-        -- 6. Aguarda o loading
         task.wait(3.2)
 
-        -- 7. KX sobe e some
         Tween(LogoWrap, {
             Position = UDim2.new(0.5, 0, 0.28, 0),
         }, 0.65, Enum.EasingStyle.Quint):Play()
@@ -401,7 +364,6 @@ local function CreateLoader(screenGui, onDone)
         Tween(AxionTag,  { TextTransparency = 1 }, 0.28):Play()
         task.wait(0.48)
 
-        -- 8. Fade out do loader
         Tween(Loader, { BackgroundTransparency = 1 }, 0.4):Play()
         for _, obj in ipairs(Loader:GetDescendants()) do
             if obj:IsA("TextLabel") then Tween(obj, { TextTransparency = 1 }, 0.4):Play() end
@@ -413,9 +375,6 @@ local function CreateLoader(screenGui, onDone)
     end)
 end
 
--- ============================================================
--- CREATEWINDOW
--- ============================================================
 function KraviX:CreateWindow(config)
     config         = config or {}
     config.Name    = config.Name    or "KraviX"
@@ -577,9 +536,6 @@ function KraviX:CreateWindow(config)
         CreateNotification("KraviX","Loaded! Press your menu key to close",3)
     end)
 
-    -- ============================================================
-    -- CreateTab
-    -- ============================================================
     function Window:CreateTab(name, icon)
         local Tab      = {}
         local tabIndex = #Window.Tabs + 1
