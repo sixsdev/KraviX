@@ -1,3 +1,4 @@
+-- teste 123
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -71,7 +72,20 @@ local C = {
     Border    = Color3.fromRGB( 42,  42,  70),
     White     = Color3.fromRGB(255, 255, 255),
     Black     = Color3.fromRGB(  0,   0,   0),
-    LoadBg    = Color3.fromRGB(28,  28,  32),
+    LoadBg    = Color3.fromRGB(20,  18,  28),
+    Sclera    = Color3.fromRGB(242, 238, 228),
+    ScleraDim = Color3.fromRGB(192, 178, 158),
+    IrisOuter = Color3.fromRGB(50,  15, 120),
+    IrisMid   = Color3.fromRGB(110, 50, 210),
+    IrisInner = Color3.fromRGB(155, 90, 240),
+    Limbus    = Color3.fromRGB(18,   6,  52),
+    Pupil     = Color3.fromRGB(6,    2,  16),
+    PupilDeep = Color3.fromRGB(2,    1,   8),
+    Vein      = Color3.fromRGB(180,  48,  38),
+    LidSkin1  = Color3.fromRGB(36,   32,  52),
+    LidSkin2  = Color3.fromRGB(52,   46,  70),
+    LashBase  = Color3.fromRGB(10,    8,  20),
+    Lacrimal  = Color3.fromRGB(220, 200, 185),
 }
 
 local MOUSE_NAMES = {
@@ -185,230 +199,562 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- ============================================================
--- EYE LOADER
--- Fundo cinza escuro → olho abre (pálpebras se abrem) →
--- dentro da íris aparece "Kx" → bolinha de loading embaixo →
--- tudo fecha e some
--- ============================================================
+-- ================================================================
+-- LOADER: OLHO REALISTA DX9
+-- ================================================================
 local function CreateLoader(screenGui, onDone)
+
+    -- Fundo escuro geral
     local Loader = Instance.new("Frame", screenGui)
-    Loader.Name            = "Loader"
-    Loader.Size            = UDim2.new(1,0,1,0)
+    Loader.Name = "Loader"
+    Loader.Size = UDim2.new(1,0,1,0)
     Loader.BackgroundColor3 = C.LoadBg
     Loader.BackgroundTransparency = 0
-    Loader.ZIndex          = 200
+    Loader.ZIndex = 200
     Loader.BorderSizePixel = 0
 
-    -- Centro da tela
-    local Center = Instance.new("Frame", Loader)
-    Center.Size             = UDim2.new(0,0,0,0)
-    Center.AnchorPoint      = Vector2.new(0.5,0.5)
-    Center.Position         = UDim2.new(0.5,0,0.5,0)
-    Center.BackgroundTransparency = 1
-    Center.ZIndex           = 201
+    -- Âncora central
+    local EyeRoot = Instance.new("Frame", Loader)
+    EyeRoot.Size = UDim2.new(0,0,0,0)
+    EyeRoot.AnchorPoint = Vector2.new(0.5,0.5)
+    EyeRoot.Position = UDim2.new(0.5,0,0.5,0)
+    EyeRoot.BackgroundTransparency = 1
+    EyeRoot.ZIndex = 201
 
-    -- Olho: elipse branca (esclera / borda)
-    local EYE_W = 180
-    local EYE_H = 80
+    local EW, EH = 310, 130  -- largura e altura do olho
 
-    local EyeOuter = Instance.new("Frame", Center)
-    EyeOuter.Size        = UDim2.new(0, EYE_W, 0, EYE_H)
-    EyeOuter.AnchorPoint = Vector2.new(0.5, 0.5)
-    EyeOuter.Position    = UDim2.new(0.5, 0, 0.5, 0)
-    EyeOuter.BackgroundColor3 = Color3.fromRGB(240,240,248)
-    EyeOuter.BorderSizePixel  = 0
-    EyeOuter.ZIndex           = 202
-    makeCorner(EyeOuter, 999)
+    -- ── Glow ambiente (roxo difuso atrás do olho) ──────────────
+    local Glow = Instance.new("Frame", EyeRoot)
+    Glow.Size = UDim2.new(0, EW+120, 0, EH+80)
+    Glow.AnchorPoint = Vector2.new(0.5,0.5)
+    Glow.Position = UDim2.new(0.5,0,0.5,0)
+    Glow.BackgroundColor3 = Color3.fromRGB(100,30,200)
+    Glow.BackgroundTransparency = 1
+    Glow.BorderSizePixel = 0
+    Glow.ZIndex = 201
+    makeCorner(Glow,999)
 
-    -- Íris (circulo roxo escuro dentro do olho)
-    local IRIS_SIZE = 60
-    local Iris = Instance.new("Frame", EyeOuter)
-    Iris.Size        = UDim2.new(0, IRIS_SIZE, 0, IRIS_SIZE)
-    Iris.AnchorPoint = Vector2.new(0.5, 0.5)
-    Iris.Position    = UDim2.new(0.5, 0, 0.5, 0)
-    Iris.BackgroundColor3 = C.Accent2
-    Iris.BorderSizePixel  = 0
-    Iris.ZIndex           = 203
+    -- ── ESCLERA (branco do olho) ────────────────────────────────
+    local Sclera = Instance.new("Frame", EyeRoot)
+    Sclera.Size = UDim2.new(0, EW, 0, EH)
+    Sclera.AnchorPoint = Vector2.new(0.5,0.5)
+    Sclera.Position = UDim2.new(0.5,0,0.5,0)
+    Sclera.BackgroundColor3 = C.Sclera
+    Sclera.BackgroundTransparency = 1
+    Sclera.BorderSizePixel = 0
+    Sclera.ZIndex = 202
+    makeCorner(Sclera, 999)
+    -- gradiente leve na esclera (amarelado nas bordas, como olho real)
+    local SclGrad = Instance.new("UIGradient", Sclera)
+    SclGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   C.ScleraDim),
+        ColorSequenceKeypoint.new(0.25, C.Sclera),
+        ColorSequenceKeypoint.new(0.5,  Color3.fromRGB(252,250,244)),
+        ColorSequenceKeypoint.new(0.75, C.Sclera),
+        ColorSequenceKeypoint.new(1,   C.ScleraDim),
+    })
+    SclGrad.Rotation = 0
+
+    -- ── Veias na esclera ────────────────────────────────────────
+    -- Veia esquerda 1
+    local V1 = Instance.new("Frame", Sclera)
+    V1.Size = UDim2.new(0,52,0,1); V1.Position = UDim2.new(0,8,0.38,0)
+    V1.BackgroundColor3 = C.Vein; V1.BackgroundTransparency = 0.55
+    V1.BorderSizePixel = 0; V1.ZIndex = 203; makeCorner(V1,1)
+    local V1G = Instance.new("UIGradient",V1)
+    V1G.Color = ColorSequence.new(Color3.fromRGB(160,30,25), C.Vein)
+    V1G.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.8),NumberSequenceKeypoint.new(0.5,0.3),NumberSequenceKeypoint.new(1,0.9)})
+
+    local V2 = Instance.new("Frame", Sclera)
+    V2.Size = UDim2.new(0,38,0,1); V2.Position = UDim2.new(0,12,0.52,0)
+    V2.BackgroundColor3 = C.Vein; V2.BackgroundTransparency = 0.65
+    V2.BorderSizePixel = 0; V2.ZIndex = 203; makeCorner(V2,1)
+    local V2G = Instance.new("UIGradient",V2)
+    V2G.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.9),NumberSequenceKeypoint.new(0.5,0.45),NumberSequenceKeypoint.new(1,1)})
+
+    local V3 = Instance.new("Frame", Sclera)
+    V3.Size = UDim2.new(0,28,0,1); V3.Position = UDim2.new(0,18,0.64,0)
+    V3.BackgroundColor3 = C.Vein; V3.BackgroundTransparency = 0.72
+    V3.BorderSizePixel = 0; V3.ZIndex = 203; makeCorner(V3,1)
+
+    -- Veia direita 1
+    local V4 = Instance.new("Frame", Sclera)
+    V4.Size = UDim2.new(0,52,0,1); V4.Position = UDim2.new(1,-60,0.38,0)
+    V4.BackgroundColor3 = C.Vein; V4.BackgroundTransparency = 0.55
+    V4.BorderSizePixel = 0; V4.ZIndex = 203; makeCorner(V4,1)
+    local V4G = Instance.new("UIGradient",V4)
+    V4G.Color = ColorSequence.new(C.Vein, Color3.fromRGB(160,30,25))
+    V4G.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.9),NumberSequenceKeypoint.new(0.5,0.3),NumberSequenceKeypoint.new(1,0.8)})
+
+    local V5 = Instance.new("Frame", Sclera)
+    V5.Size = UDim2.new(0,38,0,1); V5.Position = UDim2.new(1,-50,0.52,0)
+    V5.BackgroundColor3 = C.Vein; V5.BackgroundTransparency = 0.65
+    V5.BorderSizePixel = 0; V5.ZIndex = 203; makeCorner(V5,1)
+    local V5G = Instance.new("UIGradient",V5)
+    V5G.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(0.5,0.45),NumberSequenceKeypoint.new(1,0.9)})
+
+    local V6 = Instance.new("Frame", Sclera)
+    V6.Size = UDim2.new(0,28,0,1); V6.Position = UDim2.new(1,-40,0.64,0)
+    V6.BackgroundColor3 = C.Vein; V6.BackgroundTransparency = 0.72
+    V6.BorderSizePixel = 0; V6.ZIndex = 203; makeCorner(V6,1)
+
+    -- ── ÍRIS (círculo roxo) ─────────────────────────────────────
+    local IRIS_R = 56
+    local Iris = Instance.new("Frame", EyeRoot)
+    Iris.Size = UDim2.new(0, IRIS_R*2, 0, IRIS_R*2)
+    Iris.AnchorPoint = Vector2.new(0.5,0.5)
+    Iris.Position = UDim2.new(0.5,0,0.5,0)
+    Iris.BackgroundColor3 = C.IrisOuter
     Iris.BackgroundTransparency = 1
+    Iris.BorderSizePixel = 0; Iris.ZIndex = 204
     makeCorner(Iris, 999)
     local IrisGrad = Instance.new("UIGradient", Iris)
-    IrisGrad.Color    = ColorSequence.new(C.Accent, C.Accent2)
+    IrisGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   C.IrisInner),
+        ColorSequenceKeypoint.new(0.35, C.IrisMid),
+        ColorSequenceKeypoint.new(0.65, Color3.fromRGB(70,25,155)),
+        ColorSequenceKeypoint.new(1,   C.IrisOuter),
+    })
     IrisGrad.Rotation = 135
 
-    -- Pupila (círculo preto no centro da íris)
-    local Pupil = Instance.new("Frame", Iris)
-    Pupil.Size        = UDim2.new(0, 22, 0, 22)
-    Pupil.AnchorPoint = Vector2.new(0.5, 0.5)
-    Pupil.Position    = UDim2.new(0.5, 0, 0.5, 0)
-    Pupil.BackgroundColor3 = Color3.fromRGB(6, 4, 14)
-    Pupil.BorderSizePixel  = 0
-    Pupil.ZIndex           = 204
-    Pupil.BackgroundTransparency = 1
-    makeCorner(Pupil, 999)
+    -- Anel limbo (borda escura da íris, como no olho real)
+    local Limbus = Instance.new("Frame", EyeRoot)
+    Limbus.Size = UDim2.new(0, IRIS_R*2+6, 0, IRIS_R*2+6)
+    Limbus.AnchorPoint = Vector2.new(0.5,0.5)
+    Limbus.Position = UDim2.new(0.5,0,0.5,0)
+    Limbus.BackgroundColor3 = C.Limbus
+    Limbus.BackgroundTransparency = 1
+    Limbus.BorderSizePixel = 0; Limbus.ZIndex = 203
+    makeCorner(Limbus, 999)
+    makeStroke(Limbus, C.Limbus, 3, 0)
 
-    -- Texto "Kx" dentro da íris
-    local KxLabel = Instance.new("TextLabel", Iris)
-    KxLabel.Size             = UDim2.new(1,0,1,0)
-    KxLabel.BackgroundTransparency = 1
-    KxLabel.Text             = "Kx"
-    KxLabel.TextColor3       = C.White
-    KxLabel.TextSize         = 22
-    KxLabel.Font             = Enum.Font.GothamBold
-    KxLabel.TextXAlignment   = Enum.TextXAlignment.Center
-    KxLabel.TextYAlignment   = Enum.TextYAlignment.Center
-    KxLabel.TextTransparency = 1
-    KxLabel.ZIndex           = 205
-    local KxGrad = Instance.new("UIGradient", KxLabel)
-    KxGrad.Color    = ColorSequence.new(C.White, C.Accent3)
+    -- Fibras radiais da íris (linhas saindo da pupila)
+    local FiberCont = Instance.new("Frame", EyeRoot)
+    FiberCont.Size = UDim2.new(0, IRIS_R*2, 0, IRIS_R*2)
+    FiberCont.AnchorPoint = Vector2.new(0.5,0.5)
+    FiberCont.Position = UDim2.new(0.5,0,0.5,0)
+    FiberCont.BackgroundTransparency = 1
+    FiberCont.BorderSizePixel = 0; FiberCont.ZIndex = 204
+    FiberCont.ClipsDescendants = true
+    makeCorner(FiberCont, 999)
+
+    -- Gera fibras radiais como linhas finas partindo do centro
+    local fiberCount = 22
+    for i = 1, fiberCount do
+        local angle = (i/fiberCount) * math.pi*2
+        local cx, cy = IRIS_R, IRIS_R
+        local innerR, outerR = 20, IRIS_R-4
+        local x1 = cx + math.cos(angle)*innerR
+        local y1 = cy + math.sin(angle)*innerR
+        local x2 = cx + math.cos(angle)*outerR
+        local y2 = cy + math.sin(angle)*outerR
+        local len = math.sqrt((x2-x1)^2+(y2-y1)^2)
+        local rot = math.deg(angle) + 90
+
+        local Fiber = Instance.new("Frame", FiberCont)
+        Fiber.Size = UDim2.new(0,1,0,len)
+        Fiber.Position = UDim2.new(0,x1,0,y1)
+        Fiber.AnchorPoint = Vector2.new(0.5,0)
+        Fiber.BackgroundColor3 = Color3.fromRGB(180,140,255)
+        Fiber.BackgroundTransparency = 0.55 + math.random()*0.3
+        Fiber.BorderSizePixel = 0
+        Fiber.Rotation = rot
+        Fiber.ZIndex = 204
+    end
+
+    -- Manchas de textura na íris
+    for i = 1, 10 do
+        local angle = (i/10)*math.pi*2 + math.random()*0.3
+        local dist  = 28 + math.random()*14
+        local px = IRIS_R + math.cos(angle)*dist - 4
+        local py = IRIS_R + math.sin(angle)*dist - 4
+        local Spot = Instance.new("Frame", FiberCont)
+        Spot.Size = UDim2.new(0,7+math.random(5),0,5+math.random(3))
+        Spot.Position = UDim2.new(0,px,0,py)
+        Spot.BackgroundColor3 = Color3.fromRGB(60,20,130)
+        Spot.BackgroundTransparency = 0.4 + math.random()*0.3
+        Spot.BorderSizePixel = 0; Spot.ZIndex = 205
+        makeCorner(Spot,4)
+    end
+
+    -- Anel interno brilhante
+    local IrisRing = Instance.new("Frame", EyeRoot)
+    IrisRing.Size = UDim2.new(0, 80, 0, 80)
+    IrisRing.AnchorPoint = Vector2.new(0.5,0.5)
+    IrisRing.Position = UDim2.new(0.5,0,0.5,0)
+    IrisRing.BackgroundTransparency = 1
+    IrisRing.BorderSizePixel = 0; IrisRing.ZIndex = 206
+    makeCorner(IrisRing, 999)
+    makeStroke(IrisRing, Color3.fromRGB(170,120,255), 1, 0.55)
+
+    -- ── PUPILA ──────────────────────────────────────────────────
+    local PUPIL_R = 26
+    local Pupil = Instance.new("Frame", EyeRoot)
+    Pupil.Size = UDim2.new(0, PUPIL_R*2, 0, PUPIL_R*2)
+    Pupil.AnchorPoint = Vector2.new(0.5,0.5)
+    Pupil.Position = UDim2.new(0.5,0,0.5,0)
+    Pupil.BackgroundColor3 = C.Pupil
+    Pupil.BackgroundTransparency = 1
+    Pupil.BorderSizePixel = 0; Pupil.ZIndex = 206
+    makeCorner(Pupil, 999)
+    local PupilGrad = Instance.new("UIGradient", Pupil)
+    PupilGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(20,8,42)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8,3,18)),
+        ColorSequenceKeypoint.new(1,   C.PupilDeep),
+    })
+    PupilGrad.Rotation = 135
+    -- borda pupila
+    makeStroke(Pupil, Color3.fromRGB(30,12,60), 1.5, 0.2)
+
+    -- ── Texto Kx ────────────────────────────────────────────────
+    local KxLbl = Instance.new("TextLabel", EyeRoot)
+    KxLbl.Size = UDim2.new(0,58,0,32)
+    KxLbl.AnchorPoint = Vector2.new(0.5,0.5)
+    KxLbl.Position = UDim2.new(0.5,0,0.5,0)
+    KxLbl.BackgroundTransparency = 1
+    KxLbl.Text = "Kx"
+    KxLbl.TextColor3 = C.White
+    KxLbl.TextSize = 24
+    KxLbl.Font = Enum.Font.GothamBold
+    KxLbl.TextXAlignment = Enum.TextXAlignment.Center
+    KxLbl.TextTransparency = 1
+    KxLbl.ZIndex = 210
+    local KxGrad = Instance.new("UIGradient", KxLbl)
+    KxGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(255,255,255)),
+        ColorSequenceKeypoint.new(0.5,  C.Accent3),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(200,160,255)),
+    })
     KxGrad.Rotation = 90
 
-    -- Pálpebra superior (tapa o olho por cima, abre deslizando para cima)
-    local LidTop = Instance.new("Frame", Center)
-    LidTop.Size        = UDim2.new(0, EYE_W+6, 0, EYE_H/2+4)
+    -- ── Reflexo principal (ponto branco grande) ─────────────────
+    local Shine1 = Instance.new("Frame", EyeRoot)
+    Shine1.Size = UDim2.new(0,28,0,16)
+    Shine1.AnchorPoint = Vector2.new(0.5,0.5)
+    Shine1.Position = UDim2.new(0.5,-22,0.5,-18)
+    Shine1.BackgroundColor3 = C.White
+    Shine1.BackgroundTransparency = 1
+    Shine1.BorderSizePixel = 0; Shine1.ZIndex = 211
+    Shine1.Rotation = -20
+    makeCorner(Shine1, 999)
+    local S1Grad = Instance.new("UIGradient", Shine1)
+    S1Grad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(0.6,0.3),NumberSequenceKeypoint.new(1,1)})
+
+    -- Ponto brilhante central
+    local ShineCore = Instance.new("Frame", EyeRoot)
+    ShineCore.Size = UDim2.new(0,7,0,7)
+    ShineCore.AnchorPoint = Vector2.new(0.5,0.5)
+    ShineCore.Position = UDim2.new(0.5,-24,0.5,-20)
+    ShineCore.BackgroundColor3 = C.White
+    ShineCore.BackgroundTransparency = 1
+    ShineCore.BorderSizePixel = 0; ShineCore.ZIndex = 212
+    makeCorner(ShineCore,999)
+
+    -- Reflexo secundário menor (oposto)
+    local Shine2 = Instance.new("Frame", EyeRoot)
+    Shine2.Size = UDim2.new(0,10,0,6)
+    Shine2.AnchorPoint = Vector2.new(0.5,0.5)
+    Shine2.Position = UDim2.new(0.5,18,0.5,14)
+    Shine2.BackgroundColor3 = C.White
+    Shine2.BackgroundTransparency = 1
+    Shine2.BorderSizePixel = 0; Shine2.ZIndex = 211
+    Shine2.Rotation = 15
+    makeCorner(Shine2,999)
+    local S2Grad = Instance.new("UIGradient", Shine2)
+    S2Grad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.55),NumberSequenceKeypoint.new(1,1)})
+
+    -- ── Canto lacrimal (medial) ──────────────────────────────────
+    local LacR = Instance.new("Frame", EyeRoot)
+    LacR.Size = UDim2.new(0,18,0,14)
+    LacR.AnchorPoint = Vector2.new(0,0.5)
+    LacR.Position = UDim2.new(0,-EW/2-4,0.5,0)
+    LacR.BackgroundColor3 = C.Lacrimal
+    LacR.BackgroundTransparency = 1
+    LacR.BorderSizePixel = 0; LacR.ZIndex = 218
+    makeCorner(LacR,999)
+    -- pontinho róseo
+    local LacDot = Instance.new("Frame", LacR)
+    LacDot.Size = UDim2.new(0,7,0,7); LacDot.AnchorPoint = Vector2.new(0.5,0.5)
+    LacDot.Position = UDim2.new(0.5,0,0.5,0); LacDot.BackgroundColor3 = Color3.fromRGB(195,130,120)
+    LacDot.BackgroundTransparency = 0.2; LacDot.BorderSizePixel = 0; LacDot.ZIndex = 219
+    makeCorner(LacDot,999)
+
+    -- Reflexo úmido na borda inferior da esclera
+    local WetLine = Instance.new("Frame", EyeRoot)
+    WetLine.Size = UDim2.new(0, EW-40, 0, 1)
+    WetLine.AnchorPoint = Vector2.new(0.5,0.5)
+    WetLine.Position = UDim2.new(0.5,0,0.5, EH/2-8)
+    WetLine.BackgroundColor3 = Color3.fromRGB(180,210,235)
+    WetLine.BackgroundTransparency = 0.5
+    WetLine.BorderSizePixel = 0; WetLine.ZIndex = 208
+    makeCorner(WetLine,1)
+    local WLGrad = Instance.new("UIGradient", WetLine)
+    WLGrad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(0.2,0.4),NumberSequenceKeypoint.new(0.8,0.4),NumberSequenceKeypoint.new(1,1)})
+
+    -- ── PÁLPEBRA SUPERIOR ────────────────────────────────────────
+    -- A pálpebra é um frame que se move. Começa tapando o olho (Y=0),
+    -- e se abre subindo para Y negativo.
+
+    local LidTop = Instance.new("Frame", EyeRoot)
+    LidTop.Size = UDim2.new(0, EW+20, 0, EH/2+10)
     LidTop.AnchorPoint = Vector2.new(0.5, 1)
-    LidTop.Position    = UDim2.new(0.5, 0, 0.5, 0)       -- começa tampando
-    LidTop.BackgroundColor3 = C.LoadBg
-    LidTop.BorderSizePixel  = 0
-    LidTop.ZIndex           = 210
-    -- Borda inferior arredondada da pálpebra superior
+    LidTop.Position = UDim2.new(0.5, 0, 0.5, 0)  -- tapando
+    LidTop.BackgroundColor3 = C.LidSkin2
+    LidTop.BorderSizePixel = 0; LidTop.ZIndex = 215
     makeCorner(LidTop, 0)
+    local LTGrad = Instance.new("UIGradient", LidTop)
+    LTGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,  C.LoadBg),
+        ColorSequenceKeypoint.new(0.6, C.LidSkin1),
+        ColorSequenceKeypoint.new(1,  C.LidSkin2),
+    })
+    LTGrad.Rotation = 90
 
-    -- Pálpebra inferior
-    local LidBot = Instance.new("Frame", Center)
-    LidBot.Size        = UDim2.new(0, EYE_W+6, 0, EYE_H/2+4)
+    -- Dobra da pálpebra superior (linha horizontal sutil)
+    local LidFold = Instance.new("Frame", LidTop)
+    LidFold.Size = UDim2.new(0.85,0,0,1)
+    LidFold.AnchorPoint = Vector2.new(0.5,0.5)
+    LidFold.Position = UDim2.new(0.5,0,0.35,0)
+    LidFold.BackgroundColor3 = C.LidSkin1
+    LidFold.BackgroundTransparency = 0.5; LidFold.BorderSizePixel = 0; LidFold.ZIndex = 216
+    local LFGrad = Instance.new("UIGradient", LidFold)
+    LFGrad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(0.5,0),NumberSequenceKeypoint.new(1,1)})
+
+    -- Base dos cílios superiores (linha escura na borda da pálpebra)
+    local LashLine = Instance.new("Frame", LidTop)
+    LashLine.Size = UDim2.new(1,0,0,3)
+    LashLine.AnchorPoint = Vector2.new(0.5,1)
+    LashLine.Position = UDim2.new(0.5,0,1,0)
+    LashLine.BackgroundColor3 = C.LashBase
+    LashLine.BackgroundTransparency = 0; LashLine.BorderSizePixel = 0; LashLine.ZIndex = 216
+
+    -- Cílios superiores: vários frames finos rotacionados
+    local lashData = {
+        -- {posX_relativo, ângulo_graus, comprimento}
+        {0.10, -78, 18}, {0.17, -75, 20}, {0.24, -72, 22}, {0.31, -70, 22},
+        {0.38, -68, 23}, {0.44, -67, 24}, {0.50, -66, 24}, {0.56, -67, 24},
+        {0.62, -68, 23}, {0.68, -70, 22}, {0.75, -72, 21}, {0.82, -75, 19},
+        {0.88, -78, 17},
+    }
+    for _, ld in ipairs(lashData) do
+        local lx, la, ll = ld[1], ld[2], ld[3]
+        local Lash = Instance.new("Frame", LidTop)
+        Lash.Size = UDim2.new(0, 1, 0, ll)
+        Lash.AnchorPoint = Vector2.new(0.5, 1)
+        Lash.Position = UDim2.new(lx, 0, 1, 0)
+        Lash.BackgroundColor3 = C.LashBase
+        Lash.BackgroundTransparency = 0.05
+        Lash.BorderSizePixel = 0; Lash.ZIndex = 217
+        Lash.Rotation = la
+        local LashGrad = Instance.new("UIGradient", Lash)
+        LashGrad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(0.7,0.1),NumberSequenceKeypoint.new(1,0.8)})
+        LashGrad.Rotation = 90
+    end
+
+    -- ── PÁLPEBRA INFERIOR ────────────────────────────────────────
+    local LidBot = Instance.new("Frame", EyeRoot)
+    LidBot.Size = UDim2.new(0, EW+20, 0, EH/2+10)
     LidBot.AnchorPoint = Vector2.new(0.5, 0)
-    LidBot.Position    = UDim2.new(0.5, 0, 0.5, 0)
-    LidBot.BackgroundColor3 = C.LoadBg
-    LidBot.BorderSizePixel  = 0
-    LidBot.ZIndex           = 210
+    LidBot.Position = UDim2.new(0.5, 0, 0.5, 0)  -- tapando
+    LidBot.BackgroundColor3 = C.LidSkin2
+    LidBot.BorderSizePixel = 0; LidBot.ZIndex = 215
     makeCorner(LidBot, 0)
+    local LBGrad = Instance.new("UIGradient", LidBot)
+    LBGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,  C.LidSkin2),
+        ColorSequenceKeypoint.new(0.4, C.LidSkin1),
+        ColorSequenceKeypoint.new(1,  C.LoadBg),
+    })
+    LBGrad.Rotation = 90
 
-    -- Reflexo brilhante no olho (detalhe)
-    local Shine = Instance.new("Frame", EyeOuter)
-    Shine.Size        = UDim2.new(0,14,0,7)
-    Shine.AnchorPoint = Vector2.new(0.5,0.5)
-    Shine.Position    = UDim2.new(0.65,0,0.28,0)
-    Shine.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    Shine.BackgroundTransparency = 0.4
-    Shine.BorderSizePixel = 0
-    Shine.ZIndex = 206
-    makeCorner(Shine, 999)
+    -- Base dos cílios inferiores
+    local LashLineBot = Instance.new("Frame", LidBot)
+    LashLineBot.Size = UDim2.new(1,0,0,2)
+    LashLineBot.AnchorPoint = Vector2.new(0.5,0)
+    LashLineBot.Position = UDim2.new(0.5,0,0,0)
+    LashLineBot.BackgroundColor3 = C.LashBase
+    LashLineBot.BackgroundTransparency = 0.2; LashLineBot.BorderSizePixel = 0; LashLineBot.ZIndex = 216
 
-    -- Bolinha de loading embaixo do olho
+    -- Cílios inferiores (menores)
+    local lashBotData = {
+        {0.15,-112,10},{0.24,-110,11},{0.33,-108,12},{0.42,-107,12},
+        {0.50,-107,12},{0.58,-107,12},{0.67,-108,12},{0.76,-110,11},{0.85,-112,10},
+    }
+    for _, ld in ipairs(lashBotData) do
+        local lx, la, ll = ld[1], ld[2], ld[3]
+        local Lash = Instance.new("Frame", LidBot)
+        Lash.Size = UDim2.new(0, 1, 0, ll)
+        Lash.AnchorPoint = Vector2.new(0.5, 0)
+        Lash.Position = UDim2.new(lx, 0, 0, 0)
+        Lash.BackgroundColor3 = C.LashBase
+        Lash.BackgroundTransparency = 0.2; Lash.BorderSizePixel = 0; Lash.ZIndex = 217
+        Lash.Rotation = la
+        local LashGrad = Instance.new("UIGradient", Lash)
+        LashGrad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.1),NumberSequenceKeypoint.new(1,0.9)})
+        LashGrad.Rotation = 90
+    end
+
+    -- ── Bolinhas de loading ──────────────────────────────────────
     local DOT_COUNT = 5
     local dotFrames = {}
     for i = 1, DOT_COUNT do
-        local d = Instance.new("Frame", Center)
-        d.Size        = UDim2.new(0,7,0,7)
+        local d = Instance.new("Frame", EyeRoot)
+        d.Size = UDim2.new(0,6,0,6)
         d.AnchorPoint = Vector2.new(0.5,0.5)
-        local spacing = 14
+        local spacing = 16
         local totalW  = (DOT_COUNT-1)*spacing
-        d.Position    = UDim2.new(0.5, (i-1)*spacing - totalW/2, 0.5, EYE_H/2 + 28)
+        d.Position = UDim2.new(0.5, (i-1)*spacing - totalW/2, 0.5, EH/2+32)
         d.BackgroundColor3 = C.White
-        d.BackgroundTransparency = 0.7
-        d.BorderSizePixel = 0
-        d.ZIndex = 209
+        d.BackgroundTransparency = 1
+        d.BorderSizePixel = 0; d.ZIndex = 220
         makeCorner(d, 999)
         dotFrames[i] = d
     end
 
-    -- Animação da bolinha de loading (onda)
+    -- ── SEQUÊNCIA DE ANIMAÇÃO ─────────────────────────────────────
     local dotConn
     local dotTime = 0
     dotConn = RunService.Heartbeat:Connect(function(dt)
-        if not Center.Parent then dotConn:Disconnect(); return end
+        if not EyeRoot.Parent then dotConn:Disconnect(); return end
         dotTime = dotTime + dt
         for i, d in ipairs(dotFrames) do
-            local phase = dotTime * 3 - (i-1)*0.28
-            local t = (math.sin(phase) + 1) / 2
-            d.BackgroundTransparency = 0.2 + (1 - t)*0.65
-            local offset = -math.sin(phase) * 5
-            local spacing = 14
-            local totalW  = (DOT_COUNT-1)*spacing
-            d.Position = UDim2.new(0.5, (i-1)*spacing - totalW/2, 0.5, EYE_H/2 + 28 + offset)
+            if d.BackgroundTransparency < 0.95 then
+                local phase = dotTime * 2.8 - (i-1)*0.32
+                local t2    = (math.sin(phase) + 1) / 2
+                d.BackgroundTransparency = 0.15 + (1-t2)*0.72
+                local spacing = 16
+                local totalW  = (DOT_COUNT-1)*spacing
+                d.Position = UDim2.new(0.5, (i-1)*spacing - totalW/2, 0.5, EH/2+32 - math.sin(phase)*6)
+            end
         end
     end)
 
-    -- Sequência de animação
+    -- Gradiente girante do Kx
+    local kxAngle = 90
+    local kxConn
+    kxConn = RunService.Heartbeat:Connect(function(dt)
+        if not KxLbl.Parent then kxConn:Disconnect(); return end
+        kxAngle = (kxAngle + dt*70) % 360
+        KxGrad.Rotation = kxAngle
+    end)
+
     task.spawn(function()
-
-        -- Estado inicial: pálpebras fechadas, íris/pupila/Kx invisíveis
-        EyeOuter.BackgroundTransparency = 1
+        -- Estado inicial: tudo invisível / pálpebras fechadas
+        Glow.BackgroundTransparency     = 1
+        Sclera.BackgroundTransparency   = 1
         Iris.BackgroundTransparency     = 1
+        Limbus.BackgroundTransparency   = 1
+        FiberCont.BackgroundTransparency = 1
         Pupil.BackgroundTransparency    = 1
-        KxLabel.TextTransparency        = 1
-        Shine.BackgroundTransparency    = 1
-        for _, d in ipairs(dotFrames) do d.BackgroundTransparency = 1 end
+        KxLbl.TextTransparency          = 1
+        Shine1.BackgroundTransparency   = 1
+        ShineCore.BackgroundTransparency = 1
+        Shine2.BackgroundTransparency   = 1
+        IrisRing.BackgroundTransparency = 1
+        LacR.BackgroundTransparency     = 1
+        WetLine.BackgroundTransparency  = 0.5
+        for _,s in ipairs({makeStroke}) do end
 
-        task.wait(0.5)
+        task.wait(0.45)
 
-        -- 1. Esclera aparece (olho fechado, só o branco)
-        Tween(EyeOuter, {BackgroundTransparency=0}, 0.3, Enum.EasingStyle.Quad):Play()
+        -- 1. Glow ambiente aparece
+        Tween(Glow, {BackgroundTransparency=0.82}, 0.5, Enum.EasingStyle.Sine):Play()
+        task.wait(0.2)
+
+        -- 2. Esclera aparece (olho ainda fechado)
+        Tween(Sclera, {BackgroundTransparency=0}, 0.4, Enum.EasingStyle.Quad):Play()
         task.wait(0.35)
 
-        -- 2. Pálpebras abrem (deslizam para cima e para baixo)
-        Tween(LidTop, {Position=UDim2.new(0.5,0,0.5,-(EYE_H/2+6))}, 0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
-        Tween(LidBot, {Position=UDim2.new(0.5,0,0.5, (EYE_H/2+6))}, 0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
-        task.wait(0.25)
+        -- 3. Pálpebras abrem com overshoot (Back)
+        local openTopY  = -(EH/2 + 14)
+        local openBotY  =  (EH/2 + 14)
+        Tween(LidTop, {Position=UDim2.new(0.5,0,0.5,openTopY)}, 0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
+        Tween(LidBot, {Position=UDim2.new(0.5,0,0.5,openBotY)}, 0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
+        task.wait(0.22)
 
-        -- 3. Íris e pupila aparecem enquanto olho ainda abre
-        Tween(Iris,   {BackgroundTransparency=0}, 0.4, Enum.EasingStyle.Quint):Play()
-        Tween(Pupil,  {BackgroundTransparency=0}, 0.4, Enum.EasingStyle.Quint):Play()
-        Tween(Shine,  {BackgroundTransparency=0.4}, 0.5, Enum.EasingStyle.Quint):Play()
-        task.wait(0.4)
+        -- 4. Veias aparecem
+        for _, v in ipairs({V1,V2,V3,V4,V5,V6}) do
+            Tween(v, {BackgroundTransparency=v.BackgroundTransparency}, 0.3):Play()
+        end
 
-        -- 4. Kx aparece com fade
-        Tween(KxLabel, {TextTransparency=0}, 0.45, Enum.EasingStyle.Back):Play()
+        -- 5. Íris e limbus surgem
+        Tween(Limbus,   {BackgroundTransparency=0.4}, 0.4, Enum.EasingStyle.Quint):Play()
+        Tween(Iris,     {BackgroundTransparency=0},   0.45, Enum.EasingStyle.Quint):Play()
+        Tween(IrisRing, {BackgroundTransparency=0.55},0.5, Enum.EasingStyle.Quint):Play()
         task.wait(0.3)
 
-        -- 5. Bolinhas de loading aparecem
+        -- 6. Pupila aparece
+        Tween(Pupil, {BackgroundTransparency=0}, 0.35, Enum.EasingStyle.Quint):Play()
+        task.wait(0.2)
+
+        -- 7. Reflexos aparecem
+        Tween(Shine1,     {BackgroundTransparency=0.08}, 0.4, Enum.EasingStyle.Back):Play()
+        Tween(ShineCore,  {BackgroundTransparency=0},    0.3):Play()
+        Tween(Shine2,     {BackgroundTransparency=0.55}, 0.4):Play()
+        Tween(LacR,       {BackgroundTransparency=0.1},  0.4):Play()
+        task.wait(0.25)
+
+        -- 8. Kx aparece
+        Tween(KxLbl, {TextTransparency=0}, 0.4, Enum.EasingStyle.Back):Play()
+        task.wait(0.3)
+
+        -- 9. Bolinhas de loading aparecem em cascata
         for i, d in ipairs(dotFrames) do
-            task.delay((i-1)*0.06, function()
-                Tween(d, {BackgroundTransparency=0.3}, 0.25):Play()
+            task.delay((i-1)*0.07, function()
+                Tween(d, {BackgroundTransparency=0.2}, 0.25):Play()
             end)
         end
         task.wait(0.6)
 
-        -- 6. Gradiente do Kx animado
-        local gradConn
-        local gradAngle = 90
-        gradConn = RunService.Heartbeat:Connect(function(dt)
-            if not KxLabel.Parent then gradConn:Disconnect(); return end
-            gradAngle = (gradAngle + dt*80) % 360
-            KxGrad.Rotation = gradAngle
-        end)
+        -- 10. Pupila dilata ligeiramente (efeito orgânico)
+        Tween(Pupil, {Size=UDim2.new(0,PUPIL_R*2+6,0,PUPIL_R*2+6)}, 1.2, Enum.EasingStyle.Sine):Play()
+        task.wait(0.8)
+        Tween(Pupil, {Size=UDim2.new(0,PUPIL_R*2,0,PUPIL_R*2)}, 1.4, Enum.EasingStyle.Sine):Play()
 
-        -- 7. Aguarda o loading terminar
-        task.wait(2.8)
+        -- 11. Aguarda loading
+        task.wait(2.2)
 
-        -- 8. Bolinhas somem
+        -- 12. Bolinhas somem
         for _, d in ipairs(dotFrames) do
             Tween(d, {BackgroundTransparency=1}, 0.2):Play()
         end
         task.wait(0.15)
 
-        -- 9. Kx some
-        Tween(KxLabel, {TextTransparency=1}, 0.3):Play()
+        -- 13. Kx some
+        Tween(KxLbl, {TextTransparency=1}, 0.28):Play()
+        task.wait(0.12)
+
+        -- 14. Reflexos somem
+        Tween(Shine1,    {BackgroundTransparency=1}, 0.2):Play()
+        Tween(ShineCore, {BackgroundTransparency=1}, 0.2):Play()
+        Tween(Shine2,    {BackgroundTransparency=1}, 0.2):Play()
+        task.wait(0.1)
+
+        -- 15. Pupila contrai antes de fechar (piscar rápido)
+        Tween(Pupil, {Size=UDim2.new(0,8,0,8)}, 0.15, Enum.EasingStyle.Back):Play()
         task.wait(0.15)
 
-        -- 10. Pálpebras fecham
-        Tween(LidTop, {Position=UDim2.new(0.5,0,0.5,0)}, 0.4, Enum.EasingStyle.Quint):Play()
-        Tween(LidBot, {Position=UDim2.new(0.5,0,0.5,0)}, 0.4, Enum.EasingStyle.Quint):Play()
-        task.wait(0.25)
+        -- 16. Pálpebras fecham
+        Tween(LidTop, {Position=UDim2.new(0.5,0,0.5,0)}, 0.38, Enum.EasingStyle.Quint):Play()
+        Tween(LidBot, {Position=UDim2.new(0.5,0,0.5,0)}, 0.38, Enum.EasingStyle.Quint):Play()
+        task.wait(0.22)
 
-        -- 11. Íris, pupila e esclera somem
-        Tween(Iris,     {BackgroundTransparency=1}, 0.25):Play()
-        Tween(Pupil,    {BackgroundTransparency=1}, 0.25):Play()
-        Tween(EyeOuter, {BackgroundTransparency=1}, 0.3):Play()
-        task.wait(0.35)
+        -- 17. Íris e esclera somem
+        Tween(Iris,   {BackgroundTransparency=1}, 0.22):Play()
+        Tween(Limbus, {BackgroundTransparency=1}, 0.22):Play()
+        Tween(Pupil,  {BackgroundTransparency=1}, 0.22):Play()
+        Tween(Sclera, {BackgroundTransparency=1}, 0.28):Play()
+        Tween(Glow,   {BackgroundTransparency=1}, 0.35):Play()
+        Tween(LacR,   {BackgroundTransparency=1}, 0.2):Play()
+        task.wait(0.3)
 
-        -- 12. Fade out do fundo
-        Tween(Loader, {BackgroundTransparency=1}, 0.4):Play()
-        task.wait(0.42)
+        -- 18. Fade out geral
+        Tween(Loader, {BackgroundTransparency=1}, 0.38):Play()
+        task.wait(0.4)
 
-        if gradConn then gradConn:Disconnect() end
-        dotConn:Disconnect()
+        if kxConn then kxConn:Disconnect() end
+        if dotConn then dotConn:Disconnect() end
         Loader:Destroy()
         onDone()
     end)
@@ -789,40 +1135,32 @@ function KraviX:CreateWindow(config)
                 local selected=cfg.Default or options[1]
                 local callback=cfg.Callback or function() end
                 local opened=false
-
                 local Row=Instance.new("Frame")
                 Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1
                 Row.ClipsDescendants=false; Row.ZIndex=13
-
                 local Lbl=Instance.new("TextLabel",Row)
                 Lbl.Size=UDim2.new(0.45,0,1,0); Lbl.BackgroundTransparency=1
                 Lbl.Text=cfg.Name or "Dropdown"; Lbl.TextColor3=C.Sub
                 Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                 Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
-
                 local Sel=Instance.new("TextButton",Row)
                 Sel.Size=UDim2.new(0.55,-2,1,-4); Sel.Position=UDim2.new(0.45,2,0.5,-10)
                 Sel.BackgroundColor3=C.Bg4; Sel.Text=(selected or "--").."  ▼"
                 Sel.TextColor3=C.Text; Sel.TextSize=10; Sel.Font=Enum.Font.GothamSemibold
                 Sel.AutoButtonColor=false; Sel.ZIndex=14
                 makeCorner(Sel,4); makeStroke(Sel,C.Border,1,0)
-
                 local Dropdown={Value=selected}
-
                 local DFrame=Instance.new("Frame",ScreenGui)
                 DFrame.Size=UDim2.new(0,140,0,#options*24+8)
                 DFrame.BackgroundColor3=C.Bg3; DFrame.BorderSizePixel=0
                 DFrame.Visible=false; DFrame.ZIndex=200
                 makeCorner(DFrame,6); makeStroke(DFrame,C.Accent,1,0.4)
-
                 local DL=Instance.new("UIListLayout",DFrame)
                 DL.Padding=UDim.new(0,2); DL.SortOrder=Enum.SortOrder.LayoutOrder
                 makePadding(DFrame,4,4,4,4)
-
                 local _dropHovered=false
                 DFrame.MouseEnter:Connect(function() _dropHovered=true end)
                 DFrame.MouseLeave:Connect(function() _dropHovered=false end)
-
                 local optBtns={}
                 for _,opt in ipairs(options) do
                     local OBtn=Instance.new("TextButton",DFrame)
@@ -851,7 +1189,6 @@ function KraviX:CreateWindow(config)
                         if prev~=opt then callback(opt) end
                     end)
                 end
-
                 Sel.MouseButton1Click:Connect(function()
                     opened=not opened; DFrame.Visible=opened
                     if opened then
@@ -865,7 +1202,6 @@ function KraviX:CreateWindow(config)
                         end
                     end
                 end)
-
                 UserInputService.InputBegan:Connect(function(inp)
                     if inp.UserInputType==Enum.UserInputType.MouseButton1 then
                         if not _dropHovered then opened=false; DFrame.Visible=false end
@@ -874,7 +1210,6 @@ function KraviX:CreateWindow(config)
                 Main:GetPropertyChangedSignal("Visible"):Connect(function()
                     opened=false; DFrame.Visible=false; _dropHovered=false
                 end)
-
                 function Dropdown:Set(v)
                     if table.find(options,v) then
                         Dropdown.Value=v; Sel.Text=v.."  ▼"
@@ -885,10 +1220,8 @@ function KraviX:CreateWindow(config)
                         callback(v)
                     end
                 end
-
                 if selected then task.defer(function() callback(selected) end) end
-                Dropdown._Row = Row
-                Dropdown._DFrame = DFrame
+                Dropdown._Row=Row; Dropdown._DFrame=DFrame
                 AddItem(Row); return Dropdown
             end
 
@@ -979,13 +1312,11 @@ function KraviX:CreateWindow(config)
                 end
                 local listen=false
                 local callback=cfg.Callback or function() end
-
                 local function bindLabel(b)
                     if not b then return "None" end
                     if b.type=="mouse" then return MOUSE_NAMES[b.value] or "Mouse?"
                     else return b.value and b.value.Name or "?" end
                 end
-
                 local Row=Instance.new("Frame")
                 Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
                 local Lbl=Instance.new("TextLabel",Row)
@@ -999,9 +1330,7 @@ function KraviX:CreateWindow(config)
                 KB.TextColor3=C.Accent3; KB.TextSize=10; KB.Font=Enum.Font.GothamBold
                 KB.AutoButtonColor=false; KB.ZIndex=14
                 makeCorner(KB,4); makeStroke(KB,C.Border,1,0)
-
                 local Bind={Value=cur}
-
                 KB.InputBegan:Connect(function(inp)
                     if inp.UserInputType~=Enum.UserInputType.MouseButton1 then return end
                     if listen then return end
@@ -1010,22 +1339,19 @@ function KraviX:CreateWindow(config)
                         listen=true; KB.Text="..."; KB.TextColor3=C.White
                     end)
                 end)
-
                 UserInputService.InputBegan:Connect(function(inp, processed)
                     if not listen then return end
                     if processed then return end
                     if inp.UserInputType == Enum.UserInputType.MouseButton1 then
                         task.wait(0.05)
-                    if not listen then return end
+                        if not listen then return end
                     end
-
                     local isMouse=false
                     for _,mt in ipairs(MOUSE_TYPES) do
                         if inp.UserInputType==mt then
                             isMouse=true; cur={type="mouse",value=inp.UserInputType}; break
                         end
                     end
-
                     if not isMouse then
                         if inp.UserInputType==Enum.UserInputType.Keyboard then
                             if inp.KeyCode==Enum.KeyCode.Escape then
@@ -1034,17 +1360,14 @@ function KraviX:CreateWindow(config)
                             cur={type="key",value=inp.KeyCode}
                         else return end
                     end
-
                     listen=false; Bind.Value=cur
                     KB.Text=bindLabel(cur); KB.TextColor3=C.Accent3
                     callback(cur)
                 end)
-
                 function Bind:Set(b)
                     if type(b)=="table" and b.type then cur=b else cur={type="key",value=b} end
                     Bind.Value=cur; KB.Text=bindLabel(cur); KB.TextColor3=C.Accent3; callback(cur)
                 end
-
                 AddItem(Row); return Bind
             end
 
