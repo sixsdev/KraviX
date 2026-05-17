@@ -910,6 +910,47 @@ function KraviX:CreateWindow(config)
                     end
                 end
 
+                function Dropdown:Rebuild(newOptions)
+                    options = newOptions or {}
+                    opened = false; DFrame.Visible = false; _dropHovered = false
+                    for _,b in pairs(optBtns) do b:Destroy() end
+                    optBtns = {}
+                    DFrame.Size = UDim2.new(0,140,0,#options*24+8)
+                    for _,opt in ipairs(options) do
+                        local OBtn=Instance.new("TextButton",DFrame)
+                        OBtn.Size=UDim2.new(1,0,0,22); OBtn.BackgroundColor3=C.Bg4
+                        OBtn.BackgroundTransparency=1
+                        OBtn.Text=opt; OBtn.TextColor3=C.Sub
+                        OBtn.TextSize=11; OBtn.Font=Enum.Font.Gotham
+                        OBtn.AutoButtonColor=false; OBtn.ZIndex=201
+                        makeCorner(OBtn,4)
+                        optBtns[opt]=OBtn
+                        OBtn.MouseEnter:Connect(function()
+                            _dropHovered=true
+                            if OBtn.Text~=Dropdown.Value then Tween(OBtn,{BackgroundTransparency=0.4,TextColor3=C.Text},0.1):Play() end
+                        end)
+                        OBtn.MouseLeave:Connect(function()
+                            if OBtn.Text~=Dropdown.Value then Tween(OBtn,{BackgroundTransparency=1,TextColor3=C.Sub},0.1):Play() end
+                        end)
+                        OBtn.MouseButton1Click:Connect(function()
+                            local prev=Dropdown.Value
+                            Dropdown.Value=opt; Sel.Text=opt.."  ▼"
+                            for o,b in pairs(optBtns) do
+                                b.TextColor3=o==opt and C.Accent3 or C.Sub
+                                b.BackgroundTransparency=o==opt and 0.5 or 1
+                            end
+                            opened=false; DFrame.Visible=false; _dropHovered=false
+                            if prev~=opt then callback(opt) end
+                        end)
+                    end
+                    local first = options[1]
+                    if first then
+                        Dropdown.Value=first; Sel.Text=first.."  ▼"
+                    else
+                        Dropdown.Value=nil; Sel.Text="--  ▼"
+                    end
+                end
+
                 if selected then task.defer(function() callback(selected) end) end
                 Dropdown._Row = Row
                 Dropdown._DFrame = DFrame
@@ -955,9 +996,16 @@ function KraviX:CreateWindow(config)
                 Box.Focused:Connect(function() Tween(bs,{Color=C.Accent},0.15):Play() end)
                 Box.FocusLost:Connect(function(enter)
                     Tween(bs,{Color=C.Border},0.15):Play()
-                    if enter then callback(Box.Text) end
+                    callback(Box.Text)
                 end)
+                Box:GetPropertyChangedSignal("Text"):Connect(function()
+                    callback(Box.Text)
+                end)
+                local Textbox = {}
+                function Textbox:GetText() return Box.Text end
+                function Textbox:SetText(t) Box.Text = t end
                 AddItem(Row)
+                return Textbox
             end
 
             function Section:AddKeybind(cfg)
