@@ -1,7 +1,7 @@
 -- ════════════════════════════════════════
 --  KraviX — Base Library
 --  Visual baseado na imagem de referência
---  Rosa/Pink accent · 500x440 · 2 colunas
+--  Rosa/Pink accent · 550x600 · 2 colunas
 -- ════════════════════════════════════════
 local KraviX = {}
 
@@ -284,14 +284,14 @@ function KraviX:CreateWindow(config)
     Backdrop.ZIndex=1; Backdrop.Visible=false
     StartSnow(Backdrop)
 
-    -- ── Dimensões igual à referência (500x440) ──
-    local WIN_W = 500
-    local WIN_H = 440
+    -- ── Dimensões iguais ao LinoriaLib (550x600) ──
+    local WIN_W = 550
+    local WIN_H = 600
 
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name="KraviXMain"
     Main.Size=UDim2.new(0,WIN_W,0,WIN_H)
-    Main.Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)
+    Main.Position=UDim2.new(0,175,0,50)
     Main.BackgroundColor3=C.Bg2; Main.BackgroundTransparency=0
     Main.BorderSizePixel=0; Main.Visible=false; Main.ZIndex=10
     makeCorner(Main,6); makeStroke(Main,C.Border,1,0)
@@ -363,7 +363,7 @@ function KraviX:CreateWindow(config)
         Tween(Main,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0.5,0,0.5,0)},0.16,Enum.EasingStyle.Back):Play()
         task.wait(0.18); Main.Visible=false; Backdrop.Visible=false
         Main.Size=UDim2.new(0,WIN_W,0,WIN_H)
-        Main.Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)
+        Main.Position=UDim2.new(0,175,0,50)
     end
     local function ShowWindow()
         if Main.Visible then return end
