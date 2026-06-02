@@ -99,45 +99,106 @@ local MOUSE_TYPES = {
 }
 
 -- ══════════════════════════════════════
---  NOTIFICAÇÃO
+--  NOTIFICAÇÃO — canto inferior direito
+--  type: "info" | "success" | "error"
 -- ══════════════════════════════════════
-local function CreateNotification(title, text, duration)
+local _notifOffset = 0  -- empilha notifs
+
+local function CreateNotification(title, text, duration, ntype)
     PlaySound(SOUND_NOTIF)
+    ntype = ntype or "info"
+
+    -- cor da bolinha por tipo
+    local dotColor
+    if ntype == "error" then
+        dotColor = Color3.fromRGB(255, 65, 65)
+    elseif ntype == "success" then
+        dotColor = Color3.fromRGB(60, 210, 110)
+    else
+        dotColor = C.Accent  -- rosa = info/padrão
+    end
+
     local G = Instance.new("ScreenGui")
     G.Name = "KxNotif_"..tostring(tick()); G.IgnoreGuiInset = true
     G.ZIndexBehavior = Enum.ZIndexBehavior.Global; G.ResetOnSpawn = false
     if syn and syn.protect_gui then syn.protect_gui(G); G.Parent = CoreGui
     elseif gethui then G.Parent = gethui() else G.Parent = CoreGui end
 
+    local NOTIF_H = 60
+    local NOTIF_W = 290
+    local MARGIN  = 14
+    local slot    = _notifOffset
+    _notifOffset  = _notifOffset + 1
+
+    -- posição inicial fora da tela (direita) e destino (canto inferior direito)
+    local yOff = -(NOTIF_H + MARGIN) * (slot + 1) - MARGIN
+
     local F = Instance.new("Frame", G)
-    F.Size = UDim2.new(0,280,0,56); F.Position = UDim2.new(1,10,0,16)
+    F.Size = UDim2.new(0,NOTIF_W,0,NOTIF_H)
+    F.Position = UDim2.new(1, 14, 1, yOff)          -- começa fora
+    F.AnchorPoint = Vector2.new(0,1)
     F.BackgroundColor3 = C.Bg3; F.BackgroundTransparency = 1; F.BorderSizePixel = 0
-    makeCorner(F, 5)
-    local FStroke = makeStroke(F, C.Accent, 1, 1)
+    makeCorner(F, 7)
+
+    local FStroke = makeStroke(F, dotColor, 1, 1)
     FStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    -- barra lateral colorida
     local Bar = Instance.new("Frame", F)
-    Bar.Size = UDim2.new(0,2,1,-10); Bar.Position = UDim2.new(0,0,0,5)
-    Bar.BackgroundColor3 = C.Accent; Bar.BorderSizePixel = 0; makeCorner(Bar, 2)
+    Bar.Size = UDim2.new(0,3,1,-14); Bar.Position = UDim2.new(0,0,0,7)
+    Bar.BackgroundColor3 = dotColor; Bar.BorderSizePixel = 0; makeCorner(Bar, 3)
+
+    -- bolinha colorida de status
+    local Dot = Instance.new("Frame", F)
+    Dot.Size = UDim2.new(0,8,0,8); Dot.Position = UDim2.new(0,14,0,14)
+    Dot.BackgroundColor3 = dotColor; Dot.BorderSizePixel = 0; makeCorner(Dot,4)
+    Dot.BackgroundTransparency = 1
+
+    -- brilho na bolinha
+    local DotGlow = Instance.new("Frame", Dot)
+    DotGlow.Size = UDim2.new(1,6,1,6); DotGlow.Position = UDim2.new(0,-3,0,-3)
+    DotGlow.BackgroundColor3 = dotColor; DotGlow.BorderSizePixel = 0
+    DotGlow.BackgroundTransparency = 0.7; makeCorner(DotGlow,7)
+
     local T = Instance.new("TextLabel", F)
-    T.Size = UDim2.new(1,-14,0,18); T.Position = UDim2.new(0,10,0,8)
+    T.Size = UDim2.new(1,-28,0,16); T.Position = UDim2.new(0,26,0,10)
     T.BackgroundTransparency = 1; T.Text = title; T.TextColor3 = C.Text
     T.TextSize = 12; T.Font = Enum.Font.GothamBold
     T.TextXAlignment = Enum.TextXAlignment.Left; T.TextTransparency = 1
+
     local D = Instance.new("TextLabel", F)
-    D.Size = UDim2.new(1,-14,0,22); D.Position = UDim2.new(0,10,0,28)
+    D.Size = UDim2.new(1,-28,0,24); D.Position = UDim2.new(0,26,0,28)
     D.BackgroundTransparency = 1; D.Text = text; D.TextColor3 = C.Sub
     D.TextSize = 10; D.Font = Enum.Font.Gotham
     D.TextXAlignment = Enum.TextXAlignment.Left; D.TextWrapped = true; D.TextTransparency = 1
 
-    Tween(F, {Position=UDim2.new(1,-296,0,16), BackgroundTransparency=0.02}, 0.25, Enum.EasingStyle.Quint):Play()
-    Tween(FStroke, {Transparency=0.3}, 0.25):Play()
-    Tween(T, {TextTransparency=0}, 0.3):Play()
-    Tween(D, {TextTransparency=0}, 0.35):Play()
-    task.delay(duration or 3, function()
-        Tween(F, {Position=UDim2.new(1,10,0,16), BackgroundTransparency=1}, 0.22):Play()
-        Tween(FStroke, {Transparency=1}, 0.18):Play()
-        Tween(T, {TextTransparency=1}, 0.18):Play()
-        Tween(D, {TextTransparency=1}, 0.18):Play()
+    -- barra de progresso no fundo
+    local PBg = Instance.new("Frame", F)
+    PBg.Size = UDim2.new(1,0,0,2); PBg.Position = UDim2.new(0,0,1,-2)
+    PBg.BackgroundColor3 = C.Bg5; PBg.BorderSizePixel = 0; makeCorner(PBg,2)
+    local PFill = Instance.new("Frame", PBg)
+    PFill.Size = UDim2.new(1,0,1,0); PFill.BackgroundColor3 = dotColor
+    PFill.BorderSizePixel = 0; makeCorner(PFill,2)
+
+    -- ENTRADA: desliza da direita para dentro
+    local destX = -(NOTIF_W + MARGIN)
+    Tween(F, {Position=UDim2.new(1,destX,1,yOff), BackgroundTransparency=0.06}, 0.28, Enum.EasingStyle.Quint):Play()
+    Tween(FStroke, {Transparency=0.5}, 0.28):Play()
+    Tween(Dot,    {BackgroundTransparency=0}, 0.3):Play()
+    Tween(T, {TextTransparency=0}, 0.32):Play()
+    Tween(D, {TextTransparency=0}, 0.38):Play()
+
+    -- barra de progresso encolhe
+    local dur = duration or 3
+    Tween(PFill, {Size=UDim2.new(0,0,1,0)}, dur, Enum.EasingStyle.Linear):Play()
+
+    task.delay(dur, function()
+        _notifOffset = math.max(0, _notifOffset - 1)
+        Tween(F,      {Position=UDim2.new(1,14,1,yOff), BackgroundTransparency=1}, 0.22):Play()
+        Tween(FStroke,{Transparency=1}, 0.18):Play()
+        Tween(T,      {TextTransparency=1}, 0.18):Play()
+        Tween(D,      {TextTransparency=1}, 0.18):Play()
+        Tween(Dot,    {BackgroundTransparency=1}, 0.18):Play()
         task.wait(0.28); G:Destroy()
     end)
 end
@@ -197,6 +258,103 @@ local function MakeDraggable(frame, handle)
 end
 
 -- ══════════════════════════════════════
+--  BARRA DE STATUS (topo separada)
+--  Aparece acima de tudo, independente da janela
+-- ══════════════════════════════════════
+local function CreateStatusBar(screenGui)
+    local SBar = Instance.new("Frame", screenGui)
+    SBar.Name = "KxStatusBar"
+    SBar.Size = UDim2.new(0,0,0,26)
+    SBar.Position = UDim2.new(1,0,0,8)      -- começa fora à direita
+    SBar.AnchorPoint = Vector2.new(1,0)
+    SBar.BackgroundColor3 = C.Bg3
+    SBar.BackgroundTransparency = 0.1
+    SBar.BorderSizePixel = 0
+    SBar.ZIndex = 50
+    makeCorner(SBar, 6)
+    makeStroke(SBar, C.Border, 1, 0)
+    SBar.AutomaticSize = Enum.AutomaticSize.X
+    SBar.ClipsDescendants = false
+
+    -- linha rosa no topo da barra
+    local AccTop = Instance.new("Frame", SBar)
+    AccTop.Size = UDim2.new(0,32,0,2); AccTop.Position = UDim2.new(1,-38,0,0)
+    AccTop.BackgroundColor3 = C.Accent; AccTop.BorderSizePixel = 0; makeCorner(AccTop,2)
+    AccTop.ZIndex = 51
+
+    -- lista horizontal de itens
+    local List = Instance.new("UIListLayout", SBar)
+    List.FillDirection = Enum.FillDirection.Horizontal
+    List.SortOrder = Enum.SortOrder.LayoutOrder
+    List.VerticalAlignment = Enum.VerticalAlignment.Center
+    List.Padding = UDim.new(0,6)
+    makePadding(SBar, 0,0,10,10)
+
+    -- "Kx" logo na barra
+    local KxLbl = Instance.new("TextLabel", SBar)
+    KxLbl.Size = UDim2.new(0,22,0,22); KxLbl.BackgroundTransparency = 1
+    KxLbl.Text = "Kx"; KxLbl.TextColor3 = C.Accent
+    KxLbl.TextSize = 13; KxLbl.Font = Enum.Font.GothamBold
+    KxLbl.TextXAlignment = Enum.TextXAlignment.Center; KxLbl.ZIndex = 51
+    KxLbl.LayoutOrder = 0
+
+    -- separador
+    local Sep = Instance.new("Frame", SBar)
+    Sep.Size = UDim2.new(0,1,0,14); Sep.BackgroundColor3 = C.Border
+    Sep.BorderSizePixel = 0; Sep.ZIndex = 51; Sep.LayoutOrder = 1
+
+    local StatusBar = {_bar=SBar, _items={}, _sep=Sep}
+
+    -- função pública: adiciona um item com bolinha colorida
+    function StatusBar:AddItem(label, color)
+        color = color or C.Accent
+        local Item = Instance.new("Frame", SBar)
+        Item.Size = UDim2.new(0,0,0,22)
+        Item.AutomaticSize = Enum.AutomaticSize.X
+        Item.BackgroundTransparency = 1
+        Item.ZIndex = 51
+        Item.LayoutOrder = #self._items + 2
+
+        local IList = Instance.new("UIListLayout", Item)
+        IList.FillDirection = Enum.FillDirection.Horizontal
+        IList.VerticalAlignment = Enum.VerticalAlignment.Center
+        IList.Padding = UDim.new(0,4)
+
+        local Dot = Instance.new("Frame", Item)
+        Dot.Size = UDim2.new(0,7,0,7); Dot.BackgroundColor3 = color
+        Dot.BorderSizePixel = 0; makeCorner(Dot,4); Dot.ZIndex=52
+
+        local Lbl = Instance.new("TextLabel", Item)
+        Lbl.Size = UDim2.new(0,0,0,22); Lbl.AutomaticSize = Enum.AutomaticSize.X
+        Lbl.BackgroundTransparency = 1; Lbl.Text = label
+        Lbl.TextColor3 = C.Sub; Lbl.TextSize = 10; Lbl.Font = Enum.Font.Gotham
+        Lbl.ZIndex = 52
+
+        -- separador entre items
+        if #self._items > 0 then
+            local S2 = Instance.new("Frame", SBar)
+            S2.Size = UDim2.new(0,1,0,14); S2.BackgroundColor3 = C.Border
+            S2.BorderSizePixel=0; S2.ZIndex=51; S2.LayoutOrder = Item.LayoutOrder
+            Item.LayoutOrder = Item.LayoutOrder + 1
+        end
+
+        table.insert(self._items, {dot=Dot, lbl=Lbl})
+        local entry = {_dot=Dot, _lbl=Lbl}
+        function entry:SetColor(c) Tween(Dot,{BackgroundColor3=c},0.15):Play() end
+        function entry:SetText(t) Lbl.Text=t end
+        return entry
+    end
+
+    -- animação de entrada
+    task.delay(0.1, function()
+        SBar.Size = UDim2.new(0,0,0,26)
+        Tween(SBar, {Position=UDim2.new(1,-10,0,8)}, 0.35, Enum.EasingStyle.Back):Play()
+    end)
+
+    return StatusBar
+end
+
+-- ══════════════════════════════════════
 --  LOADER
 -- ══════════════════════════════════════
 local function CreateLoader(screenGui, onDone)
@@ -205,6 +363,21 @@ local function CreateLoader(screenGui, onDone)
     Loader.BackgroundColor3=C.Bg; Loader.BackgroundTransparency=0
     Loader.ZIndex=200; Loader.BorderSizePixel=0
 
+    -- gradiente de fundo sutil
+    local BgGrad = Instance.new("UIGradient", Loader)
+    BgGrad.Rotation = 135
+    BgGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(8,4,10)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,12)),
+    })
+
+    -- linha de scan animada (efeito CRT)
+    local Scan = Instance.new("Frame", Loader)
+    Scan.Size=UDim2.new(1,0,0,2); Scan.Position=UDim2.new(0,0,-0.02,0)
+    Scan.BackgroundColor3=C.Accent; Scan.BackgroundTransparency=0.75
+    Scan.BorderSizePixel=0; Scan.ZIndex=210
+
+    -- tag canto superior direito
     local Tag = Instance.new("TextLabel", Loader)
     Tag.Size=UDim2.new(0,80,0,18); Tag.Position=UDim2.new(1,-90,0,12)
     Tag.BackgroundTransparency=1; Tag.Text="KRAVIX"
@@ -212,50 +385,131 @@ local function CreateLoader(screenGui, onDone)
     Tag.TextSize=10; Tag.Font=Enum.Font.GothamBold
     Tag.TextXAlignment=Enum.TextXAlignment.Right; Tag.ZIndex=201
 
+    -- versão canto inferior esquerdo
+    local VerTag = Instance.new("TextLabel", Loader)
+    VerTag.Size=UDim2.new(0,120,0,14); VerTag.Position=UDim2.new(0,14,1,-22)
+    VerTag.BackgroundTransparency=1; VerTag.Text="initializing system..."
+    VerTag.TextColor3=C.Muted; VerTag.TextTransparency=1
+    VerTag.TextSize=9; VerTag.Font=Enum.Font.Gotham
+    VerTag.TextXAlignment=Enum.TextXAlignment.Left; VerTag.ZIndex=201
+
     local Wrap = Instance.new("Frame", Loader)
     Wrap.Size=UDim2.new(0,260,0,140); Wrap.AnchorPoint=Vector2.new(0.5,0.5)
-    Wrap.Position=UDim2.new(0.5,0,0.5,0); Wrap.BackgroundTransparency=1; Wrap.ZIndex=201
+    Wrap.Position=UDim2.new(0.5,0,0.55,0)   -- levemente abaixo do centro
+    Wrap.BackgroundTransparency=1; Wrap.ZIndex=201
 
+    -- "Kx" — começa grande e encolhe para o tamanho final (zoom out)
     local KLbl = Instance.new("TextLabel", Wrap)
-    KLbl.Size=UDim2.new(0,140,0,72); KLbl.Position=UDim2.new(0.5,-70,0,0)
+    KLbl.Size=UDim2.new(0,200,0,110); KLbl.Position=UDim2.new(0.5,-100,0,-10)
     KLbl.BackgroundTransparency=1; KLbl.Text="Kx"
-    KLbl.TextColor3=C.Accent; KLbl.TextSize=68
+    KLbl.TextColor3=C.Accent; KLbl.TextSize=96
     KLbl.Font=Enum.Font.GothamBold; KLbl.TextXAlignment=Enum.TextXAlignment.Center
     KLbl.TextTransparency=1; KLbl.ZIndex=203
 
+    -- brilho rosado atrás do Kx
+    local Glow = Instance.new("Frame", Wrap)
+    Glow.Size=UDim2.new(0,140,0,140); Glow.Position=UDim2.new(0.5,-70,0,-20)
+    Glow.BackgroundColor3=C.Accent; Glow.BackgroundTransparency=1
+    Glow.BorderSizePixel=0; Glow.ZIndex=202; makeCorner(Glow,70)
+
     local TagLine = Instance.new("TextLabel", Wrap)
-    TagLine.Size=UDim2.new(1,0,0,14); TagLine.Position=UDim2.new(0,0,0,78)
+    TagLine.Size=UDim2.new(1,0,0,14); TagLine.Position=UDim2.new(0,0,0,84)
     TagLine.BackgroundTransparency=1; TagLine.Text="the best for the best"
     TagLine.TextColor3=C.Sub; TagLine.TextTransparency=1
     TagLine.TextSize=10; TagLine.Font=Enum.Font.Gotham
     TagLine.TextXAlignment=Enum.TextXAlignment.Center; TagLine.ZIndex=202
 
+    -- barra de progresso
     local BarBg = Instance.new("Frame", Wrap)
-    BarBg.Size=UDim2.new(0,160,0,2); BarBg.Position=UDim2.new(0.5,-80,0,106)
-    BarBg.BackgroundColor3=C.Bg5; BarBg.BorderSizePixel=0; BarBg.ZIndex=202; makeCorner(BarBg,2)
+    BarBg.Size=UDim2.new(0,200,0,2); BarBg.Position=UDim2.new(0.5,-100,0,112)
+    BarBg.BackgroundColor3=C.Bg5; BarBg.BackgroundTransparency=0.4
+    BarBg.BorderSizePixel=0; BarBg.ZIndex=202; makeCorner(BarBg,2)
     local BarFill = Instance.new("Frame", BarBg)
     BarFill.Size=UDim2.new(0,0,1,0); BarFill.BackgroundColor3=C.Accent
     BarFill.BorderSizePixel=0; BarFill.ZIndex=203; makeCorner(BarFill,2)
+    -- brilho na ponta da barra
+    local BarTip = Instance.new("Frame", BarFill)
+    BarTip.Size=UDim2.new(0,6,1,0); BarTip.AnchorPoint=Vector2.new(1,0)
+    BarTip.Position=UDim2.new(1,0,0,0); BarTip.BackgroundColor3=C.White
+    BarTip.BackgroundTransparency=0.3; BarTip.BorderSizePixel=0; makeCorner(BarTip,2)
+
+    -- percentual
+    local PctLbl = Instance.new("TextLabel", Wrap)
+    PctLbl.Size=UDim2.new(0,200,0,14); PctLbl.Position=UDim2.new(0.5,-100,0,120)
+    PctLbl.BackgroundTransparency=1; PctLbl.Text="0%"
+    PctLbl.TextColor3=C.Accent; PctLbl.TextTransparency=1
+    PctLbl.TextSize=9; PctLbl.Font=Enum.Font.GothamBold
+    PctLbl.TextXAlignment=Enum.TextXAlignment.Right; PctLbl.ZIndex=202
 
     task.spawn(function()
-        task.wait(0.3)
-        Tween(KLbl, {TextTransparency=0}, 0.5, Enum.EasingStyle.Back):Play()
+        -- scan line desce pela tela
+        Tween(Scan, {Position=UDim2.new(0,0,1.02,0)}, 1.0, Enum.EasingStyle.Linear):Play()
+
+        task.wait(0.2)
+        -- tag aparece
+        Tween(Tag,    {TextTransparency=0.4}, 0.3):Play()
+        Tween(VerTag, {TextTransparency=0.5}, 0.3):Play()
+
+        task.wait(0.15)
+        -- brilho pulsa e "Kx" surge com zoom out
+        Tween(Glow, {BackgroundTransparency=0.88}, 0.35, Enum.EasingStyle.Quad):Play()
+        Tween(KLbl, {
+            TextTransparency = 0,
+            TextSize         = 68,
+            Size             = UDim2.new(0,140,0,72),
+            Position         = UDim2.new(0.5,-70,0,0),
+        }, 0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
+
         task.wait(0.45)
-        Tween(TagLine, {TextTransparency=0.4}, 0.4):Play()
-        Tween(Tag, {TextTransparency=0.5}, 0.4):Play()
-        task.wait(0.3)
-        Tween(BarFill, {Size=UDim2.new(0.7,0,1,0)}, 1.0, Enum.EasingStyle.Quint):Play()
-        task.wait(1.2)
-        Tween(BarFill, {Size=UDim2.new(1,0,1,0)}, 0.25, Enum.EasingStyle.Quint):Play()
-        task.wait(0.35)
-        Tween(KLbl,    {TextTransparency=1}, 0.3):Play()
-        Tween(TagLine, {TextTransparency=1}, 0.25):Play()
-        Tween(Tag,     {TextTransparency=1}, 0.22):Play()
-        Tween(BarBg,   {BackgroundTransparency=1}, 0.28):Play()
-        Tween(BarFill, {BackgroundTransparency=1}, 0.28):Play()
-        task.wait(0.35)
-        Tween(Loader, {BackgroundTransparency=1}, 0.3):Play()
-        task.wait(0.35)
+        -- tagline sobe de baixo
+        TagLine.Position = UDim2.new(0,0,0,96)
+        Tween(TagLine, {TextTransparency=0.35, Position=UDim2.new(0,0,0,84)}, 0.35, Enum.EasingStyle.Quint):Play()
+
+        task.wait(0.2)
+        -- percentual aparece
+        Tween(PctLbl, {TextTransparency=0.3}, 0.2):Play()
+
+        -- barra enche com contador de %
+        local dur = 1.2
+        Tween(BarFill, {Size=UDim2.new(1,0,1,0)}, dur, Enum.EasingStyle.Quint):Play()
+        task.spawn(function()
+            local steps = 40
+            for i = 1, steps do
+                task.wait(dur/steps)
+                local pct = math.floor((i/steps)*100)
+                PctLbl.Text = tostring(pct).."%"
+                -- pulso na cor da barra nos últimos 20%
+                if pct > 80 then
+                    Tween(BarFill, {BackgroundColor3=C.Accent2}, 0.05):Play()
+                    task.wait(0.05)
+                    Tween(BarFill, {BackgroundColor3=C.Accent}, 0.05):Play()
+                end
+            end
+        end)
+
+        task.wait(dur + 0.1)
+
+        -- glow pulsa forte ao completar
+        Tween(Glow, {BackgroundTransparency=0.72}, 0.12, Enum.EasingStyle.Quad):Play()
+        task.wait(0.12)
+        Tween(Glow, {BackgroundTransparency=0.88}, 0.18):Play()
+
+        task.wait(0.2)
+        -- SAÍDA: tudo some para cima
+        Tween(Wrap,    {Position=UDim2.new(0.5,0,0.42,0)}, 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
+        Tween(KLbl,    {TextTransparency=1}, 0.25):Play()
+        Tween(TagLine, {TextTransparency=1}, 0.2):Play()
+        Tween(PctLbl,  {TextTransparency=1}, 0.2):Play()
+        Tween(Tag,     {TextTransparency=1}, 0.2):Play()
+        Tween(VerTag,  {TextTransparency=1}, 0.2):Play()
+        Tween(Glow,    {BackgroundTransparency=1}, 0.22):Play()
+        Tween(BarBg,   {BackgroundTransparency=1}, 0.22):Play()
+        Tween(BarFill, {BackgroundTransparency=1}, 0.22):Play()
+
+        task.wait(0.28)
+        -- tela some com wipe vertical (encolhe de cima para baixo)
+        Tween(Loader, {Size=UDim2.new(1,0,0,0), Position=UDim2.new(0,0,0,0)}, 0.32, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
+        task.wait(0.34)
         Loader:Destroy(); onDone()
     end)
 end
@@ -270,7 +524,10 @@ function KraviX:CreateWindow(config)
 
     local activeTabIndex = 0
     local Window = {Tabs={}, Keybind=Enum.KeyCode.Unknown}
-    Window.Notify = CreateNotification
+    Window.Notify        = CreateNotification
+    Window.NotifySuccess = function(title,text,dur) CreateNotification(title,text,dur,"success") end
+    Window.NotifyError   = function(title,text,dur) CreateNotification(title,text,dur,"error") end
+    Window.NotifyInfo    = function(title,text,dur) CreateNotification(title,text,dur,"info") end
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name="KraviX"; ScreenGui.ZIndexBehavior=Enum.ZIndexBehavior.Global
@@ -355,17 +612,73 @@ function KraviX:CreateWindow(config)
 
     local function HideWindow()
         if not Main.Visible then return end
-        Tween(Main,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0.5,0,0.5,0)},0.16,Enum.EasingStyle.Back):Play()
-        task.wait(0.18); Main.Visible=false; Backdrop.Visible=false
-        Main.Size=UDim2.new(0,WIN_W,0,WIN_H)
-        Main.Position=UDim2.new(0,175,0,50)
+        -- fechar: encolhe + some com blur
+        Main.ClipsDescendants = true
+        Tween(Main, {
+            Size     = UDim2.new(0, WIN_W, 0, 0),
+            Position = UDim2.new(0.5, -WIN_W/2, 0.5, 0),
+            BackgroundTransparency = 0.6,
+        }, 0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
+        Tween(TopBar,    {BackgroundTransparency=1}, 0.14):Play()
+        Tween(TabBar,    {BackgroundTransparency=1}, 0.14):Play()
+        Tween(Backdrop,  {BackgroundTransparency=1}, 0.2):Play()
+        task.wait(0.24)
+        Main.Visible   = false
+        Backdrop.Visible = false
+        -- reset
+        Main.Size                  = UDim2.new(0, WIN_W, 0, WIN_H)
+        Main.Position              = UDim2.new(0.5, -WIN_W/2, 0.5, -WIN_H/2)
+        Main.BackgroundTransparency = 0
+        TopBar.BackgroundTransparency  = 0
+        TabBar.BackgroundTransparency  = 0
+        Backdrop.BackgroundTransparency = 0.55
+        Main.ClipsDescendants = false
     end
+
     local function ShowWindow()
         if Main.Visible then return end
-        Main.Visible=true; Backdrop.Visible=true
-        Main.Size=UDim2.new(0,0,0,0); Main.Position=UDim2.new(0.5,0,0.5,0)
-        Tween(Main,{Size=UDim2.new(0,WIN_W,0,WIN_H),Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)},0.26,Enum.EasingStyle.Back):Play()
+        Main.Visible   = true
+        Backdrop.Visible = true
+        Main.ClipsDescendants = true
+
+        -- estado inicial: pequeno, transparente, levemente abaixo do centro
+        Main.Size                   = UDim2.new(0, WIN_W * 0.88, 0, WIN_H * 0.88)
+        Main.Position               = UDim2.new(0.5, -(WIN_W*0.88)/2, 0.5, -(WIN_H*0.88)/2 + 24)
+        Main.BackgroundTransparency = 0.85
+        TopBar.BackgroundTransparency  = 1
+        TabBar.BackgroundTransparency  = 1
+        Backdrop.BackgroundTransparency = 1
+
+        -- 1) backdrop aparece
+        Tween(Backdrop, {BackgroundTransparency=0.55}, 0.18, Enum.EasingStyle.Quad):Play()
+
+        -- 2) janela sobe e expande — Elastic para o "pulo"
+        Tween(Main, {
+            Size     = UDim2.new(0, WIN_W, 0, WIN_H),
+            Position = UDim2.new(0.5, -WIN_W/2, 0.5, -WIN_H/2),
+            BackgroundTransparency = 0,
+        }, 0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out):Play()
+
+        -- 3) barras internas aparecem depois de um beat
+        task.delay(0.12, function()
+            Tween(TopBar, {BackgroundTransparency=0}, 0.2, Enum.EasingStyle.Quint):Play()
+        end)
+        task.delay(0.2, function()
+            Tween(TabBar, {BackgroundTransparency=0}, 0.2, Enum.EasingStyle.Quint):Play()
+            Main.ClipsDescendants = false
+        end)
+
+        -- 4) linha accent desliza da direita para a posição final
+        AccentLine.Size     = UDim2.new(0, 0, 0, 2)
+        AccentLine.Position = UDim2.new(1, 0, 0, 0)
+        task.delay(0.3, function()
+            Tween(AccentLine, {
+                Size     = UDim2.new(0, 32, 0, 2),
+                Position = UDim2.new(1, -38, 0, 0),
+            }, 0.28, Enum.EasingStyle.Back):Play()
+        end)
     end
+
     local function ToggleWindow()
         if Main.Visible then HideWindow() else ShowWindow() end
     end
@@ -373,7 +686,7 @@ function KraviX:CreateWindow(config)
 
     CloseBtn.MouseButton1Click:Connect(function()
         HideWindow()
-        CreateNotification("KraviX","Pressione a tecla de menu para reabrir",3)
+        CreateNotification("KraviX","Pressione a tecla de menu para reabrir",3,"info")
     end)
     MakeDraggable(Main, TopBar)
 
@@ -402,14 +715,19 @@ function KraviX:CreateWindow(config)
     ContentFrame.BackgroundTransparency=1; ContentFrame.BorderSizePixel=0
     ContentFrame.ZIndex=10; ContentFrame.ClipsDescendants=true
 
-    local AccentLine = Instance.new("Frame", Main)
-    AccentLine.Size=UDim2.new(0,40,0,2); AccentLine.Position=UDim2.new(1,-46,0,0)
+    -- AccentLine agora fica no TopBar (não sobreposta) — detalhe rosa no canto superior direito da barra
+    local AccentLine = Instance.new("Frame", TopBar)
+    AccentLine.Size=UDim2.new(0,32,0,2); AccentLine.Position=UDim2.new(1,-38,0,0)
     AccentLine.BackgroundColor3=C.Accent; AccentLine.BorderSizePixel=0; AccentLine.ZIndex=13
     makeCorner(AccentLine,2)
 
+    -- Barra de status separada no topo da tela
+    local StatusBar = CreateStatusBar(ScreenGui)
+    Window.StatusBar = StatusBar
+
     CreateLoader(ScreenGui, function()
         PlaySound(SOUND_OPEN); ShowWindow()
-        CreateNotification("KraviX","Carregado! Pressione a tecla de menu para fechar",3)
+        CreateNotification("KraviX","Carregado com sucesso!",3,"success")
     end)
 
     -- ══════════════════════════════════════
