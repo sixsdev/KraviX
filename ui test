@@ -17,7 +17,6 @@ local Mouse       = LocalPlayer:GetMouse()
 
 local SOUND_NOTIF = "rbxassetid://84596244576386"
 local SOUND_OPEN  = "rbxassetid://4807489774"
-local LOGO_ID     = "rbxassetid://70528014827805"
 
 local function PlaySound(id)
     local s = Instance.new("Sound")
@@ -214,27 +213,25 @@ local function CreateLoader(screenGui, onDone)
     Tag.TextXAlignment=Enum.TextXAlignment.Right; Tag.ZIndex=201
 
     local Wrap = Instance.new("Frame", Loader)
-    Wrap.Size=UDim2.new(0,260,0,160); Wrap.AnchorPoint=Vector2.new(0.5,0.5)
+    Wrap.Size=UDim2.new(0,260,0,140); Wrap.AnchorPoint=Vector2.new(0.5,0.5)
     Wrap.Position=UDim2.new(0.5,0,0.5,0); Wrap.BackgroundTransparency=1; Wrap.ZIndex=201
 
-    -- Logo imagem (substitui o "Kx" em texto)
-    local KLbl = Instance.new("ImageLabel", Wrap)
-    KLbl.Size=UDim2.new(0,100,0,100); KLbl.Position=UDim2.new(0.5,-50,0,0)
-    KLbl.BackgroundTransparency=1
-    KLbl.Image=LOGO_ID
-    KLbl.ScaleType=Enum.ScaleType.Fit
-    KLbl.ImageTransparency=1
-    KLbl.ZIndex=203
+    local KLbl = Instance.new("TextLabel", Wrap)
+    KLbl.Size=UDim2.new(0,140,0,72); KLbl.Position=UDim2.new(0.5,-70,0,0)
+    KLbl.BackgroundTransparency=1; KLbl.Text="Kx"
+    KLbl.TextColor3=C.Accent; KLbl.TextSize=68
+    KLbl.Font=Enum.Font.GothamBold; KLbl.TextXAlignment=Enum.TextXAlignment.Center
+    KLbl.TextTransparency=1; KLbl.ZIndex=203
 
     local TagLine = Instance.new("TextLabel", Wrap)
-    TagLine.Size=UDim2.new(1,0,0,14); TagLine.Position=UDim2.new(0,0,0,108)
+    TagLine.Size=UDim2.new(1,0,0,14); TagLine.Position=UDim2.new(0,0,0,78)
     TagLine.BackgroundTransparency=1; TagLine.Text="the best for the best"
     TagLine.TextColor3=C.Sub; TagLine.TextTransparency=1
     TagLine.TextSize=10; TagLine.Font=Enum.Font.Gotham
     TagLine.TextXAlignment=Enum.TextXAlignment.Center; TagLine.ZIndex=202
 
     local BarBg = Instance.new("Frame", Wrap)
-    BarBg.Size=UDim2.new(0,160,0,2); BarBg.Position=UDim2.new(0.5,-80,0,130)
+    BarBg.Size=UDim2.new(0,160,0,2); BarBg.Position=UDim2.new(0.5,-80,0,106)
     BarBg.BackgroundColor3=C.Bg5; BarBg.BorderSizePixel=0; BarBg.ZIndex=202; makeCorner(BarBg,2)
     local BarFill = Instance.new("Frame", BarBg)
     BarFill.Size=UDim2.new(0,0,1,0); BarFill.BackgroundColor3=C.Accent
@@ -242,7 +239,7 @@ local function CreateLoader(screenGui, onDone)
 
     task.spawn(function()
         task.wait(0.3)
-        Tween(KLbl, {ImageTransparency=0}, 0.5, Enum.EasingStyle.Back):Play()
+        Tween(KLbl, {TextTransparency=0}, 0.5, Enum.EasingStyle.Back):Play()
         task.wait(0.45)
         Tween(TagLine, {TextTransparency=0.4}, 0.4):Play()
         Tween(Tag, {TextTransparency=0.5}, 0.4):Play()
@@ -251,7 +248,7 @@ local function CreateLoader(screenGui, onDone)
         task.wait(1.2)
         Tween(BarFill, {Size=UDim2.new(1,0,1,0)}, 0.25, Enum.EasingStyle.Quint):Play()
         task.wait(0.35)
-        Tween(KLbl,    {ImageTransparency=1}, 0.3):Play()
+        Tween(KLbl,    {TextTransparency=1}, 0.3):Play()
         Tween(TagLine, {TextTransparency=1}, 0.25):Play()
         Tween(Tag,     {TextTransparency=1}, 0.22):Play()
         Tween(BarBg,   {BackgroundTransparency=1}, 0.28):Play()
@@ -317,16 +314,14 @@ function KraviX:CreateWindow(config)
     TopSep.Size=UDim2.new(1,0,0,1); TopSep.Position=UDim2.new(0,0,0,30)
     TopSep.BackgroundColor3=C.Border; TopSep.BorderSizePixel=0; TopSep.ZIndex=12
 
-    -- Logo imagem no TopBar (substitui o "Kx" em texto)
-    local LogoImg = Instance.new("ImageLabel", TopBar)
-    LogoImg.Size=UDim2.new(0,26,0,26); LogoImg.Position=UDim2.new(0,6,0.5,-13)
-    LogoImg.BackgroundTransparency=1
-    LogoImg.Image=LOGO_ID
-    LogoImg.ScaleType=Enum.ScaleType.Fit
-    LogoImg.ZIndex=12
+    local LogoLbl = Instance.new("TextLabel", TopBar)
+    LogoLbl.Size=UDim2.new(0,36,0,28); LogoLbl.Position=UDim2.new(0,8,0,1)
+    LogoLbl.BackgroundTransparency=1; LogoLbl.Text="Kx"
+    LogoLbl.TextColor3=C.Accent; LogoLbl.TextSize=16; LogoLbl.Font=Enum.Font.GothamBold
+    LogoLbl.TextXAlignment=Enum.TextXAlignment.Left; LogoLbl.ZIndex=12
 
     local ScriptName = Instance.new("TextLabel", TopBar)
-    ScriptName.Size=UDim2.new(0,140,0,28); ScriptName.Position=UDim2.new(0,38,0,1)
+    ScriptName.Size=UDim2.new(0,140,0,28); ScriptName.Position=UDim2.new(0,42,0,1)
     ScriptName.BackgroundTransparency=1; ScriptName.Text=config.Name
     ScriptName.TextColor3=C.Sub; ScriptName.TextSize=11
     ScriptName.Font=Enum.Font.GothamSemibold
