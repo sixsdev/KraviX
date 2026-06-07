@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v4.0
+--  KraviX — Base Library  v4.2
 --  Design: Matcha-inspired
 -- ════════════════════════════════════════
 local KraviX = {}
