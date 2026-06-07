@@ -1,7 +1,6 @@
 -- ════════════════════════════════════════
 --  KraviX — Base Library  v4.0
 --  Design: Matcha-inspired
---  Dark · Rosa accent · 2 colunas
 -- ════════════════════════════════════════
 local KraviX = {}
 
@@ -26,13 +25,11 @@ local function PlaySound(id)
     s.SoundId = id; s.Volume = 0.5; s.Parent = SoundService; s:Play()
     game:GetService("Debris"):AddItem(s, 5)
 end
-
 local function Tween(obj, props, t, style, dir)
     return TweenService:Create(obj,
-        TweenInfo.new(t or 0.18, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
+        TweenInfo.new(t or 0.15, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
         props)
 end
-
 local function protect(gui)
     for _, v in ipairs(CoreGui:GetChildren()) do
         if v.Name == gui.Name then v:Destroy() end
@@ -46,67 +43,38 @@ local function protect(gui)
     elseif gethui then gui.Parent = gethui()
     else gui.Parent = CoreGui end
 end
-
-local function makeCorner(p, r)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, r or 4); c.Parent = p; return c
-end
-local function makeStroke(p, col, thick, trans)
-    local s = Instance.new("UIStroke")
-    s.Color = col or Color3.fromRGB(40,40,40)
-    s.Thickness = thick or 1; s.Transparency = trans or 0
-    s.Parent = p; return s
-end
-local function makePadding(p, top, bot, left, right)
-    local pad = Instance.new("UIPadding")
-    pad.PaddingTop    = UDim.new(0, top   or 0)
-    pad.PaddingBottom = UDim.new(0, bot   or 0)
-    pad.PaddingLeft   = UDim.new(0, left  or 0)
-    pad.PaddingRight  = UDim.new(0, right or 0)
-    pad.Parent = p; return pad
-end
+local function mkCorner(p, r) local c=Instance.new("UICorner"); c.CornerRadius=UDim.new(0,r or 4); c.Parent=p; return c end
+local function mkStroke(p, col, thick, trans) local s=Instance.new("UIStroke"); s.Color=col or Color3.fromRGB(40,40,40); s.Thickness=thick or 1; s.Transparency=trans or 0; s.Parent=p; return s end
+local function mkPad(p, t, b, l, r) local pad=Instance.new("UIPadding"); pad.PaddingTop=UDim.new(0,t or 0); pad.PaddingBottom=UDim.new(0,b or 0); pad.PaddingLeft=UDim.new(0,l or 0); pad.PaddingRight=UDim.new(0,r or 0); pad.Parent=p; return pad end
 
 -- ══════════════════════════════════════
---  PALETA — Matcha dark
+--  PALETA — Matcha-like (fundo quase preto, accent rosa)
 -- ══════════════════════════════════════
 local C = {
-    -- backgrounds
-    Bg        = Color3.fromRGB(  8,   8,   8),   -- fundo do loader
-    Bg2       = Color3.fromRGB( 12,  12,  12),   -- janela principal
-    Bg3       = Color3.fromRGB( 17,  17,  17),   -- topbar / grupos
-    Bg4       = Color3.fromRGB( 22,  22,  22),   -- inputs / dropdowns
-    Bg5       = Color3.fromRGB( 30,  30,  30),   -- track slider
-    BgHover   = Color3.fromRGB( 26,  14,  18),   -- hover toggle
-
-    -- tab ativa
-    TabActiveBg  = Color3.fromRGB( 22,  22,  22),
-    TabBorderOn  = Color3.fromRGB(236,  64, 122),
-
-    -- accent
-    Accent    = Color3.fromRGB(236,  64, 122),
-    Accent2   = Color3.fromRGB(255,  85, 145),
-    Accent3   = Color3.fromRGB(180,  40,  88),
-
-    -- texto
-    Text      = Color3.fromRGB(230, 230, 230),
-    Sub       = Color3.fromRGB(140, 140, 140),
-    Muted     = Color3.fromRGB( 75,  75,  75),
-    Muted2    = Color3.fromRGB( 40,  40,  40),
-
-    -- bordas
-    Border    = Color3.fromRGB( 32,  32,  32),
-    BorderBright = Color3.fromRGB( 48,  48,  48),
-
-    White     = Color3.fromRGB(255, 255, 255),
-    Black     = Color3.fromRGB(  0,   0,   0),
-    Green     = Color3.fromRGB( 52, 199, 100),
-    Red       = Color3.fromRGB(240,  60,  60),
+    Bg          = Color3.fromRGB(  8,   8,   8),
+    Bg2         = Color3.fromRGB( 12,  12,  12),   -- janela principal
+    Bg3         = Color3.fromRGB( 18,  18,  18),   -- painéis internos
+    Bg4         = Color3.fromRGB( 24,  24,  24),   -- inputs
+    Bg5         = Color3.fromRGB( 32,  32,  32),   -- track slider
+    BgHover     = Color3.fromRGB( 22,  14,  18),
+    Accent      = Color3.fromRGB(236,  64, 122),   -- rosa principal
+    Accent2     = Color3.fromRGB(255,  85, 145),
+    Text        = Color3.fromRGB(230, 230, 230),
+    Sub         = Color3.fromRGB(140, 140, 140),
+    Muted       = Color3.fromRGB( 80,  80,  80),
+    Muted2      = Color3.fromRGB( 45,  45,  45),
+    Border      = Color3.fromRGB( 30,  30,  30),
+    BorderBt    = Color3.fromRGB( 48,  48,  48),   -- border mais visível
+    White       = Color3.fromRGB(255, 255, 255),
+    Black       = Color3.fromRGB(  0,   0,   0),
+    Green       = Color3.fromRGB( 60, 210, 110),
+    Red         = Color3.fromRGB(230,  60,  60),
 }
 
 local MOUSE_NAMES = {
-    [Enum.UserInputType.MouseButton1] = "Mouse1",
-    [Enum.UserInputType.MouseButton2] = "Mouse2",
-    [Enum.UserInputType.MouseButton3] = "Mouse3",
+    [Enum.UserInputType.MouseButton1]="Mouse1",
+    [Enum.UserInputType.MouseButton2]="Mouse2",
+    [Enum.UserInputType.MouseButton3]="Mouse3",
 }
 local MOUSE_TYPES = {
     Enum.UserInputType.MouseButton1,
@@ -118,28 +86,27 @@ local MOUSE_TYPES = {
 --  NEVE (backdrop)
 -- ══════════════════════════════════════
 local function StartSnow(parent)
-    local COUNT = 55
-    local cont  = Instance.new("Frame", parent)
-    cont.Size = UDim2.new(1,0,1,0); cont.BackgroundTransparency = 1
-    cont.ClipsDescendants = true; cont.ZIndex = 0
-    local flakes = {}
-    for i = 1, COUNT do
-        local sz = math.random(1,3)
-        local f  = Instance.new("Frame", cont)
-        f.Size = UDim2.new(0,sz,0,sz); f.BackgroundColor3 = C.White
-        f.BackgroundTransparency = math.random(60,85)/100
-        f.BorderSizePixel = 0; f.ZIndex = 1; makeCorner(f,sz)
-        flakes[i] = {frame=f, x=math.random(0,1000)/1000, y=math.random(-20,100)/100,
-                     speed=math.random(2,6)/1000, drift=math.random(-2,2)/10000}
-        f.Position = UDim2.new(flakes[i].x,0,flakes[i].y,0)
+    local cont=Instance.new("Frame",parent)
+    cont.Size=UDim2.new(1,0,1,0); cont.BackgroundTransparency=1
+    cont.ClipsDescendants=true; cont.ZIndex=0
+    local flakes={}
+    for i=1,50 do
+        local sz=math.random(1,2)
+        local f=Instance.new("Frame",cont)
+        f.Size=UDim2.new(0,sz,0,sz); f.BackgroundColor3=C.White
+        f.BackgroundTransparency=math.random(60,85)/100
+        f.BorderSizePixel=0; mkCorner(f,sz)
+        flakes[i]={frame=f,x=math.random(0,1000)/1000,y=math.random(-10,100)/100,
+            speed=math.random(2,6)/1000,drift=math.random(-2,2)/10000}
+        f.Position=UDim2.new(flakes[i].x,0,flakes[i].y,0)
     end
     RunService.Heartbeat:Connect(function(dt)
         if not cont or not cont.Parent then return end
-        for _, fl in ipairs(flakes) do
-            fl.y = fl.y+fl.speed*dt*60; fl.x = fl.x+fl.drift*dt*60
+        for _,fl in ipairs(flakes) do
+            fl.y=fl.y+fl.speed*dt*60; fl.x=fl.x+fl.drift*dt*60
             if fl.y>1.05 then fl.y=-0.05; fl.x=math.random(0,1000)/1000 end
             if fl.x<0 then fl.x=1 end; if fl.x>1 then fl.x=0 end
-            fl.frame.Position = UDim2.new(fl.x,0,fl.y,0)
+            fl.frame.Position=UDim2.new(fl.x,0,fl.y,0)
         end
     end)
 end
@@ -148,44 +115,40 @@ end
 --  DRAGGABLE
 -- ══════════════════════════════════════
 local function MakeDraggable(frame, handle)
-    handle = handle or frame
-    local drag, ds, sp
+    handle=handle or frame
+    local drag,ds,sp
     handle.InputBegan:Connect(function(i)
-        if i.UserInputType==Enum.UserInputType.MouseButton1
-        or i.UserInputType==Enum.UserInputType.Touch then
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
             drag=true; ds=i.Position; sp=frame.Position
         end
     end)
     UserInputService.InputChanged:Connect(function(i)
-        if drag and (i.UserInputType==Enum.UserInputType.MouseMovement
-        or i.UserInputType==Enum.UserInputType.Touch) then
+        if drag and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
             local d=i.Position-ds
             frame.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y)
         end
     end)
     UserInputService.InputEnded:Connect(function(i)
-        if i.UserInputType==Enum.UserInputType.MouseButton1
-        or i.UserInputType==Enum.UserInputType.Touch then drag=false end
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=false end
     end)
 end
 
 -- ══════════════════════════════════════
 --  NOTIFICAÇÃO — pill Matcha
---  canto inferior direito
---  ntype: "info" | "success" | "error"
+--  canto inferior direito, sem FloatBar
 -- ══════════════════════════════════════
-local _notifSlots = {}
+local _notifSlots={}
 
 local function CreateNotification(title, text, duration, ntype)
     PlaySound(SOUND_NOTIF)
-    ntype = ntype or "info"
+    ntype=ntype or "info"
     local dotColor
     if     ntype=="error"   then dotColor=C.Red
     elseif ntype=="success" then dotColor=C.Green
     else                         dotColor=C.Accent end
 
-    local G = Instance.new("ScreenGui")
-    G.Name = "KxNotif_"..tostring(tick())
+    local G=Instance.new("ScreenGui")
+    G.Name="KxNotif_"..tostring(tick())
     G.IgnoreGuiInset=true; G.ZIndexBehavior=Enum.ZIndexBehavior.Global; G.ResetOnSpawn=false
     if syn and syn.protect_gui then syn.protect_gui(G); G.Parent=CoreGui
     elseif gethui then G.Parent=gethui() else G.Parent=CoreGui end
@@ -200,55 +163,48 @@ local function CreateNotification(title, text, duration, ntype)
     F.Size=UDim2.new(0,0,0,H); F.AutomaticSize=Enum.AutomaticSize.X
     F.Position=UDim2.new(1,30,1,-(MARGIN+(H+MARGIN)*slot))
     F.AnchorPoint=Vector2.new(1,1)
-    F.BackgroundColor3=Color3.fromRGB(14,14,14)
+    F.BackgroundColor3=Color3.fromRGB(13,13,13)
     F.BackgroundTransparency=0; F.BorderSizePixel=0
-    makeCorner(F,H/2)
-    makeStroke(F,Color3.fromRGB(35,35,35),1,0)
+    mkCorner(F,H/2)
+    mkStroke(F,Color3.fromRGB(36,36,36),1,0)
 
     local List=Instance.new("UIListLayout",F)
     List.FillDirection=Enum.FillDirection.Horizontal
     List.VerticalAlignment=Enum.VerticalAlignment.Center
     List.Padding=UDim.new(0,7)
-    makePadding(F,0,0,12,14)
+    mkPad(F,0,0,12,14)
 
-    -- bolinha colorida
     local Dot=Instance.new("Frame",F)
     Dot.Size=UDim2.new(0,7,0,7); Dot.BackgroundColor3=dotColor
-    Dot.BorderSizePixel=0; makeCorner(Dot,4); Dot.LayoutOrder=0
+    Dot.BorderSizePixel=0; mkCorner(Dot,4); Dot.LayoutOrder=0
 
-    -- separador
     local Sep=Instance.new("Frame",F)
-    Sep.Size=UDim2.new(0,1,0,12); Sep.BackgroundColor3=Color3.fromRGB(42,42,42)
+    Sep.Size=UDim2.new(0,1,0,12); Sep.BackgroundColor3=Color3.fromRGB(40,40,40)
     Sep.BorderSizePixel=0; Sep.LayoutOrder=1
 
-    -- título
     local T=Instance.new("TextLabel",F)
     T.Size=UDim2.new(0,0,1,0); T.AutomaticSize=Enum.AutomaticSize.X
     T.BackgroundTransparency=1; T.Text=title
     T.TextColor3=C.Text; T.TextSize=11; T.Font=Enum.Font.GothamBold
     T.TextXAlignment=Enum.TextXAlignment.Left; T.LayoutOrder=2
 
-    -- descrição
     local D=Instance.new("TextLabel",F)
     D.Size=UDim2.new(0,0,1,0); D.AutomaticSize=Enum.AutomaticSize.X
     D.BackgroundTransparency=1; D.Text=text
     D.TextColor3=C.Sub; D.TextSize=10; D.Font=Enum.Font.Gotham
     D.TextXAlignment=Enum.TextXAlignment.Left; D.LayoutOrder=3
 
-    -- progress bar fina abaixo da pill
+    -- barra de progresso abaixo
     local PBg=Instance.new("Frame",G)
     PBg.AnchorPoint=Vector2.new(1,1); PBg.Size=UDim2.new(0,10,0,2)
     PBg.Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot)-H-3)
-    PBg.BackgroundColor3=Color3.fromRGB(32,32,32); PBg.BorderSizePixel=0; makeCorner(PBg,2)
+    PBg.BackgroundColor3=Color3.fromRGB(30,30,30); PBg.BorderSizePixel=0; mkCorner(PBg,2)
     local PFill=Instance.new("Frame",PBg)
     PFill.Size=UDim2.new(1,0,1,0); PFill.BackgroundColor3=dotColor
-    PFill.BorderSizePixel=0; makeCorner(PFill,2)
+    PFill.BorderSizePixel=0; mkCorner(PFill,2)
 
     local dur=duration or 3
-
-    -- entrada
     Tween(F,{Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot))},0.28,Enum.EasingStyle.Back):Play()
-
     task.delay(0.06,function()
         if not F or not F.Parent then return end
         local w=F.AbsoluteSize.X
@@ -256,7 +212,6 @@ local function CreateNotification(title, text, duration, ntype)
         PBg.Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot)-H-3)
         Tween(PFill,{Size=UDim2.new(0,0,1,0)},dur-0.06,Enum.EasingStyle.Linear):Play()
     end)
-
     task.delay(dur,function()
         _notifSlots[slot]=nil
         Tween(F,{Position=UDim2.new(1,30,1,-(MARGIN+(H+MARGIN)*slot))},0.2,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
@@ -266,7 +221,7 @@ local function CreateNotification(title, text, duration, ntype)
 end
 
 -- ══════════════════════════════════════
---  LOADER
+--  LOADER CINEMATOGRÁFICO
 -- ══════════════════════════════════════
 local function CreateLoader(screenGui, onDone)
     local Loader=Instance.new("Frame",screenGui)
@@ -276,7 +231,7 @@ local function CreateLoader(screenGui, onDone)
 
     local Scan=Instance.new("Frame",Loader)
     Scan.Size=UDim2.new(1,0,0,2); Scan.Position=UDim2.new(0,0,-0.02,0)
-    Scan.BackgroundColor3=C.Accent; Scan.BackgroundTransparency=0.72
+    Scan.BackgroundColor3=C.Accent; Scan.BackgroundTransparency=0.75
     Scan.BorderSizePixel=0; Scan.ZIndex=210
 
     local Tag=Instance.new("TextLabel",Loader)
@@ -298,9 +253,9 @@ local function CreateLoader(screenGui, onDone)
     Wrap.Position=UDim2.new(0.5,0,0.52,0); Wrap.BackgroundTransparency=1; Wrap.ZIndex=201
 
     local Glow=Instance.new("Frame",Wrap)
-    Glow.Size=UDim2.new(0,130,0,130); Glow.Position=UDim2.new(0.5,-65,0,-15)
+    Glow.Size=UDim2.new(0,120,0,120); Glow.Position=UDim2.new(0.5,-60,0,-8)
     Glow.BackgroundColor3=C.Accent; Glow.BackgroundTransparency=1
-    Glow.BorderSizePixel=0; Glow.ZIndex=202; makeCorner(Glow,65)
+    Glow.BorderSizePixel=0; Glow.ZIndex=202; mkCorner(Glow,60)
 
     local KLbl=Instance.new("TextLabel",Wrap)
     KLbl.Size=UDim2.new(0,200,0,110); KLbl.Position=UDim2.new(0.5,-100,0,-10)
@@ -319,14 +274,10 @@ local function CreateLoader(screenGui, onDone)
     local BarBg=Instance.new("Frame",Wrap)
     BarBg.Size=UDim2.new(0,200,0,2); BarBg.Position=UDim2.new(0.5,-100,0,120)
     BarBg.BackgroundColor3=C.Bg5; BarBg.BackgroundTransparency=0.3
-    BarBg.BorderSizePixel=0; BarBg.ZIndex=202; makeCorner(BarBg,2)
+    BarBg.BorderSizePixel=0; BarBg.ZIndex=202; mkCorner(BarBg,2)
     local BarFill=Instance.new("Frame",BarBg)
     BarFill.Size=UDim2.new(0,0,1,0); BarFill.BackgroundColor3=C.Accent
-    BarFill.BorderSizePixel=0; BarFill.ZIndex=203; makeCorner(BarFill,2)
-    local BarTip=Instance.new("Frame",BarFill)
-    BarTip.Size=UDim2.new(0,6,1,0); BarTip.AnchorPoint=Vector2.new(1,0)
-    BarTip.Position=UDim2.new(1,0,0,0); BarTip.BackgroundColor3=C.White
-    BarTip.BackgroundTransparency=0.35; BarTip.BorderSizePixel=0; makeCorner(BarTip,2)
+    BarFill.BorderSizePixel=0; BarFill.ZIndex=203; mkCorner(BarFill,2)
 
     local PctLbl=Instance.new("TextLabel",Wrap)
     PctLbl.Size=UDim2.new(0,200,0,14); PctLbl.Position=UDim2.new(0.5,-100,0,128)
@@ -338,7 +289,7 @@ local function CreateLoader(screenGui, onDone)
     task.spawn(function()
         Tween(Scan,{Position=UDim2.new(0,0,1.02,0)},1.0,Enum.EasingStyle.Linear):Play()
         task.wait(0.2)
-        Tween(Tag,   {TextTransparency=0.4},0.3):Play()
+        Tween(Tag,{TextTransparency=0.4},0.3):Play()
         Tween(VerTag,{TextTransparency=0.5},0.3):Play()
         task.wait(0.15)
         Tween(Glow,{BackgroundTransparency=0.88},0.35,Enum.EasingStyle.Quad):Play()
@@ -354,21 +305,25 @@ local function CreateLoader(screenGui, onDone)
             for i=1,40 do
                 task.wait(dur/40)
                 PctLbl.Text=tostring(math.floor((i/40)*100)).."%"
-                if i>32 then Tween(BarFill,{BackgroundColor3=C.Accent2},0.04):Play(); task.wait(0.04); Tween(BarFill,{BackgroundColor3=C.Accent},0.04):Play() end
+                if i>32 then
+                    Tween(BarFill,{BackgroundColor3=C.Accent2},0.04):Play()
+                    task.wait(0.04)
+                    Tween(BarFill,{BackgroundColor3=C.Accent},0.04):Play()
+                end
             end
         end)
         task.wait(dur+0.1)
         Tween(Glow,{BackgroundTransparency=0.72},0.1):Play(); task.wait(0.12)
         Tween(Glow,{BackgroundTransparency=0.88},0.18):Play()
         task.wait(0.2)
-        Tween(Wrap,   {Position=UDim2.new(0.5,0,0.44,0)},0.3,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
-        Tween(KLbl,   {TextTransparency=1},0.25):Play()
+        Tween(Wrap,{Position=UDim2.new(0.5,0,0.44,0)},0.3,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+        Tween(KLbl,{TextTransparency=1},0.25):Play()
         Tween(TagLine,{TextTransparency=1},0.2):Play()
-        Tween(PctLbl, {TextTransparency=1},0.2):Play()
-        Tween(Tag,    {TextTransparency=1},0.2):Play()
-        Tween(VerTag, {TextTransparency=1},0.2):Play()
-        Tween(Glow,   {BackgroundTransparency=1},0.22):Play()
-        Tween(BarBg,  {BackgroundTransparency=1},0.22):Play()
+        Tween(PctLbl,{TextTransparency=1},0.2):Play()
+        Tween(Tag,{TextTransparency=1},0.2):Play()
+        Tween(VerTag,{TextTransparency=1},0.2):Play()
+        Tween(Glow,{BackgroundTransparency=1},0.22):Play()
+        Tween(BarBg,{BackgroundTransparency=1},0.22):Play()
         Tween(BarFill,{BackgroundTransparency=1},0.22):Play()
         task.wait(0.28)
         Tween(Loader,{Size=UDim2.new(1,0,0,0),Position=UDim2.new(0,0,0,0)},0.3,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
@@ -385,8 +340,7 @@ function KraviX:CreateWindow(config)
     config.Url     = config.Url     or ""
     config.Version = config.Version or "v1.0"
 
-    local activeTabIndex    = 0
-    local activeSubTabIndex = {}   -- [tabIndex] = subIndex
+    local activeTabIndex = 0
     local Window = {Tabs={}, Keybind=Enum.KeyCode.Unknown}
 
     Window.Notify        = CreateNotification
@@ -394,92 +348,93 @@ function KraviX:CreateWindow(config)
     Window.NotifyError   = function(t,m,d) CreateNotification(t,m,d,"error")   end
     Window.NotifyInfo    = function(t,m,d) CreateNotification(t,m,d,"info")    end
 
-    local ScreenGui = Instance.new("ScreenGui")
+    local ScreenGui=Instance.new("ScreenGui")
     ScreenGui.Name="KraviX"; ScreenGui.ZIndexBehavior=Enum.ZIndexBehavior.Global
     ScreenGui.ResetOnSpawn=false; ScreenGui.IgnoreGuiInset=true
     protect(ScreenGui)
-    Window._ScreenGui = ScreenGui
+    Window._ScreenGui=ScreenGui
 
-    -- backdrop sutil (sem neve visível, só escurece)
-    local Backdrop = Instance.new("Frame",ScreenGui)
+    local Backdrop=Instance.new("Frame",ScreenGui)
     Backdrop.Size=UDim2.new(1,0,1,0); Backdrop.BackgroundColor3=C.Black
-    Backdrop.BackgroundTransparency=0.6; Backdrop.BorderSizePixel=0
+    Backdrop.BackgroundTransparency=0.55; Backdrop.BorderSizePixel=0
     Backdrop.ZIndex=1; Backdrop.Visible=false
     StartSnow(Backdrop)
 
-    -- dimensões (igual Matcha ~670x730)
+    -- ── dimensões Matcha ──
     local WIN_W, WIN_H = 670, 720
 
-    -- ── JANELA ──
     local Main=Instance.new("Frame",ScreenGui)
     Main.Name="KraviXMain"
     Main.Size=UDim2.new(0,WIN_W,0,WIN_H)
     Main.Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)
     Main.BackgroundColor3=C.Bg2
     Main.BorderSizePixel=0; Main.Visible=false; Main.ZIndex=10
-    makeCorner(Main,6)
-    makeStroke(Main,C.Border,1,0)
+    mkCorner(Main,4)
+    mkStroke(Main,C.Border,1,0)
 
     -- sombra
     local Shadow=Instance.new("ImageLabel",Main)
     Shadow.Size=UDim2.new(1,60,1,60); Shadow.Position=UDim2.new(0,-30,0,-30)
     Shadow.BackgroundTransparency=1; Shadow.Image="rbxassetid://6015897843"
-    Shadow.ImageColor3=C.Black; Shadow.ImageTransparency=0.45; Shadow.ZIndex=9
+    Shadow.ImageColor3=C.Black; Shadow.ImageTransparency=0.4; Shadow.ZIndex=9
     Shadow.ScaleType=Enum.ScaleType.Slice; Shadow.SliceCenter=Rect.new(49,49,450,450)
 
     -- ══════════════════════════════════════
-    -- TOP BAR — estilo Matcha
-    -- Logo | ScriptName | separador | tabs de categoria | ... | versão
+    --  TOP BAR — estilo Matcha
+    --  [KraviX] [/] [url] ........... [versão]
     -- ══════════════════════════════════════
     local TopBar=Instance.new("Frame",Main)
-    TopBar.Size=UDim2.new(1,0,0,34)
+    TopBar.Size=UDim2.new(1,0,0,32)
     TopBar.BackgroundColor3=C.Bg2
+    TopBar.BackgroundTransparency=0
     TopBar.BorderSizePixel=0; TopBar.ZIndex=12
-    -- fix cantos inferiores
+
+    -- fix corners
     local TopFix=Instance.new("Frame",TopBar)
-    TopFix.Size=UDim2.new(1,0,0,8); TopFix.Position=UDim2.new(0,0,1,-8)
+    TopFix.Size=UDim2.new(1,0,0,6); TopFix.Position=UDim2.new(0,0,1,-6)
     TopFix.BackgroundColor3=C.Bg2; TopFix.BorderSizePixel=0; TopFix.ZIndex=12
 
-    -- separador inferior do topbar
     local TopSep=Instance.new("Frame",Main)
-    TopSep.Size=UDim2.new(1,0,0,1); TopSep.Position=UDim2.new(0,0,0,34)
+    TopSep.Size=UDim2.new(1,0,0,1); TopSep.Position=UDim2.new(0,0,0,32)
     TopSep.BackgroundColor3=C.Border; TopSep.BorderSizePixel=0; TopSep.ZIndex=12
 
-    -- Logo "KraviX" — rosa bold
+    -- nome do script (rosa, bold) — igual "Matcha" na ref
     local LogoLbl=Instance.new("TextLabel",TopBar)
-    LogoLbl.Size=UDim2.new(0,60,1,0); LogoLbl.Position=UDim2.new(0,10,0,0)
+    LogoLbl.Size=UDim2.new(0,0,1,0); LogoLbl.AutomaticSize=Enum.AutomaticSize.X
+    LogoLbl.Position=UDim2.new(0,10,0,0)
     LogoLbl.BackgroundTransparency=1; LogoLbl.Text=config.Name
-    LogoLbl.TextColor3=C.Accent; LogoLbl.TextSize=13; LogoLbl.Font=Enum.Font.GothamBlack
+    LogoLbl.TextColor3=C.Accent; LogoLbl.TextSize=12; LogoLbl.Font=Enum.Font.GothamBlack
     LogoLbl.TextXAlignment=Enum.TextXAlignment.Left; LogoLbl.ZIndex=13
 
-    -- sep após logo
+    -- separador fino após logo
     local LogoSep=Instance.new("Frame",TopBar)
-    LogoSep.Size=UDim2.new(0,1,0,14); LogoSep.Position=UDim2.new(0,78,0.5,-7)
-    LogoSep.BackgroundColor3=C.BorderBright; LogoSep.BorderSizePixel=0; LogoSep.ZIndex=13
+    LogoSep.Size=UDim2.new(0,1,0,12); LogoSep.AnchorPoint=Vector2.new(0,0.5)
+    LogoSep.Position=UDim2.new(0,52,0.5,0)
+    LogoSep.BackgroundColor3=C.BorderBt; LogoSep.BorderSizePixel=0; LogoSep.ZIndex=13
 
-    -- URL / discord (muted, Code)
+    -- url / discord (muted, Code) — igual "Interface" e "Standard" no Matcha
     local UrlLbl=Instance.new("TextLabel",TopBar)
-    UrlLbl.Size=UDim2.new(0,120,1,0); UrlLbl.Position=UDim2.new(0,84,0,0)
+    UrlLbl.Size=UDim2.new(0,160,1,0); UrlLbl.Position=UDim2.new(0,58,0,0)
     UrlLbl.BackgroundTransparency=1; UrlLbl.Text=config.Url
-    UrlLbl.TextColor3=C.Muted; UrlLbl.TextSize=9; UrlLbl.Font=Enum.Font.Code
+    UrlLbl.TextColor3=C.Muted; UrlLbl.TextSize=10; UrlLbl.Font=Enum.Font.Gotham
     UrlLbl.TextXAlignment=Enum.TextXAlignment.Left; UrlLbl.ZIndex=13
 
-    -- versão (direita, Code)
+    -- versão (direita, Code, muted) — igual "n1q" no Matcha
     local VerLbl=Instance.new("TextLabel",TopBar)
-    VerLbl.Size=UDim2.new(0,80,1,0); VerLbl.Position=UDim2.new(1,-90,0,0)
+    VerLbl.Size=UDim2.new(0,80,1,0); VerLbl.AnchorPoint=Vector2.new(1,0)
+    VerLbl.Position=UDim2.new(1,-10,0,0)
     VerLbl.BackgroundTransparency=1; VerLbl.Text=config.Version
-    VerLbl.TextColor3=C.Muted; VerLbl.TextSize=9; VerLbl.Font=Enum.Font.Code
+    VerLbl.TextColor3=C.Muted; VerLbl.TextSize=10; VerLbl.Font=Enum.Font.Code
     VerLbl.TextXAlignment=Enum.TextXAlignment.Right; VerLbl.ZIndex=13
 
     -- ══════════════════════════════════════
-    -- BARRA DE TABS PRINCIPAL (nível 1) — estilo Matcha
-    -- Fundo escuro, tab ativa com borda inferior rosa
+    --  TAB BAR PRINCIPAL (nível 1)
+    --  Fundo igual à janela, tab ativa = branco bold + underline rosa
     -- ══════════════════════════════════════
     local TabBar=Instance.new("ScrollingFrame",Main)
-    TabBar.Size=UDim2.new(1,0,0,36)
-    TabBar.Position=UDim2.new(0,0,0,35)
-    TabBar.BackgroundColor3=C.Bg2
-    TabBar.BackgroundTransparency=0
+    TabBar.Size=UDim2.new(1,0,0,34)
+    TabBar.Position=UDim2.new(0,0,0,33)
+    TabBar.BackgroundColor3=C.Bg2; TabBar.BackgroundTransparency=0
     TabBar.BorderSizePixel=0; TabBar.ZIndex=11
     TabBar.ScrollBarThickness=0; TabBar.ScrollingDirection=Enum.ScrollingDirection.X
     TabBar.AutomaticCanvasSize=Enum.AutomaticSize.X
@@ -490,17 +445,16 @@ function KraviX:CreateWindow(config)
     TabList.HorizontalAlignment=Enum.HorizontalAlignment.Left
     TabList.VerticalAlignment=Enum.VerticalAlignment.Center
     TabList.Padding=UDim.new(0,0)
-    makePadding(TabBar,0,0,10,10)
+    mkPad(TabBar,0,0,10,10)
 
-    -- separador abaixo das tabs principais
     local TabSep=Instance.new("Frame",Main)
-    TabSep.Size=UDim2.new(1,0,0,1); TabSep.Position=UDim2.new(0,0,0,71)
+    TabSep.Size=UDim2.new(1,0,0,1); TabSep.Position=UDim2.new(0,0,0,67)
     TabSep.BackgroundColor3=C.Border; TabSep.BorderSizePixel=0; TabSep.ZIndex=11
 
     -- ── ÁREA DE CONTEÚDO ──
     local ContentFrame=Instance.new("Frame",Main)
-    ContentFrame.Size=UDim2.new(1,0,1,-72)
-    ContentFrame.Position=UDim2.new(0,0,0,72)
+    ContentFrame.Size=UDim2.new(1,0,1,-68)
+    ContentFrame.Position=UDim2.new(0,0,0,68)
     ContentFrame.BackgroundTransparency=1; ContentFrame.BorderSizePixel=0
     ContentFrame.ZIndex=10; ContentFrame.ClipsDescendants=true
 
@@ -510,10 +464,14 @@ function KraviX:CreateWindow(config)
     local function HideWindow()
         if not Main.Visible then return end
         Main.ClipsDescendants=true
-        Tween(TopBar,  {BackgroundTransparency=1},0.1):Play()
-        Tween(TabBar,  {BackgroundTransparency=1},0.1):Play()
+        Tween(TopBar,{BackgroundTransparency=1},0.1):Play()
+        Tween(TabBar,{BackgroundTransparency=1},0.1):Play()
         task.wait(0.06)
-        Tween(Main,{Size=UDim2.new(0,WIN_W,0,0),Position=UDim2.new(0.5,-WIN_W/2,0.5,0),BackgroundTransparency=0.7},0.2,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+        Tween(Main,{
+            Size=UDim2.new(0,WIN_W,0,0),
+            Position=UDim2.new(0.5,-WIN_W/2,0.5,0),
+            BackgroundTransparency=0.7
+        },0.2,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
         Tween(Backdrop,{BackgroundTransparency=1},0.18):Play()
         task.wait(0.22)
         Main.Visible=false; Backdrop.Visible=false
@@ -521,7 +479,7 @@ function KraviX:CreateWindow(config)
         Main.Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)
         Main.BackgroundTransparency=0
         TopBar.BackgroundTransparency=0; TabBar.BackgroundTransparency=0
-        Backdrop.BackgroundTransparency=0.6; Main.ClipsDescendants=false
+        Backdrop.BackgroundTransparency=0.55; Main.ClipsDescendants=false
     end
 
     local function ShowWindow()
@@ -533,10 +491,17 @@ function KraviX:CreateWindow(config)
         Main.BackgroundTransparency=0.9
         TopBar.BackgroundTransparency=1; TabBar.BackgroundTransparency=1
         Backdrop.BackgroundTransparency=1
-        Tween(Backdrop,{BackgroundTransparency=0.6},0.2,Enum.EasingStyle.Quad):Play()
-        Tween(Main,{Size=UDim2.new(0,WIN_W,0,WIN_H),Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2),BackgroundTransparency=0},0.5,Enum.EasingStyle.Elastic,Enum.EasingDirection.Out):Play()
+        Tween(Backdrop,{BackgroundTransparency=0.55},0.2,Enum.EasingStyle.Quad):Play()
+        Tween(Main,{
+            Size=UDim2.new(0,WIN_W,0,WIN_H),
+            Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2),
+            BackgroundTransparency=0
+        },0.5,Enum.EasingStyle.Elastic,Enum.EasingDirection.Out):Play()
         task.delay(0.12,function() Tween(TopBar,{BackgroundTransparency=0},0.18):Play() end)
-        task.delay(0.2,function() Tween(TabBar,{BackgroundTransparency=0},0.18):Play(); Main.ClipsDescendants=false end)
+        task.delay(0.2,function()
+            Tween(TabBar,{BackgroundTransparency=0},0.18):Play()
+            Main.ClipsDescendants=false
+        end)
     end
 
     local function ToggleWindow()
@@ -552,57 +517,54 @@ function KraviX:CreateWindow(config)
     end)
 
     -- ══════════════════════════════════════
-    --  CRIAR TAB (nível 1 — barra principal)
+    --  CRIAR TAB (nível 1)
     -- ══════════════════════════════════════
     function Window:CreateTab(name, icon)
-        local Tab      = {}
-        local tabIndex = #Window.Tabs + 1
+        local Tab={}
+        local tabIndex=#Window.Tabs+1
 
-        -- botão da tab — sem fundo, só texto; ativo = rosa + borda inferior
+        -- botão — sem fundo; ativo = branco/bold + underline rosa
         local TabBtn=Instance.new("TextButton",TabBar)
         TabBtn.Size=UDim2.new(0,0,1,0); TabBtn.AutomaticSize=Enum.AutomaticSize.X
         TabBtn.BackgroundTransparency=1
         TabBtn.Text=(icon and icon.."  " or "")..name
-        TabBtn.TextColor3=C.Muted; TabBtn.TextSize=12; TabBtn.Font=Enum.Font.Gotham
+        TabBtn.TextColor3=C.Muted; TabBtn.TextSize=11; TabBtn.Font=Enum.Font.Gotham
         TabBtn.AutoButtonColor=false; TabBtn.ZIndex=12; TabBtn.LayoutOrder=tabIndex
-        local TBP=Instance.new("UIPadding",TabBtn)
-        TBP.PaddingLeft=UDim.new(0,12); TBP.PaddingRight=UDim.new(0,12)
-        TBP.PaddingTop=UDim.new(0,0); TBP.PaddingBottom=UDim.new(0,0)
+        mkPad(TabBtn,0,0,12,12)
 
-        -- indicador inferior (linha rosa quando ativa)
+        -- underline rosa
         local TabUnder=Instance.new("Frame",TabBtn)
-        TabUnder.Size=UDim2.new(1,-24,0,2)
-        TabUnder.AnchorPoint=Vector2.new(0.5,1)
+        TabUnder.Size=UDim2.new(1,-24,0,2); TabUnder.AnchorPoint=Vector2.new(0.5,1)
         TabUnder.Position=UDim2.new(0.5,0,1,0)
         TabUnder.BackgroundColor3=C.Accent; TabUnder.BorderSizePixel=0
         TabUnder.BackgroundTransparency=1; TabUnder.ZIndex=13
-        makeCorner(TabUnder,2)
+        mkCorner(TabUnder,2)
 
-        -- conteúdo desta tab
+        -- conteúdo
         local TabContent=Instance.new("Frame",ContentFrame)
         TabContent.Size=UDim2.new(1,0,1,0); TabContent.BackgroundTransparency=1
         TabContent.BorderSizePixel=0; TabContent.Visible=false; TabContent.ZIndex=11
 
-        -- ── SUB TAB BAR (nível 2 — dentro do conteúdo, estilo Matcha) ──
+        -- ── SUB TAB BAR (nível 2) — idêntico ao Matcha
         local SubTabBar=Instance.new("Frame",TabContent)
-        SubTabBar.Size=UDim2.new(1,0,0,30)
-        SubTabBar.BackgroundColor3=C.Bg2
+        SubTabBar.Size=UDim2.new(1,0,0,32)
+        SubTabBar.BackgroundColor3=C.Bg2; SubTabBar.BackgroundTransparency=0
         SubTabBar.BorderSizePixel=0; SubTabBar.ZIndex=12
         local SubList=Instance.new("UIListLayout",SubTabBar)
         SubList.FillDirection=Enum.FillDirection.Horizontal
         SubList.SortOrder=Enum.SortOrder.LayoutOrder
         SubList.VerticalAlignment=Enum.VerticalAlignment.Center
         SubList.Padding=UDim.new(0,0)
-        makePadding(SubTabBar,0,0,10,10)
+        mkPad(SubTabBar,0,0,10,10)
 
         local SubSep=Instance.new("Frame",TabContent)
-        SubSep.Size=UDim2.new(1,0,0,1); SubSep.Position=UDim2.new(0,0,0,30)
+        SubSep.Size=UDim2.new(1,0,0,1); SubSep.Position=UDim2.new(0,0,0,32)
         SubSep.BackgroundColor3=C.Border; SubSep.BorderSizePixel=0; SubSep.ZIndex=12
 
-        -- área de conteúdo das sub tabs (abaixo da sub tab bar)
+        -- área de conteúdo das subtabs
         local SubContent=Instance.new("Frame",TabContent)
-        SubContent.Size=UDim2.new(1,0,1,-31)
-        SubContent.Position=UDim2.new(0,0,0,31)
+        SubContent.Size=UDim2.new(1,0,1,-33)
+        SubContent.Position=UDim2.new(0,0,0,33)
         SubContent.BackgroundTransparency=1; SubContent.BorderSizePixel=0
         SubContent.ZIndex=11; SubContent.ClipsDescendants=true
 
@@ -618,13 +580,13 @@ function KraviX:CreateWindow(config)
             for _,t in ipairs(Window.Tabs) do
                 local on=t.Index==activeTabIndex
                 if not on then t.Container.Visible=false end
-                Tween(t.Btn,{TextColor3=on and C.Text or C.Muted,},0.12):Play()
-                t.Btn.Font = on and Enum.Font.GothamBold or Enum.Font.Gotham
+                Tween(t.Btn,{TextColor3=on and C.Text or C.Muted},0.12):Play()
+                t.Btn.Font=on and Enum.Font.GothamBold or Enum.Font.Gotham
                 Tween(t.Under,{BackgroundTransparency=on and 0 or 1},0.12):Play()
             end
             TabContent.Visible=true
             FadeOverlay.BackgroundTransparency=0
-            Tween(FadeOverlay,{BackgroundTransparency=1},0.16,Enum.EasingStyle.Quad):Play()
+            Tween(FadeOverlay,{BackgroundTransparency=1},0.14,Enum.EasingStyle.Quad):Play()
         end
 
         TabBtn.MouseButton1Click:Connect(SelectTab)
@@ -640,32 +602,29 @@ function KraviX:CreateWindow(config)
         --  CRIAR SUB TAB (nível 2)
         -- ══════════════════════════════════════
         function Tab:AddSubTab(subName)
-            local SubTab    = {}
-            local subIndex  = #tabEntry.SubTabs + 1
+            local SubTab={}
+            local subIndex=#tabEntry.SubTabs+1
 
-            -- botão sub tab — texto simples, underline rosa quando ativa
             local SBtn=Instance.new("TextButton",SubTabBar)
             SBtn.Size=UDim2.new(0,0,1,0); SBtn.AutomaticSize=Enum.AutomaticSize.X
-            SBtn.BackgroundTransparency=1
-            SBtn.Text=subName
+            SBtn.BackgroundTransparency=1; SBtn.Text=subName
             SBtn.TextColor3=C.Muted; SBtn.TextSize=11; SBtn.Font=Enum.Font.Gotham
             SBtn.AutoButtonColor=false; SBtn.ZIndex=13; SBtn.LayoutOrder=subIndex
-            local SP=Instance.new("UIPadding",SBtn)
-            SP.PaddingLeft=UDim.new(0,10); SP.PaddingRight=UDim.new(0,10)
+            mkPad(SBtn,0,0,10,10)
 
             local SUnder=Instance.new("Frame",SBtn)
             SUnder.Size=UDim2.new(1,-20,0,2); SUnder.AnchorPoint=Vector2.new(0.5,1)
             SUnder.Position=UDim2.new(0.5,0,1,0)
             SUnder.BackgroundColor3=C.Accent; SUnder.BorderSizePixel=0
             SUnder.BackgroundTransparency=1; SUnder.ZIndex=14
-            makeCorner(SUnder,2)
+            mkCorner(SUnder,2)
 
-            -- painel desta sub tab (duas colunas)
+            -- painel duas colunas
             local SubPanel=Instance.new("Frame",SubContent)
             SubPanel.Size=UDim2.new(1,0,1,0); SubPanel.BackgroundTransparency=1
             SubPanel.BorderSizePixel=0; SubPanel.Visible=false; SubPanel.ZIndex=12
 
-            local function makeColumn(xScale,xOff)
+            local function makeCol(xScale,xOff)
                 local s=Instance.new("ScrollingFrame",SubPanel)
                 s.Size=UDim2.new(0.5,xOff,1,0)
                 s.Position=UDim2.new(xScale,math.max(0,-xOff),0,0)
@@ -675,18 +634,18 @@ function KraviX:CreateWindow(config)
                 local l=Instance.new("UIListLayout",s)
                 l.Padding=UDim.new(0,2); l.SortOrder=Enum.SortOrder.LayoutOrder
                 l.HorizontalAlignment=Enum.HorizontalAlignment.Left
-                makePadding(s,8,12,10,8)
+                mkPad(s,10,14,12,10)
                 l:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    s.CanvasSize=UDim2.new(0,0,0,l.AbsoluteContentSize.Y+16)
+                    s.CanvasSize=UDim2.new(0,0,0,l.AbsoluteContentSize.Y+18)
                 end)
                 return s
             end
 
-            local LeftScroll=makeColumn(0,-1)
+            local LeftScroll=makeCol(0,-1)
             local Div=Instance.new("Frame",SubPanel)
             Div.Size=UDim2.new(0,1,1,0); Div.Position=UDim2.new(0.5,0,0,0)
             Div.BackgroundColor3=C.Border; Div.BorderSizePixel=0; Div.ZIndex=12
-            local RightScroll=makeColumn(0.5,-1)
+            local RightScroll=makeCol(0.5,-1)
             RightScroll.Position=UDim2.new(0.5,2,0,0)
 
             table.insert(tabEntry.SubTabs,{Btn=SBtn,Under=SUnder,Panel=SubPanel,Index=subIndex})
@@ -719,30 +678,38 @@ function KraviX:CreateWindow(config)
                 local Section={}
                 local scroll=(column=="Right") and RightScroll or LeftScroll
 
-                -- cabeçalho da seção — rosa bold uppercase
-                local Hdr=Instance.new("TextLabel",scroll)
-                Hdr.Size=UDim2.new(1,0,0,20); Hdr.BackgroundTransparency=1
-                Hdr.Text=string.upper(sectionName or "")
-                Hdr.TextColor3=C.Accent; Hdr.TextSize=9; Hdr.Font=Enum.Font.GothamBlack
-                Hdr.TextXAlignment=Enum.TextXAlignment.Left; Hdr.ZIndex=13
+                -- cabeçalho da seção — igual ao "Misc" no Matcha (texto sub, sem fundo)
+                if sectionName and sectionName~="" then
+                    local Hdr=Instance.new("TextLabel",scroll)
+                    Hdr.Size=UDim2.new(1,0,0,22); Hdr.BackgroundTransparency=1
+                    Hdr.Text=sectionName
+                    Hdr.TextColor3=C.Sub; Hdr.TextSize=10; Hdr.Font=Enum.Font.GothamBold
+                    Hdr.TextXAlignment=Enum.TextXAlignment.Left; Hdr.ZIndex=13
+                    -- linha fina abaixo
+                    local HLine=Instance.new("Frame",Hdr)
+                    HLine.Size=UDim2.new(1,0,0,1); HLine.Position=UDim2.new(0,0,1,-1)
+                    HLine.BackgroundColor3=C.Border; HLine.BorderSizePixel=0
+                end
 
                 local function AddItem(item) item.Parent=scroll end
 
                 -- ───── TOGGLE ─────
+                -- visual: checkbox quadrado + label à esquerda + keybind pill à direita
                 function Section:AddToggle(cfg)
                     cfg=cfg or {}
                     local toggled=cfg.Default or false
                     local callback=cfg.Callback or function() end
 
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    mkCorner(Row,3)
 
-                    -- checkbox quadrado simples (estilo Matcha)
+                    -- checkbox
                     local Box=Instance.new("Frame",Row)
-                    Box.Size=UDim2.new(0,13,0,13); Box.Position=UDim2.new(0,0,0.5,-6)
-                    Box.BackgroundColor3=toggled and C.Accent or Color3.fromRGB(28,28,28)
-                    Box.BorderSizePixel=0; Box.ZIndex=14; makeCorner(Box,3)
-                    makeStroke(Box,toggled and C.Accent or C.BorderBright,1,0)
+                    Box.Size=UDim2.new(0,14,0,14); Box.Position=UDim2.new(0,0,0.5,-7)
+                    Box.BackgroundColor3=toggled and C.Accent or Color3.fromRGB(22,22,22)
+                    Box.BorderSizePixel=0; Box.ZIndex=14; mkCorner(Box,3)
+                    mkStroke(Box,toggled and C.Accent or C.BorderBt,1,0)
 
                     local Check=Instance.new("TextLabel",Box)
                     Check.Size=UDim2.new(1,0,1,0); Check.BackgroundTransparency=1
@@ -751,34 +718,34 @@ function KraviX:CreateWindow(config)
                     Check.TextXAlignment=Enum.TextXAlignment.Center
                     Check.TextTransparency=toggled and 0 or 1; Check.ZIndex=15
 
+                    -- label
                     local Lbl=Instance.new("TextLabel",Row)
-                    Lbl.Size=UDim2.new(1,-20,1,0); Lbl.Position=UDim2.new(0,18,0,0)
+                    Lbl.Size=UDim2.new(1,-52,1,0); Lbl.Position=UDim2.new(0,20,0,0)
                     Lbl.BackgroundTransparency=1; Lbl.Text=cfg.Name or "Toggle"
                     Lbl.TextColor3=toggled and C.Text or C.Sub
                     Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                     Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
 
-                    -- keybind inline (direita) — como no Matcha
-                    local KBLabel
+                    -- keybind pill (direita) — igual ao "rmb", "e" no Matcha
                     if cfg.Keybind then
-                        KBLabel=Instance.new("TextLabel",Row)
-                        KBLabel.Size=UDim2.new(0,30,0,16); KBLabel.AnchorPoint=Vector2.new(1,0.5)
-                        KBLabel.Position=UDim2.new(1,0,0.5,0)
-                        KBLabel.BackgroundColor3=C.Bg4; KBLabel.BackgroundTransparency=0
-                        KBLabel.Text=cfg.Keybind; KBLabel.TextColor3=C.Sub
-                        KBLabel.TextSize=9; KBLabel.Font=Enum.Font.Code
-                        KBLabel.TextXAlignment=Enum.TextXAlignment.Center; KBLabel.ZIndex=14
-                        makeCorner(KBLabel,3); makeStroke(KBLabel,C.Border,1,0)
+                        local KB=Instance.new("TextLabel",Row)
+                        KB.Size=UDim2.new(0,34,0,18); KB.AnchorPoint=Vector2.new(1,0.5)
+                        KB.Position=UDim2.new(1,0,0.5,0)
+                        KB.BackgroundColor3=Color3.fromRGB(20,20,20)
+                        KB.Text=cfg.Keybind; KB.TextColor3=C.Sub
+                        KB.TextSize=9; KB.Font=Enum.Font.Code
+                        KB.TextXAlignment=Enum.TextXAlignment.Center; KB.ZIndex=14
+                        mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
                     end
 
                     local Toggle={Value=toggled}
                     local function Update()
                         local v=Toggle.Value
-                        Tween(Box,{BackgroundColor3=v and C.Accent or Color3.fromRGB(28,28,28)},0.1):Play()
+                        Tween(Box,{BackgroundColor3=v and C.Accent or Color3.fromRGB(22,22,22)},0.1):Play()
                         Tween(Check,{TextTransparency=v and 0 or 1},0.1):Play()
                         Tween(Lbl,{TextColor3=v and C.Text or C.Sub},0.1):Play()
                         local st=Box:FindFirstChildOfClass("UIStroke")
-                        if st then Tween(st,{Color=v and C.Accent or C.BorderBright},0.1):Play() end
+                        if st then Tween(st,{Color=v and C.Accent or C.BorderBt},0.1):Play() end
                     end
 
                     local Hit=Instance.new("TextButton",Row)
@@ -798,6 +765,7 @@ function KraviX:CreateWindow(config)
                 end
 
                 -- ───── SLIDER ─────
+                -- visual Matcha: label + valor à direita; track fino rosa
                 function Section:AddSlider(cfg)
                     cfg=cfg or {}
                     local min=cfg.Min or 0; local max=cfg.Max or 100
@@ -805,9 +773,8 @@ function KraviX:CreateWindow(config)
                     local callback=cfg.Callback or function() end
 
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,36); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    Row.Size=UDim2.new(1,0,0,38); Row.BackgroundTransparency=1; Row.ZIndex=13
 
-                    -- linha superior: nome | valor
                     local Lbl=Instance.new("TextLabel",Row)
                     Lbl.Size=UDim2.new(0.7,0,0,16); Lbl.Position=UDim2.new(0,0,0,2)
                     Lbl.BackgroundTransparency=1; Lbl.Text=cfg.Name or "Slider"
@@ -817,27 +784,27 @@ function KraviX:CreateWindow(config)
                     local ValLbl=Instance.new("TextLabel",Row)
                     ValLbl.Size=UDim2.new(0.3,0,0,16); ValLbl.Position=UDim2.new(0.7,0,0,2)
                     ValLbl.BackgroundTransparency=1; ValLbl.Text=tostring(val)
-                    ValLbl.TextColor3=C.Text; ValLbl.TextSize=11; ValLbl.Font=Enum.Font.Code
+                    ValLbl.TextColor3=C.Sub; ValLbl.TextSize=11; ValLbl.Font=Enum.Font.Code
                     ValLbl.TextXAlignment=Enum.TextXAlignment.Right; ValLbl.ZIndex=14
 
-                    -- track + fill (estilo Matcha: fino, rosa)
+                    -- track
                     local Track=Instance.new("Frame",Row)
-                    Track.Size=UDim2.new(1,0,0,3); Track.Position=UDim2.new(0,0,0,22)
+                    Track.Size=UDim2.new(1,0,0,3); Track.Position=UDim2.new(0,0,0,24)
                     Track.BackgroundColor3=C.Bg5; Track.BorderSizePixel=0; Track.ZIndex=14
-                    makeCorner(Track,2)
+                    mkCorner(Track,2)
                     local Fill=Instance.new("Frame",Track)
                     Fill.Size=UDim2.new((val-min)/(max-min),0,1,0)
                     Fill.BackgroundColor3=C.Accent; Fill.BorderSizePixel=0; Fill.ZIndex=15
-                    makeCorner(Fill,2)
-                    -- thumb pequeno (círculo rosa)
+                    mkCorner(Fill,2)
+                    -- thumb circular
                     local Thumb=Instance.new("Frame",Fill)
-                    Thumb.Size=UDim2.new(0,9,0,9); Thumb.AnchorPoint=Vector2.new(1,0.5)
+                    Thumb.Size=UDim2.new(0,10,0,10); Thumb.AnchorPoint=Vector2.new(1,0.5)
                     Thumb.Position=UDim2.new(1,0,0.5,0); Thumb.BackgroundColor3=C.Accent
-                    Thumb.BorderSizePixel=0; Thumb.ZIndex=16; makeCorner(Thumb,5)
+                    Thumb.BorderSizePixel=0; Thumb.ZIndex=16; mkCorner(Thumb,5)
 
-                    local SliderHit=Instance.new("TextButton",Track)
-                    SliderHit.Size=UDim2.new(1,0,0,20); SliderHit.Position=UDim2.new(0,0,0.5,-10)
-                    SliderHit.BackgroundTransparency=1; SliderHit.Text=""; SliderHit.ZIndex=17
+                    local SliderBtn=Instance.new("TextButton",Track)
+                    SliderBtn.Size=UDim2.new(1,0,0,20); SliderBtn.Position=UDim2.new(0,0,0.5,-10)
+                    SliderBtn.BackgroundTransparency=1; SliderBtn.Text=""; SliderBtn.ZIndex=17
 
                     local Slider={Value=val}
                     local function Round(n)
@@ -850,16 +817,16 @@ function KraviX:CreateWindow(config)
                         Slider.Value=nv; ValLbl.Text=tostring(nv)
                         Fill.Size=UDim2.new(pct,0,1,0); callback(nv)
                     end
-                    local dragging=false
-                    SliderHit.InputBegan:Connect(function(i)
+                    local drag=false
+                    SliderBtn.InputBegan:Connect(function(i)
                         if i.UserInputType==Enum.UserInputType.MouseButton1 then
-                            dragging=true; SetPx(Mouse.X-Track.AbsolutePosition.X) end
+                            drag=true; SetPx(Mouse.X-Track.AbsolutePosition.X) end
                     end)
                     UserInputService.InputEnded:Connect(function(i)
-                        if i.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
+                        if i.UserInputType==Enum.UserInputType.MouseButton1 then drag=false end
                     end)
                     UserInputService.InputChanged:Connect(function(i)
-                        if dragging and i.UserInputType==Enum.UserInputType.MouseMovement then
+                        if drag and i.UserInputType==Enum.UserInputType.MouseMovement then
                             SetPx(Mouse.X-Track.AbsolutePosition.X) end
                     end)
                     function Slider:Set(v)
@@ -872,6 +839,7 @@ function KraviX:CreateWindow(config)
                 end
 
                 -- ───── DROPDOWN ─────
+                -- visual Matcha: caixa escura, seta, label acima
                 function Section:AddDropdown(cfg)
                     cfg=cfg or {}
                     local options=cfg.Values or {}
@@ -879,73 +847,79 @@ function KraviX:CreateWindow(config)
                     local callback=cfg.Callback or function() end
                     local opened=false
 
-                    -- label acima
-                    local LblRow=Instance.new("TextLabel")
-                    LblRow.Size=UDim2.new(1,0,0,16); LblRow.BackgroundTransparency=1
-                    LblRow.Text=cfg.Name or ""; LblRow.TextColor3=C.Sub
-                    LblRow.TextSize=11; LblRow.Font=Enum.Font.Gotham
-                    LblRow.TextXAlignment=Enum.TextXAlignment.Left; LblRow.ZIndex=13
-                    if cfg.Name and cfg.Name~="" then AddItem(LblRow) end
+                    local Wrap=Instance.new("Frame")
+                    Wrap.Size=UDim2.new(1,0,0,cfg.Name and 44 or 28)
+                    Wrap.BackgroundTransparency=1; Wrap.ZIndex=13
 
-                    -- botão dropdown — fundo escuro, borda, seta direita
-                    local Sel=Instance.new("TextButton")
-                    Sel.Size=UDim2.new(1,0,0,26); Sel.BackgroundColor3=C.Bg4
-                    Sel.Text=""; Sel.AutoButtonColor=false; Sel.ZIndex=13
-                    makeCorner(Sel,4); makeStroke(Sel,C.BorderBright,1,0)
+                    if cfg.Name then
+                        local L=Instance.new("TextLabel",Wrap)
+                        L.Size=UDim2.new(1,0,0,16); L.BackgroundTransparency=1
+                        L.Text=cfg.Name; L.TextColor3=C.Sub
+                        L.TextSize=11; L.Font=Enum.Font.Gotham
+                        L.TextXAlignment=Enum.TextXAlignment.Left; L.ZIndex=14
+                    end
 
-                    local SelTxt=Instance.new("TextLabel",Sel)
-                    SelTxt.Size=UDim2.new(1,-28,1,0); SelTxt.Position=UDim2.new(0,10,0,0)
-                    SelTxt.BackgroundTransparency=1; SelTxt.Text=selected or "--"
-                    SelTxt.TextColor3=C.Text; SelTxt.TextSize=11; SelTxt.Font=Enum.Font.Gotham
-                    SelTxt.TextXAlignment=Enum.TextXAlignment.Left; SelTxt.ZIndex=14
+                    local yOff=cfg.Name and 18 or 0
+                    local Sel=Instance.new("TextButton",Wrap)
+                    Sel.Size=UDim2.new(1,0,0,26); Sel.Position=UDim2.new(0,0,0,yOff)
+                    Sel.BackgroundColor3=Color3.fromRGB(18,18,18)
+                    Sel.Text=(selected or "Select").."  ▾"
+                    Sel.TextColor3=C.Text; Sel.TextSize=11; Sel.Font=Enum.Font.Gotham
+                    Sel.AutoButtonColor=false; Sel.ZIndex=14
+                    mkCorner(Sel,4); mkStroke(Sel,C.BorderBt,1,0)
+                    mkPad(Sel,0,0,8,8)
 
+                    -- arrow icon
                     local Arrow=Instance.new("TextLabel",Sel)
-                    Arrow.Size=UDim2.new(0,20,1,0); Arrow.Position=UDim2.new(1,-22,0,0)
+                    Arrow.Size=UDim2.new(0,18,1,0); Arrow.AnchorPoint=Vector2.new(1,0.5)
+                    Arrow.Position=UDim2.new(1,-2,0.5,0)
                     Arrow.BackgroundTransparency=1; Arrow.Text="▾"
-                    Arrow.TextColor3=C.Muted; Arrow.TextSize=11; Arrow.Font=Enum.Font.Gotham
-                    Arrow.TextXAlignment=Enum.TextXAlignment.Center; Arrow.ZIndex=14
+                    Arrow.TextColor3=C.Muted; Arrow.TextSize=10; Arrow.Font=Enum.Font.Gotham
+                    Arrow.ZIndex=15
 
                     local Dropdown={Value=selected}
 
                     local DFrame=Instance.new("Frame",ScreenGui)
-                    DFrame.Size=UDim2.new(0,0,0,#options*24+8)
+                    DFrame.Size=UDim2.new(0,0,0,#options*26+8)
                     DFrame.AutomaticSize=Enum.AutomaticSize.X
-                    DFrame.BackgroundColor3=C.Bg4; DFrame.BorderSizePixel=0
-                    DFrame.Visible=false; DFrame.ZIndex=200
-                    makeCorner(DFrame,5); makeStroke(DFrame,C.BorderBright,1,0)
+                    DFrame.BackgroundColor3=Color3.fromRGB(18,18,18)
+                    DFrame.BorderSizePixel=0; DFrame.Visible=false; DFrame.ZIndex=200
+                    mkCorner(DFrame,5); mkStroke(DFrame,C.BorderBt,1,0)
                     local DL=Instance.new("UIListLayout",DFrame)
                     DL.Padding=UDim.new(0,2); DL.SortOrder=Enum.SortOrder.LayoutOrder
-                    makePadding(DFrame,4,4,4,4)
+                    mkPad(DFrame,4,4,4,4)
 
-                    local _hov=false
-                    DFrame.MouseEnter:Connect(function() _hov=true end)
-                    DFrame.MouseLeave:Connect(function() _hov=false end)
+                    local _hover=false
+                    DFrame.MouseEnter:Connect(function() _hover=true end)
+                    DFrame.MouseLeave:Connect(function() _hover=false end)
 
                     local optBtns={}
                     for _,opt in ipairs(options) do
                         local OBtn=Instance.new("TextButton",DFrame)
-                        OBtn.Size=UDim2.new(1,0,0,22); OBtn.BackgroundColor3=C.Bg5
-                        OBtn.BackgroundTransparency=opt==selected and 0.4 or 1
+                        OBtn.Size=UDim2.new(0,0,0,22); OBtn.AutomaticSize=Enum.AutomaticSize.X
+                        OBtn.BackgroundColor3=C.Bg5
+                        OBtn.BackgroundTransparency=opt==selected and 0.5 or 1
                         OBtn.Text=opt; OBtn.TextColor3=opt==selected and C.Accent or C.Sub
                         OBtn.TextSize=11; OBtn.Font=Enum.Font.Gotham
                         OBtn.AutoButtonColor=false; OBtn.ZIndex=201
-                        makeCorner(OBtn,3)
+                        mkCorner(OBtn,3); mkPad(OBtn,0,0,8,8)
                         optBtns[opt]=OBtn
                         OBtn.MouseEnter:Connect(function()
-                            _hov=true
-                            if opt~=Dropdown.Value then Tween(OBtn,{BackgroundTransparency=0.5,TextColor3=C.Text},0.08):Play() end
+                            _hover=true
+                            if opt~=Dropdown.Value then Tween(OBtn,{BackgroundTransparency=0.6,TextColor3=C.Text},0.08):Play() end
                         end)
                         OBtn.MouseLeave:Connect(function()
                             if opt~=Dropdown.Value then Tween(OBtn,{BackgroundTransparency=1,TextColor3=C.Sub},0.08):Play() end
                         end)
                         OBtn.MouseButton1Click:Connect(function()
                             local prev=Dropdown.Value
-                            Dropdown.Value=opt; SelTxt.Text=opt
+                            Dropdown.Value=opt
+                            Sel.Text=opt.."  ▾"
                             for o,b in pairs(optBtns) do
                                 b.TextColor3=o==opt and C.Accent or C.Sub
-                                b.BackgroundTransparency=o==opt and 0.4 or 1
+                                b.BackgroundTransparency=o==opt and 0.5 or 1
                             end
-                            opened=false; DFrame.Visible=false; _hov=false
+                            opened=false; DFrame.Visible=false; _hover=false
                             if prev~=opt then callback(opt) end
                         end)
                     end
@@ -953,41 +927,38 @@ function KraviX:CreateWindow(config)
                     Sel.MouseButton1Click:Connect(function()
                         opened=not opened; DFrame.Visible=opened
                         if opened then
-                            local abs=Sel.AbsolutePosition; local fH=#options*24+8
+                            local abs=Sel.AbsolutePosition
+                            local fH=#options*26+8
                             local vpH=ScreenGui.AbsoluteSize.Y
-                            local w=Sel.AbsoluteSize.X
-                            DFrame.Size=UDim2.new(0,w,0,fH)
-                            if abs.Y+Sel.AbsoluteSize.Y+fH+4>vpH then
+                            if abs.Y+26+fH+4>vpH then
                                 DFrame.Position=UDim2.fromOffset(abs.X,abs.Y-fH-4)
                             else
-                                DFrame.Position=UDim2.fromOffset(abs.X,abs.Y+Sel.AbsoluteSize.Y+3)
+                                DFrame.Position=UDim2.fromOffset(abs.X,abs.Y+26+3)
                             end
                         end
-                    end)
-                    Sel.MouseEnter:Connect(function() makeStroke(Sel,C.Accent,1,0.6) end)
-                    Sel.MouseLeave:Connect(function()
-                        local st=Sel:FindFirstChildOfClass("UIStroke")
-                        if st then Tween(st,{Color=C.BorderBright,Transparency=0},0.1):Play() end
+                        Tween(Arrow,{Rotation=opened and 180 or 0},0.15):Play()
                     end)
                     UserInputService.InputBegan:Connect(function(inp)
-                        if inp.UserInputType==Enum.UserInputType.MouseButton1 then
-                            if not _hov then opened=false; DFrame.Visible=false end
+                        if inp.UserInputType==Enum.UserInputType.MouseButton1 and not _hover then
+                            opened=false; DFrame.Visible=false
+                            Tween(Arrow,{Rotation=0},0.15):Play()
                         end
                     end)
                     Main:GetPropertyChangedSignal("Visible"):Connect(function()
-                        opened=false; DFrame.Visible=false
+                        opened=false; DFrame.Visible=false; _hover=false
                     end)
                     function Dropdown:Set(v)
                         if table.find(options,v) then
-                            Dropdown.Value=v; SelTxt.Text=v
+                            Dropdown.Value=v; Sel.Text=v.."  ▾"
                             for o,b in pairs(optBtns) do
                                 b.TextColor3=o==v and C.Accent or C.Sub
-                                b.BackgroundTransparency=o==v and 0.4 or 1
-                            end; callback(v)
+                                b.BackgroundTransparency=o==v and 0.5 or 1
+                            end
+                            callback(v)
                         end
                     end
                     if selected then task.defer(function() callback(selected) end) end
-                    AddItem(Sel); return Dropdown
+                    AddItem(Wrap); return Dropdown
                 end
 
                 -- ───── BOTÃO ─────
@@ -995,23 +966,24 @@ function KraviX:CreateWindow(config)
                     cfg=cfg or {}
                     local callback=cfg.Callback or function() end
                     local Btn=Instance.new("TextButton")
-                    Btn.Size=UDim2.new(1,0,0,26); Btn.BackgroundColor3=C.Bg4
+                    Btn.Size=UDim2.new(1,0,0,26)
+                    Btn.BackgroundColor3=Color3.fromRGB(20,20,20)
                     Btn.BackgroundTransparency=0; Btn.Text=cfg.Name or "Button"
                     Btn.TextColor3=C.Sub; Btn.TextSize=11; Btn.Font=Enum.Font.GothamBold
                     Btn.AutoButtonColor=false; Btn.ZIndex=13
-                    makeCorner(Btn,4); makeStroke(Btn,C.BorderBright,1,0)
+                    mkCorner(Btn,4); mkStroke(Btn,C.BorderBt,1,0)
                     Btn.MouseEnter:Connect(function()
                         Tween(Btn,{BackgroundColor3=C.Accent,TextColor3=C.White},0.1):Play()
                         local st=Btn:FindFirstChildOfClass("UIStroke")
                         if st then Tween(st,{Transparency=1},0.1):Play() end
                     end)
                     Btn.MouseLeave:Connect(function()
-                        Tween(Btn,{BackgroundColor3=C.Bg4,TextColor3=C.Sub},0.1):Play()
+                        Tween(Btn,{BackgroundColor3=Color3.fromRGB(20,20,20),TextColor3=C.Sub},0.1):Play()
                         local st=Btn:FindFirstChildOfClass("UIStroke")
                         if st then Tween(st,{Transparency=0},0.1):Play() end
                     end)
                     Btn.MouseButton1Click:Connect(function()
-                        Tween(Btn,{BackgroundTransparency=0.35},0.05):Play()
+                        Tween(Btn,{BackgroundTransparency=0.3},0.05):Play()
                         task.wait(0.07); Tween(Btn,{BackgroundTransparency=0},0.1):Play()
                         callback()
                     end)
@@ -1023,24 +995,30 @@ function KraviX:CreateWindow(config)
                     cfg=cfg or {}
                     local callback=cfg.Callback or function() end
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
-                    local Lbl=Instance.new("TextLabel",Row)
-                    Lbl.Size=UDim2.new(0.36,0,1,0); Lbl.BackgroundTransparency=1
-                    Lbl.Text=cfg.Name or "Input"; Lbl.TextColor3=C.Sub
-                    Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
-                    Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
+                    Row.Size=UDim2.new(1,0,0,cfg.Name and 44 or 26)
+                    Row.BackgroundTransparency=1; Row.ZIndex=13
+
+                    if cfg.Name then
+                        local L=Instance.new("TextLabel",Row)
+                        L.Size=UDim2.new(1,0,0,16); L.BackgroundTransparency=1
+                        L.Text=cfg.Name; L.TextColor3=C.Sub
+                        L.TextSize=11; L.Font=Enum.Font.Gotham
+                        L.TextXAlignment=Enum.TextXAlignment.Left; L.ZIndex=14
+                    end
+
+                    local yOff=cfg.Name and 18 or 0
                     local Box=Instance.new("TextBox",Row)
-                    Box.Size=UDim2.new(0.64,-2,1,-4); Box.Position=UDim2.new(0.36,2,0.5,-10)
-                    Box.BackgroundColor3=C.Bg4
-                    Box.PlaceholderText=cfg.Placeholder or "..."; Box.PlaceholderColor3=C.Muted
-                    Box.Text=cfg.Default or ""; Box.TextColor3=C.Text
-                    Box.TextSize=10; Box.Font=Enum.Font.Code
+                    Box.Size=UDim2.new(1,0,0,26); Box.Position=UDim2.new(0,0,0,yOff)
+                    Box.BackgroundColor3=Color3.fromRGB(18,18,18)
+                    Box.PlaceholderText=cfg.Placeholder or "Enter text..."
+                    Box.PlaceholderColor3=C.Muted; Box.Text=cfg.Default or ""
+                    Box.TextColor3=C.Text; Box.TextSize=11; Box.Font=Enum.Font.Gotham
                     Box.ClearTextOnFocus=false; Box.ZIndex=14
-                    makeCorner(Box,4)
-                    local bs=makeStroke(Box,C.BorderBright,1,0); makePadding(Box,0,0,6,6)
+                    mkCorner(Box,4)
+                    local bs=mkStroke(Box,C.BorderBt,1,0); mkPad(Box,0,0,8,8)
                     Box.Focused:Connect(function() Tween(bs,{Color=C.Accent},0.12):Play() end)
                     Box.FocusLost:Connect(function(enter)
-                        Tween(bs,{Color=C.BorderBright},0.12):Play()
+                        Tween(bs,{Color=C.BorderBt},0.12):Play()
                         if enter then callback(Box.Text) end
                     end)
                     AddItem(Row)
@@ -1052,19 +1030,22 @@ function KraviX:CreateWindow(config)
                     local cur=cfg.Default or Enum.KeyCode.E; local listen=false
                     local callback=cfg.Callback or function() end
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
+
                     local Lbl=Instance.new("TextLabel",Row)
-                    Lbl.Size=UDim2.new(0.6,0,1,0); Lbl.BackgroundTransparency=1
+                    Lbl.Size=UDim2.new(0.65,0,1,0); Lbl.BackgroundTransparency=1
                     Lbl.Text=cfg.Name or "Keybind"; Lbl.TextColor3=C.Sub
                     Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                     Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
+
                     local KB=Instance.new("TextButton",Row)
-                    KB.Size=UDim2.new(0,36,0,18); KB.AnchorPoint=Vector2.new(1,0.5)
+                    KB.Size=UDim2.new(0,46,0,20); KB.AnchorPoint=Vector2.new(1,0.5)
                     KB.Position=UDim2.new(1,0,0.5,0)
-                    KB.BackgroundColor3=C.Bg4; KB.Text=cur.Name
+                    KB.BackgroundColor3=Color3.fromRGB(20,20,20); KB.Text=cur.Name
                     KB.TextColor3=C.Sub; KB.TextSize=9; KB.Font=Enum.Font.Code
                     KB.AutoButtonColor=false; KB.ZIndex=14
-                    makeCorner(KB,3); makeStroke(KB,C.BorderBright,1,0)
+                    mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
+
                     local Keybind={Value=cur}
                     KB.MouseButton1Click:Connect(function()
                         if not listen then listen=true; KB.Text="..."; KB.TextColor3=C.Accent end
@@ -1087,26 +1068,27 @@ function KraviX:CreateWindow(config)
                     local cur
                     if type(cfg.Default)=="table" and cfg.Default.type then cur=cfg.Default
                     else cur={type="key",value=cfg.Default or Enum.KeyCode.E} end
-                    local listen=false; local callback=cfg.Callback or function() end
+                    local listen=false
+                    local callback=cfg.Callback or function() end
                     local function bindLabel(b)
                         if not b then return "None" end
-                        if b.type=="mouse" then return MOUSE_NAMES[b.value] or "M?"
-                        else return b.value and b.value.Name or "?" end
+                        if b.type=="mouse" then return MOUSE_NAMES[b.value] or "Mouse?" end
+                        return b.value and b.value.Name or "?"
                     end
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
                     local Lbl=Instance.new("TextLabel",Row)
-                    Lbl.Size=UDim2.new(0.6,0,1,0); Lbl.BackgroundTransparency=1
+                    Lbl.Size=UDim2.new(0.65,0,1,0); Lbl.BackgroundTransparency=1
                     Lbl.Text=cfg.Name or "Keybind"; Lbl.TextColor3=C.Sub
                     Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                     Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
                     local KB=Instance.new("TextButton",Row)
-                    KB.Size=UDim2.new(0,42,0,18); KB.AnchorPoint=Vector2.new(1,0.5)
+                    KB.Size=UDim2.new(0,46,0,20); KB.AnchorPoint=Vector2.new(1,0.5)
                     KB.Position=UDim2.new(1,0,0.5,0)
-                    KB.BackgroundColor3=C.Bg4; KB.Text=bindLabel(cur)
+                    KB.BackgroundColor3=Color3.fromRGB(20,20,20); KB.Text=bindLabel(cur)
                     KB.TextColor3=C.Sub; KB.TextSize=9; KB.Font=Enum.Font.Code
                     KB.AutoButtonColor=false; KB.ZIndex=14
-                    makeCorner(KB,3); makeStroke(KB,C.BorderBright,1,0)
+                    mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
                     local Bind={Value=cur}
                     KB.InputBegan:Connect(function(inp)
                         if inp.UserInputType~=Enum.UserInputType.MouseButton1 then return end
@@ -1117,21 +1099,27 @@ function KraviX:CreateWindow(config)
                         end)
                     end)
                     UserInputService.InputBegan:Connect(function(inp,processed)
-                        if not listen then return end; if processed then return end
+                        if not listen then return end
+                        if processed then return end
                         if inp.UserInputType==Enum.UserInputType.MouseButton1 then
                             task.wait(0.05); if not listen then return end
                         end
                         local isMouse=false
                         for _,mt in ipairs(MOUSE_TYPES) do
-                            if inp.UserInputType==mt then isMouse=true; cur={type="mouse",value=inp.UserInputType}; break end
+                            if inp.UserInputType==mt then
+                                isMouse=true; cur={type="mouse",value=inp.UserInputType}; break
+                            end
                         end
                         if not isMouse then
                             if inp.UserInputType==Enum.UserInputType.Keyboard then
-                                if inp.KeyCode==Enum.KeyCode.Escape then listen=false; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; return end
+                                if inp.KeyCode==Enum.KeyCode.Escape then
+                                    listen=false; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; return
+                                end
                                 cur={type="key",value=inp.KeyCode}
                             else return end
                         end
-                        listen=false; Bind.Value=cur; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; callback(cur)
+                        listen=false; Bind.Value=cur
+                        KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; callback(cur)
                     end)
                     function Bind:Set(b)
                         if type(b)=="table" and b.type then cur=b else cur={type="key",value=b} end
@@ -1146,31 +1134,33 @@ function KraviX:CreateWindow(config)
                     local color=cfg.Default or Color3.fromRGB(236,64,122)
                     local callback=cfg.Callback or function() end
                     local Row=Instance.new("Frame")
-                    Row.Size=UDim2.new(1,0,0,24); Row.BackgroundTransparency=1; Row.ZIndex=13
+                    Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
                     local Lbl=Instance.new("TextLabel",Row)
-                    Lbl.Size=UDim2.new(0.6,0,1,0); Lbl.BackgroundTransparency=1
+                    Lbl.Size=UDim2.new(0.65,0,1,0); Lbl.BackgroundTransparency=1
                     Lbl.Text=cfg.Name or "Color"; Lbl.TextColor3=C.Sub
                     Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                     Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
                     local Swatch=Instance.new("TextButton",Row)
-                    Swatch.Size=UDim2.new(0,44,0,16); Swatch.AnchorPoint=Vector2.new(1,0.5)
+                    Swatch.Size=UDim2.new(0,50,0,18); Swatch.AnchorPoint=Vector2.new(1,0.5)
                     Swatch.Position=UDim2.new(1,0,0.5,0)
-                    Swatch.BackgroundColor3=color; Swatch.Text=""; Swatch.AutoButtonColor=false; Swatch.ZIndex=14
-                    makeCorner(Swatch,4); makeStroke(Swatch,C.BorderBright,1,0)
-                    local pickerOpen=false; local hue,sat,val2=color:ToHSV()
+                    Swatch.BackgroundColor3=color; Swatch.Text=""
+                    Swatch.AutoButtonColor=false; Swatch.ZIndex=14
+                    mkCorner(Swatch,4); mkStroke(Swatch,C.BorderBt,1,0)
+                    local pickerOpen=false
+                    local hue,sat,val2=color:ToHSV()
                     local Picker={Value=color}
                     local PF=Instance.new("Frame",ScreenGui)
                     PF.Size=UDim2.new(0,210,0,180); PF.BackgroundColor3=C.Bg3
                     PF.BorderSizePixel=0; PF.Visible=false; PF.ZIndex=100
-                    makeCorner(PF,6); makeStroke(PF,C.Accent,1,0.5); makePadding(PF,8,8,8,8)
+                    mkCorner(PF,6); mkStroke(PF,C.BorderBt,1,0); mkPad(PF,8,8,8,8)
                     local Canvas=Instance.new("ImageButton",PF)
-                    Canvas.Size=UDim2.new(1,-28,1,-32); Canvas.BackgroundColor3=Color3.fromHSV(hue,1,1); Canvas.ZIndex=101; makeCorner(Canvas,4)
+                    Canvas.Size=UDim2.new(1,-28,1,-32); Canvas.BackgroundColor3=Color3.fromHSV(hue,1,1); Canvas.ZIndex=101; mkCorner(Canvas,4)
                     local Sat2=Instance.new("UIGradient",Canvas); Sat2.Color=ColorSequence.new(Color3.fromRGB(255,255,255),Color3.fromHSV(hue,1,1))
-                    local Dark=Instance.new("Frame",Canvas); Dark.Size=UDim2.new(1,0,1,0); Dark.BackgroundColor3=Color3.new(0,0,0); Dark.BackgroundTransparency=0; Dark.BorderSizePixel=0; Dark.ZIndex=102; makeCorner(Dark,4)
+                    local Dark=Instance.new("Frame",Canvas); Dark.Size=UDim2.new(1,0,1,0); Dark.BackgroundColor3=Color3.new(0,0,0); Dark.BackgroundTransparency=0; Dark.BorderSizePixel=0; Dark.ZIndex=102; mkCorner(Dark,4)
                     local DG=Instance.new("UIGradient",Dark); DG.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(1,0)}); DG.Rotation=90
-                    local CC=Instance.new("Frame",Canvas); CC.Size=UDim2.new(0,8,0,8); CC.AnchorPoint=Vector2.new(0.5,0.5); CC.Position=UDim2.new(sat,0,1-val2,0); CC.BackgroundColor3=C.White; CC.BorderSizePixel=1; CC.BorderColor3=C.Black; CC.ZIndex=103; makeCorner(CC,4)
+                    local CC=Instance.new("Frame",Canvas); CC.Size=UDim2.new(0,8,0,8); CC.AnchorPoint=Vector2.new(0.5,0.5); CC.Position=UDim2.new(sat,0,1-val2,0); CC.BackgroundColor3=C.White; CC.BorderSizePixel=1; CC.BorderColor3=C.Black; CC.ZIndex=103; mkCorner(CC,4)
                     local HBar=Instance.new("ImageButton",PF)
-                    HBar.Size=UDim2.new(0,16,1,-32); HBar.Position=UDim2.new(1,-16,0,0); HBar.BackgroundColor3=C.White; HBar.ZIndex=101; makeCorner(HBar,4)
+                    HBar.Size=UDim2.new(0,16,1,-32); HBar.Position=UDim2.new(1,-16,0,0); HBar.BackgroundColor3=C.White; HBar.ZIndex=101; mkCorner(HBar,4)
                     local HG=Instance.new("UIGradient",HBar); HG.Rotation=90
                     HG.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(255,0,0));ColorSequenceKeypoint.new(0.17,Color3.fromRGB(255,255,0));ColorSequenceKeypoint.new(0.33,Color3.fromRGB(0,255,0));ColorSequenceKeypoint.new(0.5,Color3.fromRGB(0,255,255));ColorSequenceKeypoint.new(0.67,Color3.fromRGB(0,0,255));ColorSequenceKeypoint.new(0.83,Color3.fromRGB(255,0,255));ColorSequenceKeypoint.new(1,Color3.fromRGB(255,0,0))})
                     local HC=Instance.new("Frame",HBar); HC.Size=UDim2.new(1,4,0,3); HC.Position=UDim2.new(0,-2,hue,0); HC.BackgroundColor3=C.White; HC.BorderSizePixel=1; HC.BorderColor3=C.Black; HC.ZIndex=102
@@ -1208,7 +1198,7 @@ function KraviX:CreateWindow(config)
                 function Section:AddLabel(cfg)
                     cfg=cfg or {}
                     local L=Instance.new("TextLabel")
-                    L.Size=UDim2.new(1,0,0,16); L.BackgroundTransparency=1
+                    L.Size=UDim2.new(1,0,0,18); L.BackgroundTransparency=1
                     L.Text=cfg.Text or ""; L.TextColor3=cfg.Color or C.Muted
                     L.TextSize=10; L.Font=Enum.Font.Gotham
                     L.TextXAlignment=Enum.TextXAlignment.Left; L.TextWrapped=true; L.ZIndex=13
@@ -1230,20 +1220,14 @@ function KraviX:CreateWindow(config)
             return SubTab
         end
 
-        -- Atalho: Tab:AddSection vai para a primeira subtab ou cria uma automaticamente
+        -- Tab-level AddSection (sem subtab) — retrocompatível
         function Tab:AddSection(sectionName, column)
-            if #tabEntry.SubTabs == 0 then
-                self:AddSubTab(sectionName or "Main")
+            if #tabEntry.SubTabs==0 then
+                Tab:AddSubTab("_default")
             end
-            local firstSub = tabEntry.SubTabs[1]
-            -- cria seção diretamente na primeira subtab
-            local scroll=(column=="Right") and
-                firstSub.Panel:FindFirstChild("ScrollingFrame2") or
-                firstSub.Panel:FindFirstChildOfClass("ScrollingFrame")
-
-            -- fallback: usa AddSubTab + AddSection normalmente
-            local sub=self:AddSubTab(sectionName or "Main")
-            return sub:AddSection(sectionName,column)
+            return tabEntry.SubTabs[1] and tabEntry.SubTabs[#tabEntry.SubTabs]:AddSection and
+                   tabEntry.SubTabs[#tabEntry.SubTabs]:AddSection(sectionName,column)
+                   or {}
         end
 
         return Tab
