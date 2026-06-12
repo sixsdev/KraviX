@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v4.2
+--  KraviX — Base Library  v4.3
 --  Design: Matcha-inspired
 -- ════════════════════════════════════════
 local KraviX = {}
@@ -52,19 +52,19 @@ local function mkPad(p, t, b, l, r) local pad=Instance.new("UIPadding"); pad.Pad
 -- ══════════════════════════════════════
 local C = {
     Bg          = Color3.fromRGB(  8,   8,   8),
-    Bg2         = Color3.fromRGB( 12,  12,  12),   -- janela principal
-    Bg3         = Color3.fromRGB( 18,  18,  18),   -- painéis internos
-    Bg4         = Color3.fromRGB( 24,  24,  24),   -- inputs
-    Bg5         = Color3.fromRGB( 32,  32,  32),   -- track slider
+    Bg2         = Color3.fromRGB( 12,  12,  12),
+    Bg3         = Color3.fromRGB( 18,  18,  18),
+    Bg4         = Color3.fromRGB( 24,  24,  24),
+    Bg5         = Color3.fromRGB( 32,  32,  32),
     BgHover     = Color3.fromRGB( 22,  14,  18),
-    Accent      = Color3.fromRGB(236,  64, 122),   -- rosa principal
+    Accent      = Color3.fromRGB(236,  64, 122),
     Accent2     = Color3.fromRGB(255,  85, 145),
     Text        = Color3.fromRGB(230, 230, 230),
     Sub         = Color3.fromRGB(140, 140, 140),
     Muted       = Color3.fromRGB( 80,  80,  80),
     Muted2      = Color3.fromRGB( 45,  45,  45),
     Border      = Color3.fromRGB( 30,  30,  30),
-    BorderBt    = Color3.fromRGB( 48,  48,  48),   -- border mais visível
+    BorderBt    = Color3.fromRGB( 48,  48,  48),
     White       = Color3.fromRGB(255, 255, 255),
     Black       = Color3.fromRGB(  0,   0,   0),
     Green       = Color3.fromRGB( 60, 210, 110),
@@ -135,7 +135,6 @@ end
 
 -- ══════════════════════════════════════
 --  NOTIFICAÇÃO — pill Matcha
---  canto inferior direito, sem FloatBar
 -- ══════════════════════════════════════
 local _notifSlots={}
 
@@ -158,7 +157,6 @@ local function CreateNotification(title, text, duration, ntype)
     while _notifSlots[slot] do slot=slot+1 end
     _notifSlots[slot]=true
 
-    -- pill
     local F=Instance.new("Frame",G)
     F.Size=UDim2.new(0,0,0,H); F.AutomaticSize=Enum.AutomaticSize.X
     F.Position=UDim2.new(1,30,1,-(MARGIN+(H+MARGIN)*slot))
@@ -194,7 +192,6 @@ local function CreateNotification(title, text, duration, ntype)
     D.TextColor3=C.Sub; D.TextSize=10; D.Font=Enum.Font.Gotham
     D.TextXAlignment=Enum.TextXAlignment.Left; D.LayoutOrder=3
 
-    -- barra de progresso abaixo
     local PBg=Instance.new("Frame",G)
     PBg.AnchorPoint=Vector2.new(1,1); PBg.Size=UDim2.new(0,10,0,2)
     PBg.Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot)-H-3)
@@ -360,7 +357,6 @@ function KraviX:CreateWindow(config)
     Backdrop.ZIndex=1; Backdrop.Visible=false
     StartSnow(Backdrop)
 
-    -- ── dimensões Matcha ──
     local WIN_W, WIN_H = 670, 720
 
     local Main=Instance.new("Frame",ScreenGui)
@@ -372,7 +368,6 @@ function KraviX:CreateWindow(config)
     mkCorner(Main,4)
     mkStroke(Main,C.Border,1,0)
 
-    -- sombra
     local Shadow=Instance.new("ImageLabel",Main)
     Shadow.Size=UDim2.new(1,60,1,60); Shadow.Position=UDim2.new(0,-30,0,-30)
     Shadow.BackgroundTransparency=1; Shadow.Image="rbxassetid://6015897843"
@@ -381,7 +376,6 @@ function KraviX:CreateWindow(config)
 
     -- ══════════════════════════════════════
     --  TOP BAR — estilo Matcha
-    --  [KraviX] [/] [url] ........... [versão]
     -- ══════════════════════════════════════
     local TopBar=Instance.new("Frame",Main)
     TopBar.Size=UDim2.new(1,0,0,32)
@@ -389,7 +383,6 @@ function KraviX:CreateWindow(config)
     TopBar.BackgroundTransparency=0
     TopBar.BorderSizePixel=0; TopBar.ZIndex=12
 
-    -- fix corners
     local TopFix=Instance.new("Frame",TopBar)
     TopFix.Size=UDim2.new(1,0,0,6); TopFix.Position=UDim2.new(0,0,1,-6)
     TopFix.BackgroundColor3=C.Bg2; TopFix.BorderSizePixel=0; TopFix.ZIndex=12
@@ -398,7 +391,6 @@ function KraviX:CreateWindow(config)
     TopSep.Size=UDim2.new(1,0,0,1); TopSep.Position=UDim2.new(0,0,0,32)
     TopSep.BackgroundColor3=C.Border; TopSep.BorderSizePixel=0; TopSep.ZIndex=12
 
-    -- nome do script (rosa, bold) — igual "Matcha" na ref
     local LogoLbl=Instance.new("TextLabel",TopBar)
     LogoLbl.Size=UDim2.new(0,0,1,0); LogoLbl.AutomaticSize=Enum.AutomaticSize.X
     LogoLbl.Position=UDim2.new(0,10,0,0)
@@ -406,20 +398,17 @@ function KraviX:CreateWindow(config)
     LogoLbl.TextColor3=C.Accent; LogoLbl.TextSize=12; LogoLbl.Font=Enum.Font.GothamBlack
     LogoLbl.TextXAlignment=Enum.TextXAlignment.Left; LogoLbl.ZIndex=13
 
-    -- separador fino após logo
     local LogoSep=Instance.new("Frame",TopBar)
     LogoSep.Size=UDim2.new(0,1,0,12); LogoSep.AnchorPoint=Vector2.new(0,0.5)
     LogoSep.Position=UDim2.new(0,52,0.5,0)
     LogoSep.BackgroundColor3=C.BorderBt; LogoSep.BorderSizePixel=0; LogoSep.ZIndex=13
 
-    -- url / discord (muted, Code) — igual "Interface" e "Standard" no Matcha
     local UrlLbl=Instance.new("TextLabel",TopBar)
     UrlLbl.Size=UDim2.new(0,160,1,0); UrlLbl.Position=UDim2.new(0,58,0,0)
     UrlLbl.BackgroundTransparency=1; UrlLbl.Text=config.Url
     UrlLbl.TextColor3=C.Muted; UrlLbl.TextSize=10; UrlLbl.Font=Enum.Font.Gotham
     UrlLbl.TextXAlignment=Enum.TextXAlignment.Left; UrlLbl.ZIndex=13
 
-    -- versão (direita, Code, muted) — igual "n1q" no Matcha
     local VerLbl=Instance.new("TextLabel",TopBar)
     VerLbl.Size=UDim2.new(0,80,1,0); VerLbl.AnchorPoint=Vector2.new(1,0)
     VerLbl.Position=UDim2.new(1,-10,0,0)
@@ -429,7 +418,6 @@ function KraviX:CreateWindow(config)
 
     -- ══════════════════════════════════════
     --  TAB BAR PRINCIPAL (nível 1)
-    --  Fundo igual à janela, tab ativa = branco bold + underline rosa
     -- ══════════════════════════════════════
     local TabBar=Instance.new("ScrollingFrame",Main)
     TabBar.Size=UDim2.new(1,0,0,34)
@@ -451,7 +439,6 @@ function KraviX:CreateWindow(config)
     TabSep.Size=UDim2.new(1,0,0,1); TabSep.Position=UDim2.new(0,0,0,67)
     TabSep.BackgroundColor3=C.Border; TabSep.BorderSizePixel=0; TabSep.ZIndex=11
 
-    -- ── ÁREA DE CONTEÚDO ──
     local ContentFrame=Instance.new("Frame",Main)
     ContentFrame.Size=UDim2.new(1,0,1,-68)
     ContentFrame.Position=UDim2.new(0,0,0,68)
@@ -523,7 +510,6 @@ function KraviX:CreateWindow(config)
         local Tab={}
         local tabIndex=#Window.Tabs+1
 
-        -- botão — sem fundo; ativo = branco/bold + underline rosa
         local TabBtn=Instance.new("TextButton",TabBar)
         TabBtn.Size=UDim2.new(0,0,1,0); TabBtn.AutomaticSize=Enum.AutomaticSize.X
         TabBtn.BackgroundTransparency=1
@@ -532,7 +518,6 @@ function KraviX:CreateWindow(config)
         TabBtn.AutoButtonColor=false; TabBtn.ZIndex=12; TabBtn.LayoutOrder=tabIndex
         mkPad(TabBtn,0,0,12,12)
 
-        -- underline rosa
         local TabUnder=Instance.new("Frame",TabBtn)
         TabUnder.Size=UDim2.new(1,-24,0,2); TabUnder.AnchorPoint=Vector2.new(0.5,1)
         TabUnder.Position=UDim2.new(0.5,0,1,0)
@@ -540,12 +525,11 @@ function KraviX:CreateWindow(config)
         TabUnder.BackgroundTransparency=1; TabUnder.ZIndex=13
         mkCorner(TabUnder,2)
 
-        -- conteúdo
         local TabContent=Instance.new("Frame",ContentFrame)
         TabContent.Size=UDim2.new(1,0,1,0); TabContent.BackgroundTransparency=1
         TabContent.BorderSizePixel=0; TabContent.Visible=false; TabContent.ZIndex=11
 
-        -- ── SUB TAB BAR (nível 2) — idêntico ao Matcha
+        -- SUB TAB BAR (nível 2)
         local SubTabBar=Instance.new("Frame",TabContent)
         SubTabBar.Size=UDim2.new(1,0,0,32)
         SubTabBar.BackgroundColor3=C.Bg2; SubTabBar.BackgroundTransparency=0
@@ -561,7 +545,6 @@ function KraviX:CreateWindow(config)
         SubSep.Size=UDim2.new(1,0,0,1); SubSep.Position=UDim2.new(0,0,0,32)
         SubSep.BackgroundColor3=C.Border; SubSep.BorderSizePixel=0; SubSep.ZIndex=12
 
-        -- área de conteúdo das subtabs
         local SubContent=Instance.new("Frame",TabContent)
         SubContent.Size=UDim2.new(1,0,1,-33)
         SubContent.Position=UDim2.new(0,0,0,33)
@@ -619,7 +602,6 @@ function KraviX:CreateWindow(config)
             SUnder.BackgroundTransparency=1; SUnder.ZIndex=14
             mkCorner(SUnder,2)
 
-            -- painel duas colunas
             local SubPanel=Instance.new("Frame",SubContent)
             SubPanel.Size=UDim2.new(1,0,1,0); SubPanel.BackgroundTransparency=1
             SubPanel.BorderSizePixel=0; SubPanel.Visible=false; SubPanel.ZIndex=12
@@ -678,14 +660,12 @@ function KraviX:CreateWindow(config)
                 local Section={}
                 local scroll=(column=="Right") and RightScroll or LeftScroll
 
-                -- cabeçalho da seção — igual ao "Misc" no Matcha (texto sub, sem fundo)
                 if sectionName and sectionName~="" then
                     local Hdr=Instance.new("TextLabel",scroll)
                     Hdr.Size=UDim2.new(1,0,0,22); Hdr.BackgroundTransparency=1
                     Hdr.Text=sectionName
                     Hdr.TextColor3=C.Sub; Hdr.TextSize=10; Hdr.Font=Enum.Font.GothamBold
                     Hdr.TextXAlignment=Enum.TextXAlignment.Left; Hdr.ZIndex=13
-                    -- linha fina abaixo
                     local HLine=Instance.new("Frame",Hdr)
                     HLine.Size=UDim2.new(1,0,0,1); HLine.Position=UDim2.new(0,0,1,-1)
                     HLine.BackgroundColor3=C.Border; HLine.BorderSizePixel=0
@@ -694,7 +674,6 @@ function KraviX:CreateWindow(config)
                 local function AddItem(item) item.Parent=scroll end
 
                 -- ───── TOGGLE ─────
-                -- visual: checkbox quadrado + label à esquerda + keybind pill à direita
                 function Section:AddToggle(cfg)
                     cfg=cfg or {}
                     local toggled=cfg.Default or false
@@ -704,7 +683,6 @@ function KraviX:CreateWindow(config)
                     Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
                     mkCorner(Row,3)
 
-                    -- checkbox
                     local Box=Instance.new("Frame",Row)
                     Box.Size=UDim2.new(0,14,0,14); Box.Position=UDim2.new(0,0,0.5,-7)
                     Box.BackgroundColor3=toggled and C.Accent or Color3.fromRGB(22,22,22)
@@ -718,7 +696,6 @@ function KraviX:CreateWindow(config)
                     Check.TextXAlignment=Enum.TextXAlignment.Center
                     Check.TextTransparency=toggled and 0 or 1; Check.ZIndex=15
 
-                    -- label
                     local Lbl=Instance.new("TextLabel",Row)
                     Lbl.Size=UDim2.new(1,-52,1,0); Lbl.Position=UDim2.new(0,20,0,0)
                     Lbl.BackgroundTransparency=1; Lbl.Text=cfg.Name or "Toggle"
@@ -726,7 +703,6 @@ function KraviX:CreateWindow(config)
                     Lbl.TextSize=11; Lbl.Font=Enum.Font.Gotham
                     Lbl.TextXAlignment=Enum.TextXAlignment.Left; Lbl.ZIndex=14
 
-                    -- keybind pill (direita) — igual ao "rmb", "e" no Matcha
                     if cfg.Keybind then
                         local KB=Instance.new("TextLabel",Row)
                         KB.Size=UDim2.new(0,34,0,18); KB.AnchorPoint=Vector2.new(1,0.5)
@@ -765,7 +741,6 @@ function KraviX:CreateWindow(config)
                 end
 
                 -- ───── SLIDER ─────
-                -- visual Matcha: label + valor à direita; track fino rosa
                 function Section:AddSlider(cfg)
                     cfg=cfg or {}
                     local min=cfg.Min or 0; local max=cfg.Max or 100
@@ -787,7 +762,6 @@ function KraviX:CreateWindow(config)
                     ValLbl.TextColor3=C.Sub; ValLbl.TextSize=11; ValLbl.Font=Enum.Font.Code
                     ValLbl.TextXAlignment=Enum.TextXAlignment.Right; ValLbl.ZIndex=14
 
-                    -- track
                     local Track=Instance.new("Frame",Row)
                     Track.Size=UDim2.new(1,0,0,3); Track.Position=UDim2.new(0,0,0,24)
                     Track.BackgroundColor3=C.Bg5; Track.BorderSizePixel=0; Track.ZIndex=14
@@ -796,7 +770,6 @@ function KraviX:CreateWindow(config)
                     Fill.Size=UDim2.new((val-min)/(max-min),0,1,0)
                     Fill.BackgroundColor3=C.Accent; Fill.BorderSizePixel=0; Fill.ZIndex=15
                     mkCorner(Fill,2)
-                    -- thumb circular
                     local Thumb=Instance.new("Frame",Fill)
                     Thumb.Size=UDim2.new(0,10,0,10); Thumb.AnchorPoint=Vector2.new(1,0.5)
                     Thumb.Position=UDim2.new(1,0,0.5,0); Thumb.BackgroundColor3=C.Accent
@@ -839,7 +812,6 @@ function KraviX:CreateWindow(config)
                 end
 
                 -- ───── DROPDOWN ─────
-                -- visual Matcha: caixa escura, seta, label acima
                 function Section:AddDropdown(cfg)
                     cfg=cfg or {}
                     local options=cfg.Values or {}
@@ -869,7 +841,6 @@ function KraviX:CreateWindow(config)
                     mkCorner(Sel,4); mkStroke(Sel,C.BorderBt,1,0)
                     mkPad(Sel,0,0,8,8)
 
-                    -- arrow icon
                     local Arrow=Instance.new("TextLabel",Sel)
                     Arrow.Size=UDim2.new(0,18,1,0); Arrow.AnchorPoint=Vector2.new(1,0.5)
                     Arrow.Position=UDim2.new(1,-2,0.5,0)
@@ -1221,13 +1192,13 @@ function KraviX:CreateWindow(config)
         end
 
         -- Tab-level AddSection (sem subtab) — retrocompatível
+        -- FIX v4.3: chamada de método corrigida (estava sem parênteses, causando erro de sintaxe)
         function Tab:AddSection(sectionName, column)
             if #tabEntry.SubTabs==0 then
                 Tab:AddSubTab("_default")
             end
-            return tabEntry.SubTabs[1] and tabEntry.SubTabs[#tabEntry.SubTabs]:AddSection and
-                   tabEntry.SubTabs[#tabEntry.SubTabs]:AddSection(sectionName,column)
-                   or {}
+            local lastSub = tabEntry.SubTabs[#tabEntry.SubTabs]
+            return lastSub:AddSection(sectionName, column)
         end
 
         return Tab
