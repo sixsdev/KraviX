@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v4.5
+--  KraviX — Base Library  v4.6
 --  Design: Matcha-inspired
 --  Fix v4.5: tema roxo, URL fix (task.defer), subtabs sem underline (cor no texto)
 -- ════════════════════════════════════════
@@ -670,17 +670,19 @@ function KraviX:CreateWindow(config)
                     local Row=Instance.new("Frame")
                     Row.Size=UDim2.new(1,0,0,26); Row.BackgroundTransparency=1; Row.ZIndex=13
                     mkCorner(Row,3)
+                    -- FIX v4.6: sem checkmark, só cor de fundo muda
                     local Box=Instance.new("Frame",Row)
                     Box.Size=UDim2.new(0,14,0,14); Box.Position=UDim2.new(0,0,0.5,-7)
                     Box.BackgroundColor3=toggled and C.Accent or Color3.fromRGB(22,22,22)
                     Box.BorderSizePixel=0; Box.ZIndex=14; mkCorner(Box,3)
                     mkStroke(Box,toggled and C.Accent or C.BorderBt,1,0)
-                    local Check=Instance.new("TextLabel",Box)
-                    Check.Size=UDim2.new(1,0,1,0); Check.BackgroundTransparency=1
-                    Check.Text="✓"; Check.TextColor3=C.White
-                    Check.TextSize=9; Check.Font=Enum.Font.GothamBold
-                    Check.TextXAlignment=Enum.TextXAlignment.Center
-                    Check.TextTransparency=toggled and 0 or 1; Check.ZIndex=15
+                    -- ponto interno (indicador visual sem checkmark)
+                    local Dot=Instance.new("Frame",Box)
+                    Dot.Size=UDim2.new(0,6,0,6); Dot.AnchorPoint=Vector2.new(0.5,0.5)
+                    Dot.Position=UDim2.new(0.5,0,0.5,0)
+                    Dot.BackgroundColor3=C.White; Dot.BorderSizePixel=0; Dot.ZIndex=15
+                    Dot.BackgroundTransparency=toggled and 0 or 1
+                    mkCorner(Dot,3)
                     local Lbl=Instance.new("TextLabel",Row)
                     Lbl.Size=UDim2.new(1,-52,1,0); Lbl.Position=UDim2.new(0,20,0,0)
                     Lbl.BackgroundTransparency=1; Lbl.Text=cfg.Name or "Toggle"
@@ -701,7 +703,7 @@ function KraviX:CreateWindow(config)
                     local function Update()
                         local v=Toggle.Value
                         Tween(Box,{BackgroundColor3=v and C.Accent or Color3.fromRGB(22,22,22)},0.1):Play()
-                        Tween(Check,{TextTransparency=v and 0 or 1},0.1):Play()
+                        Tween(Dot,{BackgroundTransparency=v and 0 or 1},0.1):Play()
                         Tween(Lbl,{TextColor3=v and C.Text or C.Sub},0.1):Play()
                         local st=Box:FindFirstChildOfClass("UIStroke")
                         if st then Tween(st,{Color=v and C.Accent or C.BorderBt},0.1):Play() end
@@ -961,6 +963,7 @@ function KraviX:CreateWindow(config)
                     if type(cfg.Default)=="table" and cfg.Default.type then cur=cfg.Default
                     else cur={type="key",value=cfg.Default or Enum.KeyCode.E} end
                     local listen=false
+                    local _ignoreNext=false  -- FIX v4.6: ignora o próprio clique que ativou o listen
                     local callback=cfg.Callback or function() end
                     local function bindLabel(b)
                         if not b then return "None" end
@@ -982,26 +985,43 @@ function KraviX:CreateWindow(config)
                     KB.AutoButtonColor=false; KB.ZIndex=14
                     mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
                     local Bind={Value=cur}
-                    KB.InputBegan:Connect(function(inp)
-                        if inp.UserInputType~=Enum.UserInputType.MouseButton1 then return end
+                    -- FIX v4.6: usa MouseButton1Click no botão para evitar capturar o próprio clique
+                    KB.MouseButton1Click:Connect(function()
                         if listen then return end
-                        task.spawn(function() RunService.Heartbeat:Wait(); listen=true; KB.Text="..."; KB.TextColor3=C.Accent end)
+                        listen=true
+                        _ignoreNext=true  -- próximo MB1 é o release do clique atual, ignorar
+                        KB.Text="..."; KB.TextColor3=C.Accent
                     end)
-                    UserInputService.InputBegan:Connect(function(inp,processed)
+                    UserInputService.InputBegan:Connect(function(inp, processed)
                         if not listen then return end
-                        if processed then return end
-                        if inp.UserInputType==Enum.UserInputType.MouseButton1 then task.wait(0.05); if not listen then return end end
+                        -- FIX v4.6: não bloqueia por 'processed' pois aimbot bind (MB2) não é processed
+                        -- mas ignora inputs da UI (TextBox focado, etc)
+                        if processed and inp.UserInputType==Enum.UserInputType.Keyboard then return end
+
+                        -- ignora o MB1 imediato após clicar no botão
+                        if _ignoreNext and inp.UserInputType==Enum.UserInputType.MouseButton1 then
+                            _ignoreNext=false; return
+                        end
+                        _ignoreNext=false
+
+                        -- Escape cancela
+                        if inp.UserInputType==Enum.UserInputType.Keyboard and inp.KeyCode==Enum.KeyCode.Escape then
+                            listen=false; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; return
+                        end
+
                         local isMouse=false
                         for _,mt in ipairs(MOUSE_TYPES) do
-                            if inp.UserInputType==mt then isMouse=true; cur={type="mouse",value=inp.UserInputType}; break end
+                            if inp.UserInputType==mt then
+                                isMouse=true; cur={type="mouse",value=inp.UserInputType}; break
+                            end
                         end
                         if not isMouse then
                             if inp.UserInputType==Enum.UserInputType.Keyboard then
-                                if inp.KeyCode==Enum.KeyCode.Escape then listen=false; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; return end
                                 cur={type="key",value=inp.KeyCode}
-                            else return end
+                            else return end  -- ignora outros tipos (gamepad, etc)
                         end
-                        listen=false; Bind.Value=cur; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; callback(cur)
+                        listen=false; Bind.Value=cur
+                        KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; callback(cur)
                     end)
                     function Bind:Set(b)
                         if type(b)=="table" and b.type then cur=b else cur={type="key",value=b} end
@@ -1107,6 +1127,89 @@ function KraviX:CreateWindow(config)
 
         return Tab
     end
+
+    -- ══════════════════════════════════════
+    --  FOOTER — bolinha online | url centro | build direita
+    --  FIX v4.6: rodapé estilo Matcha
+    -- ══════════════════════════════════════
+    local Footer=Instance.new("Frame",Main)
+    Footer.Size=UDim2.new(1,0,0,22)
+    Footer.Position=UDim2.new(0,0,1,-22)
+    Footer.BackgroundColor3=C.Bg
+    Footer.BackgroundTransparency=0; Footer.BorderSizePixel=0; Footer.ZIndex=12
+    mkStroke(Footer,C.Border,1,0)
+
+    -- bolinha verde + jogadores online (esquerda)
+    local FDot=Instance.new("Frame",Footer)
+    FDot.Size=UDim2.new(0,6,0,6); FDot.AnchorPoint=Vector2.new(0,0.5)
+    FDot.Position=UDim2.new(0,10,0.5,0)
+    FDot.BackgroundColor3=C.Green; FDot.BorderSizePixel=0; FDot.ZIndex=13
+    mkCorner(FDot,3)
+
+    local FOnline=Instance.new("TextLabel",Footer)
+    FOnline.Size=UDim2.new(0,120,1,0); FOnline.Position=UDim2.new(0,20,0,0)
+    FOnline.BackgroundTransparency=1; FOnline.Text="connecting..."
+    FOnline.TextColor3=C.Sub; FOnline.TextSize=9; FOnline.Font=Enum.Font.Gotham
+    FOnline.TextXAlignment=Enum.TextXAlignment.Left; FOnline.ZIndex=13
+
+    -- url centro
+    local FUrl=Instance.new("TextLabel",Footer)
+    FUrl.Size=UDim2.new(0,200,1,0); FUrl.AnchorPoint=Vector2.new(0.5,0)
+    FUrl.Position=UDim2.new(0.5,-100,0,0)
+    FUrl.BackgroundTransparency=1; FUrl.Text=config.Url
+    FUrl.TextColor3=C.Muted; FUrl.TextSize=9; FUrl.Font=Enum.Font.Gotham
+    FUrl.TextXAlignment=Enum.TextXAlignment.Center; FUrl.ZIndex=13
+
+    -- build date (direita)
+    local now=os.date("*t")
+    local months={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+    local buildStr="Build: "..months[now.month].." "..now.day.." "..now.year
+    local FBuild=Instance.new("TextLabel",Footer)
+    FBuild.Size=UDim2.new(0,160,1,0); FBuild.AnchorPoint=Vector2.new(1,0)
+    FBuild.Position=UDim2.new(1,-10,0,0)
+    FBuild.BackgroundTransparency=1; FBuild.Text=buildStr
+    FBuild.TextColor3=C.Muted; FBuild.TextSize=9; FBuild.Font=Enum.Font.Gotham
+    FBuild.TextXAlignment=Enum.TextXAlignment.Right; FBuild.ZIndex=13
+
+    -- destaca o dia em accent (roxo) igual Matcha destaca em rosa
+    local FBuildAccent=Instance.new("TextLabel",Footer)
+    FBuildAccent.Size=UDim2.new(0,160,1,0); FBuildAccent.AnchorPoint=Vector2.new(1,0)
+    FBuildAccent.Position=UDim2.new(1,-10,0,0)
+    FBuildAccent.BackgroundTransparency=1
+    FBuildAccent.Text="Build: "
+    FBuildAccent.TextColor3=C.Muted; FBuildAccent.TextSize=9; FBuildAccent.Font=Enum.Font.Gotham
+    FBuildAccent.TextXAlignment=Enum.TextXAlignment.Right; FBuildAccent.ZIndex=13
+    -- label só com a data colorida
+    local FBuildDate=Instance.new("TextLabel",Footer)
+    FBuildDate.Size=UDim2.new(0,120,1,0); FBuildDate.AnchorPoint=Vector2.new(1,0)
+    FBuildDate.Position=UDim2.new(1,-10,0,0)
+    FBuildDate.BackgroundTransparency=1
+    FBuildDate.Text=months[now.month].." "..now.day.." "..now.year
+    FBuildDate.TextColor3=C.Accent; FBuildDate.TextSize=9; FBuildDate.Font=Enum.Font.GothamBold
+    FBuildDate.TextXAlignment=Enum.TextXAlignment.Right; FBuildDate.ZIndex=14
+
+    -- sobrescreve FBuild com apenas "Build: " em muted, date em accent separado
+    FBuild.Text="Build:"; FBuild.Size=UDim2.new(0,200,1,0)
+    FBuild.TextXAlignment=Enum.TextXAlignment.Right
+
+    -- ajusta content para não sobrepor footer
+    ContentFrame.Size=UDim2.new(1,0,1,-90)
+
+    -- conta jogadores online e atualiza
+    task.spawn(function()
+        while Main and Main.Parent do
+            local count=#Players:GetPlayers()
+            FOnline.Text=tostring(count).." online"
+            task.wait(5)
+        end
+    end)
+    Players.PlayerAdded:Connect(function()
+        FOnline.Text=tostring(#Players:GetPlayers()).." online"
+    end)
+    Players.PlayerRemoving:Connect(function()
+        task.wait(0.1)
+        FOnline.Text=tostring(#Players:GetPlayers()).." online"
+    end)
 
     return Window
 end
