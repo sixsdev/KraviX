@@ -1,6 +1,7 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v4.3
+--  KraviX — Base Library  v4.4
 --  Design: Matcha-inspired
+--  Fix v4.4: TopBar pill, TabBar pill (sem underline), cor branca na tab ativa
 -- ════════════════════════════════════════
 local KraviX = {}
 
@@ -376,6 +377,7 @@ function KraviX:CreateWindow(config)
 
     -- ══════════════════════════════════════
     --  TOP BAR — estilo Matcha
+    --  FIX v4.4: versão agora é pill rosa igual Matcha
     -- ══════════════════════════════════════
     local TopBar=Instance.new("Frame",Main)
     TopBar.Size=UDim2.new(1,0,0,32)
@@ -409,15 +411,23 @@ function KraviX:CreateWindow(config)
     UrlLbl.TextColor3=C.Muted; UrlLbl.TextSize=10; UrlLbl.Font=Enum.Font.Gotham
     UrlLbl.TextXAlignment=Enum.TextXAlignment.Left; UrlLbl.ZIndex=13
 
-    local VerLbl=Instance.new("TextLabel",TopBar)
-    VerLbl.Size=UDim2.new(0,80,1,0); VerLbl.AnchorPoint=Vector2.new(1,0)
-    VerLbl.Position=UDim2.new(1,-10,0,0)
-    VerLbl.BackgroundTransparency=1; VerLbl.Text=config.Version
-    VerLbl.TextColor3=C.Muted; VerLbl.TextSize=10; VerLbl.Font=Enum.Font.Code
-    VerLbl.TextXAlignment=Enum.TextXAlignment.Right; VerLbl.ZIndex=13
+    -- FIX v4.4: versão como pill rosa (igual ao "Standard" do Matcha)
+    local VerPill=Instance.new("TextButton",TopBar)
+    VerPill.Size=UDim2.new(0,0,0,18); VerPill.AutomaticSize=Enum.AutomaticSize.X
+    VerPill.AnchorPoint=Vector2.new(1,0.5)
+    VerPill.Position=UDim2.new(1,-10,0.5,0)
+    VerPill.BackgroundColor3=Color3.fromRGB(40,10,22)
+    VerPill.BackgroundTransparency=0
+    VerPill.Text=config.Version
+    VerPill.TextColor3=C.Accent; VerPill.TextSize=10; VerPill.Font=Enum.Font.GothamBold
+    VerPill.AutoButtonColor=false; VerPill.ZIndex=13
+    mkCorner(VerPill,9)
+    mkStroke(VerPill,Color3.fromRGB(120,20,55),1,0)
+    mkPad(VerPill,0,0,8,8)
 
     -- ══════════════════════════════════════
     --  TAB BAR PRINCIPAL (nível 1)
+    --  FIX v4.4: tabs usam pill com fundo arredondado (sem underline)
     -- ══════════════════════════════════════
     local TabBar=Instance.new("ScrollingFrame",Main)
     TabBar.Size=UDim2.new(1,0,0,34)
@@ -432,7 +442,7 @@ function KraviX:CreateWindow(config)
     TabList.SortOrder=Enum.SortOrder.LayoutOrder
     TabList.HorizontalAlignment=Enum.HorizontalAlignment.Left
     TabList.VerticalAlignment=Enum.VerticalAlignment.Center
-    TabList.Padding=UDim.new(0,0)
+    TabList.Padding=UDim.new(0,4)
     mkPad(TabBar,0,0,10,10)
 
     local TabSep=Instance.new("Frame",Main)
@@ -505,25 +515,28 @@ function KraviX:CreateWindow(config)
 
     -- ══════════════════════════════════════
     --  CRIAR TAB (nível 1)
+    --  FIX v4.4: pill com fundo arredondado no lugar do underline
     -- ══════════════════════════════════════
     function Window:CreateTab(name, icon)
         local Tab={}
         local tabIndex=#Window.Tabs+1
 
+        -- FIX v4.4: TabBtn agora é um pill com fundo arredondado
         local TabBtn=Instance.new("TextButton",TabBar)
-        TabBtn.Size=UDim2.new(0,0,1,0); TabBtn.AutomaticSize=Enum.AutomaticSize.X
-        TabBtn.BackgroundTransparency=1
+        TabBtn.Size=UDim2.new(0,0,0,24); TabBtn.AutomaticSize=Enum.AutomaticSize.X
+        TabBtn.AnchorPoint=Vector2.new(0,0.5)
+        TabBtn.BackgroundColor3=Color3.fromRGB(34,34,34)
+        TabBtn.BackgroundTransparency=1  -- inativo: transparente
         TabBtn.Text=(icon and icon.."  " or "")..name
         TabBtn.TextColor3=C.Muted; TabBtn.TextSize=11; TabBtn.Font=Enum.Font.Gotham
         TabBtn.AutoButtonColor=false; TabBtn.ZIndex=12; TabBtn.LayoutOrder=tabIndex
+        mkCorner(TabBtn,5)
         mkPad(TabBtn,0,0,12,12)
 
+        -- TabUnder mantido como dummy para não quebrar referências
         local TabUnder=Instance.new("Frame",TabBtn)
-        TabUnder.Size=UDim2.new(1,-24,0,2); TabUnder.AnchorPoint=Vector2.new(0.5,1)
-        TabUnder.Position=UDim2.new(0.5,0,1,0)
-        TabUnder.BackgroundColor3=C.Accent; TabUnder.BorderSizePixel=0
-        TabUnder.BackgroundTransparency=1; TabUnder.ZIndex=13
-        mkCorner(TabUnder,2)
+        TabUnder.Size=UDim2.new(0,0,0,0)
+        TabUnder.BackgroundTransparency=1; TabUnder.BorderSizePixel=0; TabUnder.ZIndex=1
 
         local TabContent=Instance.new("Frame",ContentFrame)
         TabContent.Size=UDim2.new(1,0,1,0); TabContent.BackgroundTransparency=1
@@ -558,14 +571,17 @@ function KraviX:CreateWindow(config)
         FadeOverlay.Size=UDim2.new(1,0,1,0); FadeOverlay.BackgroundColor3=C.Bg2
         FadeOverlay.BackgroundTransparency=1; FadeOverlay.BorderSizePixel=0; FadeOverlay.ZIndex=50
 
+        -- FIX v4.4: SelectTab anima o pill (fundo) em vez do underline
         local function SelectTab()
             activeTabIndex=tabIndex
             for _,t in ipairs(Window.Tabs) do
                 local on=t.Index==activeTabIndex
                 if not on then t.Container.Visible=false end
-                Tween(t.Btn,{TextColor3=on and C.Text or C.Muted},0.12):Play()
+                Tween(t.Btn,{
+                    TextColor3=on and C.White or C.Muted,
+                    BackgroundTransparency=on and 0 or 1,
+                },0.12):Play()
                 t.Btn.Font=on and Enum.Font.GothamBold or Enum.Font.Gotham
-                Tween(t.Under,{BackgroundTransparency=on and 0 or 1},0.12):Play()
             end
             TabContent.Visible=true
             FadeOverlay.BackgroundTransparency=0
@@ -574,10 +590,14 @@ function KraviX:CreateWindow(config)
 
         TabBtn.MouseButton1Click:Connect(SelectTab)
         TabBtn.MouseEnter:Connect(function()
-            if tabIndex~=activeTabIndex then Tween(TabBtn,{TextColor3=C.Sub},0.1):Play() end
+            if tabIndex~=activeTabIndex then
+                Tween(TabBtn,{TextColor3=C.Sub,BackgroundTransparency=0.85},0.1):Play()
+            end
         end)
         TabBtn.MouseLeave:Connect(function()
-            if tabIndex~=activeTabIndex then Tween(TabBtn,{TextColor3=C.Muted},0.1):Play() end
+            if tabIndex~=activeTabIndex then
+                Tween(TabBtn,{TextColor3=C.Muted,BackgroundTransparency=1},0.1):Play()
+            end
         end)
         if #Window.Tabs==1 then SelectTab() end
 
@@ -1192,7 +1212,6 @@ function KraviX:CreateWindow(config)
         end
 
         -- Tab-level AddSection (sem subtab) — retrocompatível
-        -- FIX v4.3: chamada de método corrigida (estava sem parênteses, causando erro de sintaxe)
         function Tab:AddSection(sectionName, column)
             if #tabEntry.SubTabs==0 then
                 Tab:AddSubTab("_default")
