@@ -1,5 +1,5 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v4.6
+--  KraviX — Base Library  v4.5
 --  Design: Matcha-inspired
 --  Fix v4.5: tema roxo, URL fix (task.defer), subtabs sem underline (cor no texto)
 -- ════════════════════════════════════════
@@ -325,9 +325,10 @@ end
 -- ══════════════════════════════════════
 function KraviX:CreateWindow(config)
     config         = config or {}
-    config.Name    = config.Name    or "KraviX"
+    config.Name    = config.Name    or "Script"
     config.Url     = config.Url     or ""
     config.Version = config.Version or "v1.0"
+    config.Mode    = config.Mode    or "Standard"
 
     local activeTabIndex = 0
     local Window = {Tabs={}, Keybind=Enum.KeyCode.Unknown}
@@ -368,7 +369,7 @@ function KraviX:CreateWindow(config)
 
     -- ══════════════════════════════════════
     --  TOP BAR
-    --  FIX v4.5: URL reposicionada via task.defer após logo renderizar
+    --  FIX v4.7: "KraviX" fixo roxo · config.Name cinza · pill Mode
     -- ══════════════════════════════════════
     local TopBar=Instance.new("Frame",Main)
     TopBar.Size=UDim2.new(1,0,0,32)
@@ -383,44 +384,56 @@ function KraviX:CreateWindow(config)
     TopSep.Size=UDim2.new(1,0,0,1); TopSep.Position=UDim2.new(0,0,0,32)
     TopSep.BackgroundColor3=C.Border; TopSep.BorderSizePixel=0; TopSep.ZIndex=12
 
-    local LogoLbl=Instance.new("TextLabel",TopBar)
-    LogoLbl.Size=UDim2.new(0,0,1,0); LogoLbl.AutomaticSize=Enum.AutomaticSize.X
-    LogoLbl.Position=UDim2.new(0,10,0,0)
-    LogoLbl.BackgroundTransparency=1; LogoLbl.Text=config.Name
-    LogoLbl.TextColor3=C.Accent; LogoLbl.TextSize=12; LogoLbl.Font=Enum.Font.GothamBlack
-    LogoLbl.TextXAlignment=Enum.TextXAlignment.Left; LogoLbl.ZIndex=13
+    -- "KraviX" sempre fixo em roxo
+    local BrandLbl=Instance.new("TextLabel",TopBar)
+    BrandLbl.Size=UDim2.new(0,0,1,0); BrandLbl.AutomaticSize=Enum.AutomaticSize.X
+    BrandLbl.Position=UDim2.new(0,10,0,0)
+    BrandLbl.BackgroundTransparency=1; BrandLbl.Text="KraviX"
+    BrandLbl.TextColor3=C.Accent; BrandLbl.TextSize=12; BrandLbl.Font=Enum.Font.GothamBlack
+    BrandLbl.TextXAlignment=Enum.TextXAlignment.Left; BrandLbl.ZIndex=13
 
-    local LogoSep=Instance.new("Frame",TopBar)
-    LogoSep.Size=UDim2.new(0,1,0,12); LogoSep.AnchorPoint=Vector2.new(0,0.5)
-    LogoSep.Position=UDim2.new(0,52,0.5,0)
-    LogoSep.BackgroundColor3=C.BorderBt; LogoSep.BorderSizePixel=0; LogoSep.ZIndex=13
+    -- separador "·" entre brand e script name
+    local DotSep=Instance.new("TextLabel",TopBar)
+    DotSep.Size=UDim2.new(0,12,1,0)
+    DotSep.BackgroundTransparency=1; DotSep.Text="·"
+    DotSep.TextColor3=C.Muted2; DotSep.TextSize=12; DotSep.Font=Enum.Font.GothamBold
+    DotSep.TextXAlignment=Enum.TextXAlignment.Center; DotSep.ZIndex=13
 
-    local UrlLbl=Instance.new("TextLabel",TopBar)
-    UrlLbl.Size=UDim2.new(0,200,1,0); UrlLbl.Position=UDim2.new(0,58,0,0)
-    UrlLbl.BackgroundTransparency=1; UrlLbl.Text=config.Url
-    UrlLbl.TextColor3=C.Muted; UrlLbl.TextSize=10; UrlLbl.Font=Enum.Font.Gotham
-    UrlLbl.TextXAlignment=Enum.TextXAlignment.Left; UrlLbl.ZIndex=13
+    -- nome do script (config.Name) em cinza
+    local ScriptLbl=Instance.new("TextLabel",TopBar)
+    ScriptLbl.Size=UDim2.new(0,0,1,0); ScriptLbl.AutomaticSize=Enum.AutomaticSize.X
+    ScriptLbl.BackgroundTransparency=1; ScriptLbl.Text=config.Name
+    ScriptLbl.TextColor3=C.Sub; ScriptLbl.TextSize=11; ScriptLbl.Font=Enum.Font.Gotham
+    ScriptLbl.TextXAlignment=Enum.TextXAlignment.Left; ScriptLbl.ZIndex=13
 
-    -- FIX v4.5: reposiciona sep + url depois que o logo calcula AbsoluteSize
+    -- pill "Mode" (config.Mode, default "Standard")
+    local ModePill=Instance.new("TextButton",TopBar)
+    ModePill.Size=UDim2.new(0,0,0,18); ModePill.AutomaticSize=Enum.AutomaticSize.X
+    ModePill.BackgroundColor3=Color3.fromRGB(22,12,40); ModePill.BackgroundTransparency=0
+    ModePill.Text=config.Mode or "Standard"
+    ModePill.TextColor3=C.Accent; ModePill.TextSize=10; ModePill.Font=Enum.Font.GothamBold
+    ModePill.AutoButtonColor=false; ModePill.ZIndex=13
+    ModePill.AnchorPoint=Vector2.new(0,0.5)
+    mkCorner(ModePill,9); mkStroke(ModePill,Color3.fromRGB(80,30,160),1,0); mkPad(ModePill,0,0,8,8)
+
+    -- repositiona tudo após render (AbsoluteSize disponível)
     task.defer(function()
-        local logoW = LogoLbl.AbsoluteSize.X
-        LogoSep.Position = UDim2.new(0, 10 + logoW + 6, 0.5, 0)
-        UrlLbl.Position  = UDim2.new(0, 10 + logoW + 14, 0, 0)
+        local bW=BrandLbl.AbsoluteSize.X   -- largura "KraviX"
+        local gap=6
+        DotSep.Position=UDim2.new(0, 10+bW+gap, 0, 0)
+        local dW=DotSep.AbsoluteSize.X
+        ScriptLbl.Position=UDim2.new(0, 10+bW+gap+dW+2, 0, 0)
+        local sW=ScriptLbl.AbsoluteSize.X
+        ModePill.Position=UDim2.new(0, 10+bW+gap+dW+2+sW+8, 0.5, 0)
     end)
 
-    -- pill versão (roxo)
-    local VerPill=Instance.new("TextButton",TopBar)
-    VerPill.Size=UDim2.new(0,0,0,18); VerPill.AutomaticSize=Enum.AutomaticSize.X
-    VerPill.AnchorPoint=Vector2.new(1,0.5)
-    VerPill.Position=UDim2.new(1,-10,0.5,0)
-    VerPill.BackgroundColor3=Color3.fromRGB(22,12,40)
-    VerPill.BackgroundTransparency=0
-    VerPill.Text=config.Version
-    VerPill.TextColor3=C.Accent; VerPill.TextSize=10; VerPill.Font=Enum.Font.GothamBold
-    VerPill.AutoButtonColor=false; VerPill.ZIndex=13
-    mkCorner(VerPill,9)
-    mkStroke(VerPill,Color3.fromRGB(80,30,160),1,0)
-    mkPad(VerPill,0,0,8,8)
+    -- versão pequena à direita (só texto muted)
+    local VerLbl=Instance.new("TextLabel",TopBar)
+    VerLbl.Size=UDim2.new(0,80,1,0); VerLbl.AnchorPoint=Vector2.new(1,0)
+    VerLbl.Position=UDim2.new(1,-10,0,0)
+    VerLbl.BackgroundTransparency=1; VerLbl.Text=config.Version or ""
+    VerLbl.TextColor3=C.Muted; VerLbl.TextSize=9; VerLbl.Font=Enum.Font.Code
+    VerLbl.TextXAlignment=Enum.TextXAlignment.Right; VerLbl.ZIndex=13
 
     -- ══════════════════════════════════════
     --  TAB BAR PRINCIPAL — pill com fundo
@@ -1129,8 +1142,8 @@ function KraviX:CreateWindow(config)
     end
 
     -- ══════════════════════════════════════
-    --  FOOTER — bolinha online | url centro | build direita
-    --  FIX v4.6: rodapé estilo Matcha
+    --  FOOTER — discord centralizado | build date direita
+    --  FIX v4.7: sem online counter, sem labels duplicadas
     -- ══════════════════════════════════════
     local Footer=Instance.new("Frame",Main)
     Footer.Size=UDim2.new(1,0,0,22)
@@ -1139,77 +1152,42 @@ function KraviX:CreateWindow(config)
     Footer.BackgroundTransparency=0; Footer.BorderSizePixel=0; Footer.ZIndex=12
     mkStroke(Footer,C.Border,1,0)
 
-    -- bolinha verde + jogadores online (esquerda)
-    local FDot=Instance.new("Frame",Footer)
-    FDot.Size=UDim2.new(0,6,0,6); FDot.AnchorPoint=Vector2.new(0,0.5)
-    FDot.Position=UDim2.new(0,10,0.5,0)
-    FDot.BackgroundColor3=C.Green; FDot.BorderSizePixel=0; FDot.ZIndex=13
-    mkCorner(FDot,3)
-
-    local FOnline=Instance.new("TextLabel",Footer)
-    FOnline.Size=UDim2.new(0,120,1,0); FOnline.Position=UDim2.new(0,20,0,0)
-    FOnline.BackgroundTransparency=1; FOnline.Text="connecting..."
-    FOnline.TextColor3=C.Sub; FOnline.TextSize=9; FOnline.Font=Enum.Font.Gotham
-    FOnline.TextXAlignment=Enum.TextXAlignment.Left; FOnline.ZIndex=13
-
-    -- url centro
+    -- discord url centralizado
     local FUrl=Instance.new("TextLabel",Footer)
-    FUrl.Size=UDim2.new(0,200,1,0); FUrl.AnchorPoint=Vector2.new(0.5,0)
-    FUrl.Position=UDim2.new(0.5,-100,0,0)
+    FUrl.Size=UDim2.new(1,0,1,0); FUrl.Position=UDim2.new(0,0,0,0)
     FUrl.BackgroundTransparency=1; FUrl.Text=config.Url
     FUrl.TextColor3=C.Muted; FUrl.TextSize=9; FUrl.Font=Enum.Font.Gotham
     FUrl.TextXAlignment=Enum.TextXAlignment.Center; FUrl.ZIndex=13
 
-    -- build date (direita)
+    -- "Build: " em muted à direita
     local now=os.date("*t")
     local months={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
-    local buildStr="Build: "..months[now.month].." "..now.day.." "..now.year
-    local FBuild=Instance.new("TextLabel",Footer)
-    FBuild.Size=UDim2.new(0,160,1,0); FBuild.AnchorPoint=Vector2.new(1,0)
-    FBuild.Position=UDim2.new(1,-10,0,0)
-    FBuild.BackgroundTransparency=1; FBuild.Text=buildStr
-    FBuild.TextColor3=C.Muted; FBuild.TextSize=9; FBuild.Font=Enum.Font.Gotham
-    FBuild.TextXAlignment=Enum.TextXAlignment.Right; FBuild.ZIndex=13
+    local FBuildLabel=Instance.new("TextLabel",Footer)
+    FBuildLabel.Size=UDim2.new(0,42,1,0); FBuildLabel.AnchorPoint=Vector2.new(1,0)
+    FBuildLabel.Position=UDim2.new(1,-10,0,0)
+    FBuildLabel.BackgroundTransparency=1; FBuildLabel.Text="Build:"
+    FBuildLabel.TextColor3=C.Muted; FBuildLabel.TextSize=9; FBuildLabel.Font=Enum.Font.Gotham
+    FBuildLabel.TextXAlignment=Enum.TextXAlignment.Right; FBuildLabel.ZIndex=13
 
-    -- destaca o dia em accent (roxo) igual Matcha destaca em rosa
-    local FBuildAccent=Instance.new("TextLabel",Footer)
-    FBuildAccent.Size=UDim2.new(0,160,1,0); FBuildAccent.AnchorPoint=Vector2.new(1,0)
-    FBuildAccent.Position=UDim2.new(1,-10,0,0)
-    FBuildAccent.BackgroundTransparency=1
-    FBuildAccent.Text="Build: "
-    FBuildAccent.TextColor3=C.Muted; FBuildAccent.TextSize=9; FBuildAccent.Font=Enum.Font.Gotham
-    FBuildAccent.TextXAlignment=Enum.TextXAlignment.Right; FBuildAccent.ZIndex=13
-    -- label só com a data colorida
+    -- data em accent (roxo) — posicionada via defer após "Build:" renderizar
     local FBuildDate=Instance.new("TextLabel",Footer)
-    FBuildDate.Size=UDim2.new(0,120,1,0); FBuildDate.AnchorPoint=Vector2.new(1,0)
-    FBuildDate.Position=UDim2.new(1,-10,0,0)
+    FBuildDate.Size=UDim2.new(0,0,1,0); FBuildDate.AutomaticSize=Enum.AutomaticSize.X
+    FBuildDate.AnchorPoint=Vector2.new(1,0)
+    FBuildDate.Position=UDim2.new(1,-10,0,0)  -- será ajustado abaixo
     FBuildDate.BackgroundTransparency=1
     FBuildDate.Text=months[now.month].." "..now.day.." "..now.year
     FBuildDate.TextColor3=C.Accent; FBuildDate.TextSize=9; FBuildDate.Font=Enum.Font.GothamBold
     FBuildDate.TextXAlignment=Enum.TextXAlignment.Right; FBuildDate.ZIndex=14
 
-    -- sobrescreve FBuild com apenas "Build: " em muted, date em accent separado
-    FBuild.Text="Build:"; FBuild.Size=UDim2.new(0,200,1,0)
-    FBuild.TextXAlignment=Enum.TextXAlignment.Right
+    task.defer(function()
+        local labelW=FBuildLabel.AbsoluteSize.X
+        local dateW=FBuildDate.AbsoluteSize.X
+        -- "Build:" fica à esquerda da data
+        FBuildLabel.Position=UDim2.new(1,-(10+dateW+2),0,0)
+    end)
 
     -- ajusta content para não sobrepor footer
     ContentFrame.Size=UDim2.new(1,0,1,-90)
-
-    -- conta jogadores online e atualiza
-    task.spawn(function()
-        while Main and Main.Parent do
-            local count=#Players:GetPlayers()
-            FOnline.Text=tostring(count).." online"
-            task.wait(5)
-        end
-    end)
-    Players.PlayerAdded:Connect(function()
-        FOnline.Text=tostring(#Players:GetPlayers()).." online"
-    end)
-    Players.PlayerRemoving:Connect(function()
-        task.wait(0.1)
-        FOnline.Text=tostring(#Players:GetPlayers()).." online"
-    end)
 
     return Window
 end
