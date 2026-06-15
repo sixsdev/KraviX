@@ -1,9 +1,7 @@
 -- ════════════════════════════════════════
---  KraviX — Base Library  v5.0
---  v5.0: color picker estilo Linoria integrado
---        dropdown arrow = ImageLabel (sem quadrado)
---        sistema de customização via C table exposta
---        AddColorPicker com hex box + rgb box + sat/val map
+--  KraviX — Base Library  v5.1
+--  FIXES: tab/subtab cores dinâmicas, footer sem sobreposição,
+--         toggle sem bolinha, colorpicker não fecha ao digitar hex
 -- ════════════════════════════════════════
 local KraviX = {}
 
@@ -20,7 +18,6 @@ local Mouse       = LocalPlayer:GetMouse()
 local SOUND_NOTIF = "rbxassetid://84596244576386"
 local SOUND_OPEN  = "rbxassetid://4807489774"
 
--- Tabela de cores exposta publicamente para o sistema de customização
 local C = {
     Bg          = Color3.fromRGB(  8,   8,   8),
     Bg2         = Color3.fromRGB( 12,  12,  12),
@@ -43,7 +40,7 @@ local C = {
     Shadow      = Color3.fromRGB(  0,   0,   0),
     NotifBg     = Color3.fromRGB( 13,  13,  13),
 }
-KraviX.C = C  -- expõe externamente
+KraviX.C = C
 
 local TWEEN_SPD = 1.0
 
@@ -58,9 +55,6 @@ local MOUSE_TYPES = {
     Enum.UserInputType.MouseButton3,
 }
 
--- ────────────────────────────────────────────────────────────
---  Utilitários internos
--- ────────────────────────────────────────────────────────────
 local function PlaySound(id)
     local s = Instance.new("Sound")
     s.SoundId = id; s.Volume = 0.5; s.Parent = SoundService; s:Play()
@@ -113,16 +107,14 @@ local function lighten(c, amt)
         math.clamp(c.B + amt, 0, 1))
 end
 
--- compara Color3 com tolerância de float
-local function ceq(a, b)
-    return math.abs(a.R-b.R) < 0.012
-       and math.abs(a.G-b.G) < 0.012
-       and math.abs(a.B-b.B) < 0.012
+-- ── accentBg: fundo semi-transparente da cor accent ───────────────────────────
+local function accentBg()
+    return Color3.new(
+        math.clamp(C.Accent.R*0.18,0,1),
+        math.clamp(C.Accent.G*0.12,0,1),
+        math.clamp(C.Accent.B*0.18,0,1))
 end
 
--- ────────────────────────────────────────────────────────────
---  Efeitos de fundo (Snow / Rain)
--- ────────────────────────────────────────────────────────────
 local function StartSnow(parent)
     local cont = Instance.new("Frame", parent)
     cont.Size = UDim2.new(1,0,1,0); cont.BackgroundTransparency = 1
@@ -175,9 +167,6 @@ local function StartRain(parent)
     end)
 end
 
--- ────────────────────────────────────────────────────────────
---  Drag
--- ────────────────────────────────────────────────────────────
 local function MakeDraggable(frame, handle)
     handle = handle or frame
     local drag, ds, sp
@@ -201,9 +190,6 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- ────────────────────────────────────────────────────────────
---  Notificações
--- ────────────────────────────────────────────────────────────
 local _notifSlots          = {}
 local _notifAccentOverride = nil
 
@@ -287,9 +273,6 @@ local function CreateNotification(title, text, duration, ntype)
     end)
 end
 
--- ────────────────────────────────────────────────────────────
---  Loader
--- ────────────────────────────────────────────────────────────
 local function CreateLoader(screenGui, onDone)
     local Loader = Instance.new("Frame", screenGui)
     Loader.Name = "KxLoader"; Loader.Size = UDim2.new(1,0,1,0)
@@ -399,9 +382,6 @@ local function CreateLoader(screenGui, onDone)
     end)
 end
 
--- ════════════════════════════════════════════════════════════
---  CreateWindow
--- ════════════════════════════════════════════════════════════
 function KraviX:CreateWindow(config)
     config         = config or {}
     config.Name    = config.Name    or "Script"
@@ -518,10 +498,7 @@ function KraviX:CreateWindow(config)
     local ModePill = Instance.new("TextButton", TopBar)
     ModePill.Name = "ModePill"
     ModePill.Size = UDim2.new(0,0,0,18); ModePill.AutomaticSize = Enum.AutomaticSize.X
-    ModePill.BackgroundColor3 = Color3.new(
-        math.clamp(C.Accent.R*0.18,0,1),
-        math.clamp(C.Accent.G*0.12,0,1),
-        math.clamp(C.Accent.B*0.18,0,1))
+    ModePill.BackgroundColor3 = accentBg()
     ModePill.BackgroundTransparency = 0; ModePill.Text = config.Mode
     ModePill.TextColor3 = C.Accent; ModePill.TextSize = 10; ModePill.Font = Enum.Font.GothamBold
     ModePill.AutoButtonColor = false; ModePill.ZIndex = 13; ModePill.AnchorPoint = Vector2.new(0,0.5)
@@ -557,8 +534,8 @@ function KraviX:CreateWindow(config)
     TabBar.AutomaticCanvasSize = Enum.AutomaticSize.X
     TabBar.CanvasSize = UDim2.new(0,0,0,0); TabBar.ElasticBehavior = Enum.ElasticBehavior.Never
     local TabList = Instance.new("UIListLayout", TabBar)
-    TabList.FillDirection      = Enum.FillDirection.Horizontal
-    TabList.SortOrder          = Enum.SortOrder.LayoutOrder
+    TabList.FillDirection       = Enum.FillDirection.Horizontal
+    TabList.SortOrder           = Enum.SortOrder.LayoutOrder
     TabList.HorizontalAlignment = Enum.HorizontalAlignment.Left
     TabList.VerticalAlignment   = Enum.VerticalAlignment.Center
     TabList.Padding             = UDim.new(0,4)
@@ -574,7 +551,6 @@ function KraviX:CreateWindow(config)
     ContentFrame.BackgroundTransparency = 1; ContentFrame.BorderSizePixel = 0
     ContentFrame.ZIndex = 10; ContentFrame.ClipsDescendants = true
 
-    -- ── Show/Hide/Toggle ──────────────────────────────────────────────────────
     local function HideWindow()
         if not Main.Visible then return end
         Main.ClipsDescendants = true
@@ -642,7 +618,8 @@ function KraviX:CreateWindow(config)
         local TabBtn = Instance.new("TextButton", TabBar)
         TabBtn.Size = UDim2.new(0,0,0,24); TabBtn.AutomaticSize = Enum.AutomaticSize.X
         TabBtn.AnchorPoint = Vector2.new(0,0.5)
-        TabBtn.BackgroundColor3 = Color3.fromRGB(34,34,34)
+        -- ── FIX: bg da tab usa accentBg() dinâmico, não RGB fixo ──
+        TabBtn.BackgroundColor3 = accentBg()
         TabBtn.BackgroundTransparency = 1
         TabBtn.Text = (icon and icon.."  " or "")..name
         TabBtn.TextColor3 = C.Muted; TabBtn.TextSize = 11; TabBtn.Font = Enum.Font.Gotham
@@ -686,12 +663,17 @@ function KraviX:CreateWindow(config)
         FadeOverlay.Size = UDim2.new(1,0,1,0); FadeOverlay.BackgroundColor3 = C.Bg2
         FadeOverlay.BackgroundTransparency = 1; FadeOverlay.BorderSizePixel = 0; FadeOverlay.ZIndex = 50
 
+        -- ── FIX: SelectTab usa C.Accent para texto E fundo dinâmico ──────────
         local function SelectTab()
             activeTabIndex = tabIndex
             for _, t in ipairs(Window.Tabs) do
                 local on = t.Index == activeTabIndex
                 if not on then t.Container.Visible = false end
-                Tween(t.Btn,{TextColor3=on and C.White or C.Muted, BackgroundTransparency=on and 0 or 1},0.12):Play()
+                Tween(t.Btn, {
+                    TextColor3          = on and C.Accent or C.Muted,
+                    BackgroundColor3    = accentBg(),
+                    BackgroundTransparency = on and 0 or 1,
+                }, 0.12):Play()
                 t.Btn.Font = on and Enum.Font.GothamBold or Enum.Font.Gotham
             end
             TabContent.Visible = true
@@ -702,17 +684,17 @@ function KraviX:CreateWindow(config)
         TabBtn.MouseButton1Click:Connect(SelectTab)
         TabBtn.MouseEnter:Connect(function()
             if tabIndex ~= activeTabIndex then
-                Tween(TabBtn,{TextColor3=C.Sub,BackgroundTransparency=0.85},0.1):Play()
+                Tween(TabBtn,{TextColor3=C.Sub, BackgroundColor3=accentBg(),
+                    BackgroundTransparency=0.85},0.1):Play()
             end
         end)
         TabBtn.MouseLeave:Connect(function()
             if tabIndex ~= activeTabIndex then
-                Tween(TabBtn,{TextColor3=C.Muted,BackgroundTransparency=1},0.1):Play()
+                Tween(TabBtn,{TextColor3=C.Muted, BackgroundTransparency=1},0.1):Play()
             end
         end)
         if #Window.Tabs == 1 then SelectTab() end
 
-        -- ── AddSubTab ─────────────────────────────────────────────────────────
         function Tab:AddSubTab(subName)
             local SubTab   = {}
             local subIndex = #tabEntry.SubTabs + 1
@@ -758,12 +740,13 @@ function KraviX:CreateWindow(config)
 
             table.insert(tabEntry.SubTabs,{Btn=SBtn,Under=SUnder,Panel=SubPanel,Index=subIndex})
 
+            -- ── FIX: SelectSub usa C.Accent dinâmico ─────────────────────────
             local function SelectSub()
                 tabEntry.ActiveSub = subIndex
                 for _, st in ipairs(tabEntry.SubTabs) do
                     local on = st.Index == subIndex
                     if not on then st.Panel.Visible = false end
-                    Tween(st.Btn,{TextColor3=on and C.Accent or C.Muted},0.1):Play()
+                    Tween(st.Btn,{TextColor3 = on and C.Accent or C.Muted},0.1):Play()
                     st.Btn.Font = on and Enum.Font.GothamBold or Enum.Font.Gotham
                 end
                 SubPanel.Visible = true
@@ -778,7 +761,6 @@ function KraviX:CreateWindow(config)
             end)
             if #tabEntry.SubTabs == 1 then SelectSub() end
 
-            -- ── AddSection ───────────────────────────────────────────────────
             function SubTab:AddSection(sectionName, column)
                 local Section = {}
                 local scroll  = (column == "Right") and RightScroll or LeftScroll
@@ -796,7 +778,7 @@ function KraviX:CreateWindow(config)
 
                 local function AddItem(item) item.Parent = scroll end
 
-                -- ── Toggle ───────────────────────────────────────────────────
+                -- ── FIX: Toggle sem bolinha branca — só fundo muda ────────────
                 function Section:AddToggle(cfg)
                     cfg = cfg or {}
                     local toggled  = cfg.Default  or false
@@ -811,12 +793,7 @@ function KraviX:CreateWindow(config)
                     Box.BackgroundColor3 = toggled and C.Accent or Color3.fromRGB(22,22,22)
                     Box.BorderSizePixel = 0; Box.ZIndex = 14; mkCorner(Box,3)
                     mkStroke(Box, toggled and C.Accent or C.BorderBt, 1, 0)
-
-                    local Dot = Instance.new("Frame", Box)
-                    Dot.Size = UDim2.new(0,6,0,6); Dot.AnchorPoint = Vector2.new(0.5,0.5)
-                    Dot.Position = UDim2.new(0.5,0,0.5,0)
-                    Dot.BackgroundColor3 = C.White; Dot.BorderSizePixel = 0; Dot.ZIndex = 15
-                    Dot.BackgroundTransparency = toggled and 0 or 1; mkCorner(Dot,3)
+                    -- SEM Dot interno
 
                     local Lbl = Instance.new("TextLabel", Row)
                     Lbl.Size = UDim2.new(1,-52,1,0); Lbl.Position = UDim2.new(0,20,0,0)
@@ -839,11 +816,10 @@ function KraviX:CreateWindow(config)
                     local Toggle = {Value=toggled}
                     local function Update()
                         local v = Toggle.Value
-                        Tween(Box,{BackgroundColor3=v and C.Accent or Color3.fromRGB(22,22,22)},0.1):Play()
-                        Tween(Dot,{BackgroundTransparency=v and 0 or 1},0.1):Play()
-                        Tween(Lbl,{TextColor3=v and C.Text or C.Sub},0.1):Play()
+                        Tween(Box,{BackgroundColor3 = v and C.Accent or Color3.fromRGB(22,22,22)},0.1):Play()
+                        Tween(Lbl,{TextColor3 = v and C.Text or C.Sub},0.1):Play()
                         local st = Box:FindFirstChildOfClass("UIStroke")
-                        if st then Tween(st,{Color=v and C.Accent or C.BorderBt},0.1):Play() end
+                        if st then Tween(st,{Color = v and C.Accent or C.BorderBt},0.1):Play() end
                     end
 
                     local Hit = Instance.new("TextButton", Row)
@@ -863,7 +839,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Toggle
                 end
 
-                -- ── Slider ───────────────────────────────────────────────────
                 function Section:AddSlider(cfg)
                     cfg = cfg or {}
                     local min = cfg.Min or 0; local max = cfg.Max or 100
@@ -938,7 +913,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Slider
                 end
 
-                -- ── Dropdown (com ImageLabel arrow — sem quadrado) ────────────
                 function Section:AddDropdown(cfg)
                     cfg = cfg or {}
                     local options  = cfg.Values  or {}
@@ -969,7 +943,6 @@ function KraviX:CreateWindow(config)
                     Sel.AutoButtonColor = false; Sel.ZIndex = 14
                     mkCorner(Sel,4); mkStroke(Sel,C.BorderBt,1,0); mkPad(Sel,0,0,8,24)
 
-                    -- ▼ ImageLabel arrow (igual à Linoria — sem glitch de fonte)
                     local Arrow = Instance.new("ImageLabel", Sel)
                     Arrow.Name               = "DropArrow"
                     Arrow.Size               = UDim2.new(0,12,0,12)
@@ -1075,7 +1048,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Wrap); return Dropdown
                 end
 
-                -- ── Button ───────────────────────────────────────────────────
                 function Section:AddButton(cfg)
                     cfg = cfg or {}
                     local callback = cfg.Callback or function() end
@@ -1103,7 +1075,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Btn)
                 end
 
-                -- ── Textbox ──────────────────────────────────────────────────
                 function Section:AddTextbox(cfg)
                     cfg = cfg or {}
                     local callback = cfg.Callback or function() end
@@ -1134,7 +1105,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Row)
                 end
 
-                -- ── Keybind ──────────────────────────────────────────────────
                 function Section:AddKeybind(cfg)
                     cfg = cfg or {}
                     local cur = cfg.Default or Enum.KeyCode.E; local listen = false
@@ -1168,15 +1138,14 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Keybind
                 end
 
-                -- ── MouseKeybind ─────────────────────────────────────────────
                 function Section:AddMouseKeybind(cfg)
                     cfg = cfg or {}
                     local cur
                     if type(cfg.Default) == "table" and cfg.Default.type then cur = cfg.Default
                     else cur = {type="key", value=cfg.Default or Enum.KeyCode.E} end
-                    local listen     = false
+                    local listen      = false
                     local _ignoreNext = false
-                    local callback   = cfg.Callback or function() end
+                    local callback    = cfg.Callback or function() end
                     local function bindLabel(b)
                         if not b then return "None" end
                         if b.type == "mouse" then return MOUSE_NAMES[b.value] or "Mouse?" end
@@ -1234,21 +1203,17 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Bind
                 end
 
-                -- ══════════════════════════════════════════════════════
-                --  COLOR PICKER — estilo Linoria, integrado na KraviX
-                --  • SatVib image map (asset Linoria 4155801252)
-                --  • Hue bar vertical com gradiente
-                --  • Cursores anel (asset 9619665977)
-                --  • Hex box + RGB box com focus highlight
-                --  • Barra accent no topo do painel
-                --  • Fecha ao clicar fora / ao esconder janela
-                -- ══════════════════════════════════════════════════════
+                -- ── FIX ColorPicker: não fecha ao clicar dentro do painel ─────
+                -- A raiz do bug era: o listener de "fechar ao clicar fora" disparava
+                -- ANTES do InputBegan dos campos hex/rgb, pois o PF não estava sendo
+                -- detectado como "dentro" enquanto o TextBox tinha foco.
+                -- Solução: flag _pfFocused que bloqueia o fechar enquanto qualquer
+                -- TextBox do painel está focado.
                 function Section:AddColorPicker(cfg)
                     cfg = cfg or {}
                     local color    = cfg.Default  or C.Accent
                     local callback = cfg.Callback or function() end
 
-                    -- ── row no scroll ─────────────────────────────────────────
                     local Row = Instance.new("Frame")
                     Row.Size = UDim2.new(1,0,0,26); Row.BackgroundTransparency = 1; Row.ZIndex = 13
 
@@ -1258,7 +1223,6 @@ function KraviX:CreateWindow(config)
                     Lbl.TextSize = 11; Lbl.Font = Enum.Font.Gotham
                     Lbl.TextXAlignment = Enum.TextXAlignment.Left; Lbl.ZIndex = 14
 
-                    -- swatch duplo (preto externo + cor interna), igual Linoria
                     local SwOut = Instance.new("Frame", Row)
                     SwOut.Size = UDim2.new(0,42,0,16); SwOut.AnchorPoint = Vector2.new(1,0.5)
                     SwOut.Position = UDim2.new(1,0,0.5,0)
@@ -1269,14 +1233,12 @@ function KraviX:CreateWindow(config)
                     local SwIn = Instance.new("Frame", SwOut)
                     SwIn.Size = UDim2.new(1,0,1,0)
                     SwIn.BackgroundColor3 = color; SwIn.BorderSizePixel = 0; SwIn.ZIndex = 15
-                    mkCorner(SwIn,3)
-                    mkStroke(SwIn, C.BorderBt, 1, 0)
+                    mkCorner(SwIn,3); mkStroke(SwIn, C.BorderBt, 1, 0)
 
                     local SwBtn = Instance.new("TextButton", SwOut)
                     SwBtn.Size = UDim2.new(1,0,1,0); SwBtn.BackgroundTransparency = 1
                     SwBtn.Text = ""; SwBtn.ZIndex = 16
 
-                    -- ── painel picker ─────────────────────────────────────────
                     local PF = Instance.new("Frame", ScreenGui)
                     PF.Name = "KxColorPicker"
                     PF.Size = UDim2.new(0,234,0,258)
@@ -1284,35 +1246,27 @@ function KraviX:CreateWindow(config)
                     PF.BorderSizePixel = 0; PF.Visible = false; PF.ZIndex = 300
                     mkCorner(PF,6); mkStroke(PF,C.BorderBt,1,0)
 
-                    -- barra accent no topo
                     local TopAcc = Instance.new("Frame", PF)
                     TopAcc.Size = UDim2.new(1,0,0,2)
                     TopAcc.BackgroundColor3 = C.Accent
-                    TopAcc.BorderSizePixel = 0; TopAcc.ZIndex = 301
-                    mkCorner(TopAcc,6)
+                    TopAcc.BorderSizePixel = 0; TopAcc.ZIndex = 301; mkCorner(TopAcc,6)
 
-                    -- título
                     local TitleLbl = Instance.new("TextLabel", PF)
                     TitleLbl.Size = UDim2.new(1,-8,0,18); TitleLbl.Position = UDim2.new(0,6,0,5)
                     TitleLbl.BackgroundTransparency = 1; TitleLbl.Text = cfg.Name or "Color"
                     TitleLbl.TextColor3 = C.Text; TitleLbl.TextSize = 11; TitleLbl.Font = Enum.Font.GothamBold
                     TitleLbl.TextXAlignment = Enum.TextXAlignment.Left; TitleLbl.ZIndex = 301
 
-                    -- ── canvas SatVib ─────────────────────────────────────────
                     local CanvasOut = Instance.new("Frame", PF)
-                    CanvasOut.Size = UDim2.new(0,200,0,200)
-                    CanvasOut.Position = UDim2.new(0,6,0,26)
+                    CanvasOut.Size = UDim2.new(0,200,0,200); CanvasOut.Position = UDim2.new(0,6,0,26)
                     CanvasOut.BackgroundColor3 = Color3.fromRGB(255,255,255)
-                    CanvasOut.BorderSizePixel = 0; CanvasOut.ZIndex = 301
-                    mkCorner(CanvasOut,4)
+                    CanvasOut.BorderSizePixel = 0; CanvasOut.ZIndex = 301; mkCorner(CanvasOut,4)
 
-                    -- imagem sat/val (asset da Linoria)
                     local SatVibImg = Instance.new("ImageLabel", CanvasOut)
                     SatVibImg.Size = UDim2.new(1,0,1,0); SatVibImg.BorderSizePixel = 0
                     SatVibImg.Image = "rbxassetid://4155801252"; SatVibImg.ZIndex = 302
                     mkCorner(SatVibImg,4)
 
-                    -- cursor anel sat/val (assets Linoria)
                     local CurOut = Instance.new("ImageLabel", SatVibImg)
                     CurOut.AnchorPoint = Vector2.new(0.5,0.5)
                     CurOut.Size = UDim2.new(0,8,0,8); CurOut.BackgroundTransparency = 1
@@ -1325,23 +1279,19 @@ function KraviX:CreateWindow(config)
                     CurIn.Image = "http://www.roblox.com/asset/?id=9619665977"
                     CurIn.ImageColor3 = Color3.new(1,1,1); CurIn.ZIndex = 311
 
-                    -- hit area transparente sobre o canvas
                     local CanvasHit = Instance.new("TextButton", SatVibImg)
                     CanvasHit.Size = UDim2.new(1,0,1,0)
                     CanvasHit.BackgroundTransparency = 1; CanvasHit.Text = ""; CanvasHit.ZIndex = 309
 
-                    -- ── Hue bar vertical ──────────────────────────────────────
                     local HueOut = Instance.new("Frame", PF)
                     HueOut.Size = UDim2.new(0,14,0,200); HueOut.Position = UDim2.new(0,210,0,26)
                     HueOut.BackgroundColor3 = Color3.fromRGB(255,255,255)
-                    HueOut.BorderSizePixel = 0; HueOut.ZIndex = 301
-                    mkCorner(HueOut,4)
+                    HueOut.BorderSizePixel = 0; HueOut.ZIndex = 301; mkCorner(HueOut,4)
 
                     local HueIn = Instance.new("Frame", HueOut)
                     HueIn.Size = UDim2.new(1,0,1,0)
                     HueIn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-                    HueIn.BorderSizePixel = 0; HueIn.ZIndex = 302
-                    mkCorner(HueIn,4)
+                    HueIn.BorderSizePixel = 0; HueIn.ZIndex = 302; mkCorner(HueIn,4)
 
                     local seqKP = {}
                     for i = 0, 1, 0.1 do
@@ -1350,33 +1300,30 @@ function KraviX:CreateWindow(config)
                     local HueGrad = Instance.new("UIGradient", HueIn)
                     HueGrad.Rotation = 90; HueGrad.Color = ColorSequence.new(seqKP)
 
-                    -- cursor hue (linha horizontal, igual Linoria)
                     local HueCur = Instance.new("Frame", HueIn)
                     HueCur.AnchorPoint = Vector2.new(0,0.5); HueCur.Size = UDim2.new(1,0,0,2)
                     HueCur.BackgroundColor3 = Color3.fromRGB(255,255,255)
                     HueCur.BorderSizePixel = 0; HueCur.ZIndex = 310
                     mkStroke(HueCur, Color3.fromRGB(0,0,0), 1, 0)
 
-                    -- hit area hue
                     local HBarHit = Instance.new("TextButton", HueIn)
                     HBarHit.Size = UDim2.new(1,0,1,0)
                     HBarHit.BackgroundTransparency = 1; HBarHit.Text = ""; HBarHit.ZIndex = 309
 
-                    -- ── hex box ───────────────────────────────────────────────
+                    -- ── FIX: flag para saber se algum input do picker está focado ──
+                    local _pfFocused = false
+
                     local function makeInputBox(posX, placeholder, defaultTxt)
                         local outer = Instance.new("Frame", PF)
                         outer.Size = UDim2.new(0,108,0,20)
                         outer.Position = UDim2.fromOffset(posX, 232)
                         outer.BackgroundColor3 = Color3.fromRGB(0,0,0)
-                        outer.BorderSizePixel = 0; outer.ZIndex = 301
-                        mkCorner(outer,4)
+                        outer.BorderSizePixel = 0; outer.ZIndex = 301; mkCorner(outer,4)
 
                         local inner = Instance.new("Frame", outer)
                         inner.Size = UDim2.new(1,0,1,0)
                         inner.BackgroundColor3 = Color3.fromRGB(24,24,24)
-                        inner.BorderSizePixel = 0; inner.ZIndex = 302
-                        mkCorner(inner,4)
-                        local stk = mkStroke(inner, C.BorderBt, 1, 0)
+                        inner.BorderSizePixel = 0; inner.ZIndex = 302; mkCorner(inner,4)
 
                         local box = Instance.new("TextBox", inner)
                         box.Size = UDim2.new(1,-8,1,0); box.Position = UDim2.new(0,8,0,0)
@@ -1387,11 +1334,16 @@ function KraviX:CreateWindow(config)
                         box.TextXAlignment = Enum.TextXAlignment.Left
                         box.ZIndex = 303; box.ClearTextOnFocus = false
 
-                        -- stroke accent no focus
                         local fs = mkStroke(inner, C.BorderBt, 1, 0)
-                        box.Focused:Connect(function()   Tween(fs,{Color=C.Accent},0.12):Play()   end)
-                        box.FocusLost:Connect(function() Tween(fs,{Color=C.BorderBt},0.12):Play() end)
-                        stk:Destroy() -- remove o primeiro stroke redundante
+                        -- ── FIX: marca foco ativo no painel ──────────────────
+                        box.Focused:Connect(function()
+                            _pfFocused = true
+                            Tween(fs,{Color=C.Accent},0.12):Play()
+                        end)
+                        box.FocusLost:Connect(function()
+                            _pfFocused = false
+                            Tween(fs,{Color=C.BorderBt},0.12):Play()
+                        end)
 
                         return box
                     end
@@ -1399,8 +1351,7 @@ function KraviX:CreateWindow(config)
                     local HexBox = makeInputBox(6,   "Hex color", "#FFFFFF")
                     local RgbBox = makeInputBox(118, "R, G, B",   "255, 255, 255")
 
-                    -- ── estado interno ────────────────────────────────────────
-                    local Picker = {Value=color}
+                    local Picker     = {Value=color}
                     local pickerOpen = false
                     local ph, ps, pv = color:ToHSV()
                     local cDrag, hDrag = false, false
@@ -1408,18 +1359,17 @@ function KraviX:CreateWindow(config)
                     local function UpdateAll()
                         local c = Color3.fromHSV(ph, ps, pv)
                         Picker.Value = c
-                        SwIn.BackgroundColor3    = c
+                        SwIn.BackgroundColor3      = c
                         SatVibImg.BackgroundColor3 = Color3.fromHSV(ph,1,1)
-                        CurOut.Position          = UDim2.new(ps, 0, 1-pv, 0)
-                        HueCur.Position          = UDim2.new(0, 0, ph, 0)
-                        HexBox.Text              = "#"..c:ToHex():upper()
-                        RgbBox.Text              = math.floor(c.R*255)..","
-                                                ..math.floor(c.G*255)..","
-                                                ..math.floor(c.B*255)
+                        CurOut.Position            = UDim2.new(ps, 0, 1-pv, 0)
+                        HueCur.Position            = UDim2.new(0, 0, ph, 0)
+                        HexBox.Text                = "#"..c:ToHex():upper()
+                        RgbBox.Text                = math.floor(c.R*255)..","
+                                                  ..math.floor(c.G*255)..","
+                                                  ..math.floor(c.B*255)
                         callback(c)
                     end
 
-                    -- hex / rgb input
                     HexBox.FocusLost:Connect(function(enter)
                         if enter then
                             local ok, result = pcall(Color3.fromHex, HexBox.Text)
@@ -1437,7 +1387,6 @@ function KraviX:CreateWindow(config)
                         UpdateAll()
                     end)
 
-                    -- drag canvas
                     CanvasHit.InputBegan:Connect(function(i)
                         if i.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
                         cDrag = true
@@ -1448,7 +1397,6 @@ function KraviX:CreateWindow(config)
                         UpdateAll()
                     end)
 
-                    -- drag hue
                     HBarHit.InputBegan:Connect(function(i)
                         if i.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
                         hDrag = true
@@ -1480,10 +1428,8 @@ function KraviX:CreateWindow(config)
                         end
                     end)
 
-                    -- abrir/fechar swatch
                     SwBtn.MouseButton1Click:Connect(function()
                         pickerOpen = not pickerOpen
-                        -- fecha outros pickers abertos
                         if pickerOpen then
                             for _, obj in ipairs(ScreenGui:GetDescendants()) do
                                 if obj.Name == "KxColorPicker" and obj ~= PF then
@@ -1498,14 +1444,15 @@ function KraviX:CreateWindow(config)
                             if px < 2 then px = 2 end
                             if px + 234 > sgSz.X then px = sgSz.X - 236 end
                             PF.Position = UDim2.fromOffset(px, py)
+                            UpdateAll()
                         end
                         PF.Visible = pickerOpen
                     end)
 
-                    -- fecha ao clicar fora
+                    -- ── FIX: só fecha se nenhum input do painel estiver focado ─
                     UserInputService.InputBegan:Connect(function(inp)
                         if inp.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
-                        if not pickerOpen or cDrag or hDrag then return end
+                        if not pickerOpen or cDrag or hDrag or _pfFocused then return end
                         local mp = UserInputService:GetMouseLocation()
                         local fp = PF.AbsolutePosition; local fs = PF.AbsoluteSize
                         if not (mp.X>=fp.X and mp.X<=fp.X+fs.X
@@ -1514,7 +1461,6 @@ function KraviX:CreateWindow(config)
                         end
                     end)
 
-                    -- fecha quando a janela é escondida
                     Main:GetPropertyChangedSignal("Visible"):Connect(function()
                         pickerOpen = false; PF.Visible = false
                     end)
@@ -1528,7 +1474,6 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Picker
                 end
 
-                -- ── Label ────────────────────────────────────────────────────
                 function Section:AddLabel(cfg)
                     cfg = cfg or {}
                     local L = Instance.new("TextLabel")
@@ -1541,7 +1486,6 @@ function KraviX:CreateWindow(config)
                     return {SetText=function(_,t) L.Text=t end}
                 end
 
-                -- ── Separator ────────────────────────────────────────────────
                 function Section:AddSeparator()
                     local S = Instance.new("Frame")
                     S.Size = UDim2.new(1,0,0,1); S.BackgroundColor3 = C.Border
@@ -1550,10 +1494,10 @@ function KraviX:CreateWindow(config)
                 end
 
                 return Section
-            end -- AddSection
+            end
 
             return SubTab
-        end -- AddSubTab
+        end
 
         function Tab:AddSection(sectionName, column)
             if #tabEntry.SubTabs == 0 then Tab:AddSubTab("_default") end
@@ -1562,46 +1506,56 @@ function KraviX:CreateWindow(config)
         end
 
         return Tab
-    end -- CreateTab
+    end
 
-    -- ── Footer ────────────────────────────────────────────────────────────────
+    -- ── FIX Footer: UIListLayout elimina sobreposição de "Build:" e data ──────
     local Footer = Instance.new("Frame", Main)
     Footer.Size = UDim2.new(1,0,0,22); Footer.Position = UDim2.new(0,0,1,-22)
     Footer.BackgroundColor3 = C.Bg; Footer.BackgroundTransparency = 0
     Footer.BorderSizePixel = 0; Footer.ZIndex = 12
     mkStroke(Footer, C.Border, 1, 0)
 
+    -- URL centralizado
     local FUrl = Instance.new("TextLabel", Footer)
-    FUrl.Size = UDim2.new(1,0,1,0); FUrl.Position = UDim2.new(0,0,0,0)
+    FUrl.Size = UDim2.new(1,0,1,0)
     FUrl.BackgroundTransparency = 1; FUrl.Text = config.Url
     FUrl.TextColor3 = C.Muted; FUrl.TextSize = 9; FUrl.Font = Enum.Font.Gotham
     FUrl.TextXAlignment = Enum.TextXAlignment.Center; FUrl.ZIndex = 13
 
+    -- bloco direito: "Build:" + data em sequência horizontal sem sobreposição
     local now    = os.date("*t")
     local months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+    local dateStr = months[now.month].." "..now.day.." "..now.year
 
-    local FBuildLabel = Instance.new("TextLabel", Footer)
-    FBuildLabel.Size = UDim2.new(0,42,1,0); FBuildLabel.AnchorPoint = Vector2.new(1,0)
-    FBuildLabel.Position = UDim2.new(1,-10,0,0)
+    local BuildWrap = Instance.new("Frame", Footer)
+    BuildWrap.Size = UDim2.new(0,140,1,0)
+    BuildWrap.AnchorPoint = Vector2.new(1,0)
+    BuildWrap.Position = UDim2.new(1,-8,0,0)
+    BuildWrap.BackgroundTransparency = 1; BuildWrap.BorderSizePixel = 0; BuildWrap.ZIndex = 12
+
+    local BuildLayout = Instance.new("UIListLayout", BuildWrap)
+    BuildLayout.FillDirection       = Enum.FillDirection.Horizontal
+    BuildLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    BuildLayout.VerticalAlignment   = Enum.VerticalAlignment.Center
+    BuildLayout.SortOrder           = Enum.SortOrder.LayoutOrder
+    BuildLayout.Padding             = UDim.new(0,3)
+
+    local FBuildLabel = Instance.new("TextLabel", BuildWrap)
+    FBuildLabel.Size = UDim2.new(0,0,1,0); FBuildLabel.AutomaticSize = Enum.AutomaticSize.X
     FBuildLabel.BackgroundTransparency = 1; FBuildLabel.Text = "Build:"
     FBuildLabel.TextColor3 = C.Muted; FBuildLabel.TextSize = 9; FBuildLabel.Font = Enum.Font.Gotham
     FBuildLabel.TextXAlignment = Enum.TextXAlignment.Right; FBuildLabel.ZIndex = 13
+    FBuildLabel.LayoutOrder = 1
 
-    local FBuildDate = Instance.new("TextLabel", Footer)
+    local FBuildDate = Instance.new("TextLabel", BuildWrap)
     FBuildDate.Name = "FBuildDate"
     FBuildDate.Size = UDim2.new(0,0,1,0); FBuildDate.AutomaticSize = Enum.AutomaticSize.X
-    FBuildDate.AnchorPoint = Vector2.new(1,0); FBuildDate.Position = UDim2.new(1,-10,0,0)
-    FBuildDate.BackgroundTransparency = 1
-    FBuildDate.Text = months[now.month].." "..now.day.." "..now.year
+    FBuildDate.BackgroundTransparency = 1; FBuildDate.Text = dateStr
     FBuildDate.TextColor3 = C.Accent; FBuildDate.TextSize = 9; FBuildDate.Font = Enum.Font.GothamBold
-    FBuildDate.TextXAlignment = Enum.TextXAlignment.Right; FBuildDate.ZIndex = 14
-
-    task.defer(function()
-        local dateW = FBuildDate.AbsoluteSize.X
-        FBuildLabel.Position = UDim2.new(1,-(10+dateW+2),0,0)
-    end)
+    FBuildDate.TextXAlignment = Enum.TextXAlignment.Left; FBuildDate.ZIndex = 14
+    FBuildDate.LayoutOrder = 2
 
     return Window
-end -- CreateWindow
+end
 
 return KraviX
