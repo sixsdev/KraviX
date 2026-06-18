@@ -1,9 +1,4 @@
--- ════════════════════════════════════════
 --  KraviX — Base Library  v5.2
---  v5.2: sistema de RefreshTheme() — registra todo elemento tingível
---        e permite repintar tudo em tempo real após mudar C.Accent/Bg/etc
---        FIX footer overlap, FIX toggle dot, FIX colorpicker hex close
--- ════════════════════════════════════════
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -45,16 +40,11 @@ KraviX.C = C
 
 local TWEEN_SPD = 1.0
 
--- ════════════════════════════════════════════════════════════
---  SISTEMA DE REFRESH DE TEMA
---  Cada elemento tingível registra uma função "repaint()" aqui.
---  Quando KraviX:RefreshTheme() é chamado, todas as funções
---  são executadas de novo, lendo os valores ATUAIS de C.
--- ════════════════════════════════════════════════════════════
+
 local _repaintRegistry = {}
 local function registerRepaint(fn)
     table.insert(_repaintRegistry, fn)
-    -- pinta uma vez imediatamente com os valores atuais
+    
     local ok = pcall(fn)
     return fn
 end
@@ -71,8 +61,7 @@ local function lighten(c, amt)
         math.clamp(c.B + amt, 0, 1))
 end
 
--- recalcula campos derivados (Accent2, BgHover, Bg2..Bg5, BorderBt) a partir
--- dos campos base (Accent, Bg, Border) — chamado sempre que esses mudam
+
 local function recomputeDerived()
     C.Accent2 = lighten(C.Accent, 0.09)
     C.BgHover = Color3.new(
@@ -86,9 +75,7 @@ local function recomputeDerived()
     C.BorderBt = lighten(C.Border, 0.07)
 end
 
--- ── API pública para o painel de Settings do usuário ──────────────────────
--- Define uma cor por nome ("Accent","Bg","Border","Text","Sub","Shadow","NotifColor")
--- recalcula derivados e já chama RefreshTheme automaticamente.
+
 function KraviX:SetThemeColor(key, value)
     if key == "Accent" then
         C.Accent = value
@@ -173,9 +160,7 @@ local function accentBg()
         math.clamp(C.Accent.B*0.18,0,1))
 end
 
--- ────────────────────────────────────────────────────────────
---  Efeitos de fundo (Snow / Rain)
--- ────────────────────────────────────────────────────────────
+
 local function StartSnow(parent)
     local cont = Instance.new("Frame", parent)
     cont.Size = UDim2.new(1,0,1,0); cont.BackgroundTransparency = 1
@@ -251,9 +236,7 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- ────────────────────────────────────────────────────────────
---  Notificações
--- ────────────────────────────────────────────────────────────
+
 local _notifSlots          = {}
 local _notifAccentOverride = nil
 
@@ -337,9 +320,7 @@ local function CreateNotification(title, text, duration, ntype)
     end)
 end
 
--- ────────────────────────────────────────────────────────────
---  Loader
--- ────────────────────────────────────────────────────────────
+
 local function CreateLoader(screenGui, onDone)
     local Loader = Instance.new("Frame", screenGui)
     Loader.Name = "KxLoader"; Loader.Size = UDim2.new(1,0,1,0)
@@ -449,9 +430,7 @@ local function CreateLoader(screenGui, onDone)
     end)
 end
 
--- ════════════════════════════════════════════════════════════
---  CreateWindow
--- ════════════════════════════════════════════════════════════
+
 function KraviX:CreateWindow(config)
     config         = config or {}
     config.Name    = config.Name    or "Script"
@@ -689,9 +668,7 @@ function KraviX:CreateWindow(config)
         CreateNotification("KraviX","Carregado com sucesso!",3,"success")
     end
 
-    -- ════════════════════════════════════════════════════════
-    --  CreateTab
-    -- ════════════════════════════════════════════════════════
+
     function Window:CreateTab(name, icon)
         local Tab      = {}
         local tabIndex = #Window.Tabs + 1
@@ -746,7 +723,7 @@ function KraviX:CreateWindow(config)
         FadeOverlay.BackgroundTransparency = 1; FadeOverlay.BorderSizePixel = 0; FadeOverlay.ZIndex = 50
         registerRepaint(function() FadeOverlay.BackgroundColor3 = C.Bg2 end)
 
-        -- repinta a tab ativa/inativa lendo o estado ATUAL de activeTabIndex
+        
         local function paintTab(t)
             local on = t.Index == activeTabIndex
             t.Btn.TextColor3 = on and C.Accent or C.Muted
@@ -884,7 +861,7 @@ function KraviX:CreateWindow(config)
 
                 local function AddItem(item) item.Parent = scroll end
 
-                -- ── Toggle: sem bolinha, só o fundo do quadrado muda ──────────
+                
                 function Section:AddToggle(cfg)
                     cfg = cfg or {}
                     local toggled  = cfg.Default  or false
@@ -898,7 +875,7 @@ function KraviX:CreateWindow(config)
                     Box.Size = UDim2.new(0,14,0,14); Box.Position = UDim2.new(0,0,0.5,-7)
                     Box.BorderSizePixel = 0; Box.ZIndex = 14; mkCorner(Box,3)
                     local BoxStroke = mkStroke(Box, C.BorderBt, 1, 0)
-                    -- NÃO existe Dot/bolinha — o estado é mostrado só pela cor do Box
+                    
 
                     local Lbl = Instance.new("TextLabel", Row)
                     Lbl.Size = UDim2.new(1,-52,1,0); Lbl.Position = UDim2.new(0,20,0,0)
@@ -924,9 +901,9 @@ function KraviX:CreateWindow(config)
                         Tween(Lbl,{TextColor3 = v and C.Text or C.Sub},0.1):Play()
                         Tween(BoxStroke,{Color = v and C.Accent or C.BorderBt},0.1):Play()
                     end
-                    Update() -- pinta estado inicial corretamente
+                    Update() 
 
-                    -- repintar no RefreshTheme: relê C.Accent/C.Text/C.Sub mantendo o Value atual
+                    
                     registerRepaint(function()
                         local v = Toggle.Value
                         Box.BackgroundColor3 = v and C.Accent or Color3.fromRGB(22,22,22)
@@ -951,7 +928,7 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Toggle
                 end
 
-                -- ── Slider: Fill/Thumb sempre lê C.Accent atual ───────────────
+                
                 function Section:AddSlider(cfg)
                     cfg = cfg or {}
                     local min = cfg.Min or 0; local max = cfg.Max or 100
@@ -1358,17 +1335,7 @@ function KraviX:CreateWindow(config)
                     AddItem(Row); return Bind
                 end
 
-                -- ══════════════════════════════════════════════════════
-                --  COLOR PICKER
-                --  FIX REAL do bug "fecha ao digitar #hex":
-                --  O culpado era o listener global InputBegan que fechava
-                --  o painel a cada clique fora — mas o TextBox.FocusLost
-                --  disparava ANTES, e o clique do Enter contava como
-                --  "clique fora" porque a posição do mouse após apertar
-                --  Enter podia não bater com o frame por 1 frame de atraso.
-                --  Solução definitiva: ignorar fechamento por 0.15s após
-                --  qualquer FocusLost dos campos de texto do painel.
-                -- ══════════════════════════════════════════════════════
+
                 function Section:AddColorPicker(cfg)
                     cfg = cfg or {}
                     local color    = cfg.Default  or C.Accent
@@ -1477,7 +1444,7 @@ function KraviX:CreateWindow(config)
                     HBarHit.Size = UDim2.new(1,0,1,0)
                     HBarHit.BackgroundTransparency = 1; HBarHit.Text = ""; HBarHit.ZIndex = 309
 
-                    -- ── FIX REAL: timestamp de "ignore close" pós-FocusLost ───
+                    
                     local _ignoreCloseUntil = 0
 
                     local function makeInputBox(posX, placeholder, defaultTxt)
@@ -1513,7 +1480,6 @@ function KraviX:CreateWindow(config)
                         end)
                         box.FocusLost:Connect(function()
                             Tween(fs,{Color=C.BorderBt},0.12):Play()
-                            -- ── chave do fix: bloqueia o "clique fora" por 0.2s ──
                             _ignoreCloseUntil = tick() + 0.2
                         end)
 
@@ -1542,13 +1508,11 @@ function KraviX:CreateWindow(config)
                         callback(c)
                     end
 
-                    -- ── FIX: HexBox usa Enter/Return explicitamente, e o
-                    --        fechamento do painel é bloqueado por 0.2s após
                     HexBox.FocusLost:Connect(function(enter)
                         if enter then
                             local txt = HexBox.Text:gsub("#","")
                             if #txt == 3 then
-                                -- expande shorthand #fff -> #ffffff
+                                
                                 txt = txt:sub(1,1):rep(2)..txt:sub(2,2):rep(2)..txt:sub(3,3):rep(2)
                             end
                             local ok, result = pcall(Color3.fromHex, "#"..txt)
@@ -1557,7 +1521,7 @@ function KraviX:CreateWindow(config)
                             end
                         end
                         UpdateAll()
-                        -- mantém o painel aberto após confirmar o hex
+                        
                         pickerOpen = true
                         PF.Visible = true
                     end)
@@ -1635,8 +1599,7 @@ function KraviX:CreateWindow(config)
                         PF.Visible = pickerOpen
                     end)
 
-                    -- ── FIX: respeita _ignoreCloseUntil para não fechar
-                    --        logo após confirmar hex/rgb com Enter ───────────
+
                     UserInputService.InputBegan:Connect(function(inp)
                         if inp.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
                         if not pickerOpen or cDrag or hDrag then return end
@@ -1701,7 +1664,7 @@ function KraviX:CreateWindow(config)
         return Tab
     end
 
-    -- ── Footer: UIListLayout horizontal — impossível sobrepor ──────────────
+
     local Footer = Instance.new("Frame", Main)
     Footer.Size = UDim2.new(1,0,0,22); Footer.Position = UDim2.new(0,0,1,-22)
     Footer.BackgroundColor3 = C.Bg; Footer.BackgroundTransparency = 0
@@ -1723,10 +1686,6 @@ function KraviX:CreateWindow(config)
     local months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
     local dateStr = months[now.month].." "..now.day.." "..now.year
 
-    -- bloco direito ancorado, com UIListLayout — Build: e a data NUNCA se
-    -- sobrepõem porque o layout posiciona um após o outro automaticamente,
-    -- sem depender de cálculo de AbsoluteSize via task.defer (que falhava
-    -- às vezes por correr antes do texto ter layout final).
     local BuildWrap = Instance.new("Frame", Footer)
     BuildWrap.Size = UDim2.new(0,150,1,0)
     BuildWrap.AnchorPoint = Vector2.new(1,0)
