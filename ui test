@@ -1,4 +1,4 @@
--- 4.2
+-- 4.3
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -556,13 +556,13 @@ function KraviX:CreateWindow(config)
         Main.BackgroundTransparency = 0
         TopBar.BackgroundTransparency = 0; TabBar.BackgroundTransparency = 0
         Backdrop.BackgroundTransparency = 0.55; Main.ClipsDescendants = false
-        SidePanel.Visible = true
+        SidePanel.Visible = false
     end
 
     local function ShowWindow()
         if Main.Visible then return end
         Main.Visible = true; Backdrop.Visible = true
-        SidePanel.Visible = false
+        SidePanel.Visible = true
         Main.Size     = UDim2.new(0,WIN_W*0.82,0,WIN_H*0.82)
         Main.Position = UDim2.new(0.5,-(WIN_W*0.82)/2,0.5,-(WIN_H*0.82)/2)
         Main.BackgroundTransparency = 1
@@ -599,11 +599,11 @@ function KraviX:CreateWindow(config)
     local SidePanel = Instance.new("Frame", ScreenGui)
     SidePanel.Size = UDim2.new(0,32,0,80)
     SidePanel.Position = UDim2.new(0.5,-(WIN_W/2)-38,0.5,-40)
-    SidePanel.BackgroundColor3 = Color3.fromRGB(12,12,12)
+    SidePanel.BackgroundColor3 = Color3.fromRGB(0,0,0)
     SidePanel.BorderSizePixel = 0; SidePanel.ZIndex = 15
     SidePanel.Visible = false
     mkCorner(SidePanel, 16)
-    mkStroke(SidePanel, C.Border, 1, 0)
+    mkStroke(SidePanel, Color3.fromRGB(40,40,40), 1, 0)
 
     local SideList = Instance.new("UIListLayout", SidePanel)
     SideList.FillDirection = Enum.FillDirection.Vertical
@@ -614,17 +614,18 @@ function KraviX:CreateWindow(config)
     local function makeSideBtn(label, onClick)
         local Btn = Instance.new("TextButton", SidePanel)
         Btn.Size = UDim2.new(0,24,0,24)
-        Btn.BackgroundColor3 = Color3.fromRGB(22,22,22)
+        Btn.BackgroundColor3 = Color3.fromRGB(18,18,18)
         Btn.BackgroundTransparency = 0
-        Btn.Text = label; Btn.TextColor3 = C.Muted
+        Btn.Text = label; Btn.TextColor3 = Color3.fromRGB(255,255,255)
         Btn.TextSize = 11; Btn.Font = Enum.Font.GothamBold
         Btn.AutoButtonColor = false; Btn.ZIndex = 16
         mkCorner(Btn, 6)
+        mkStroke(Btn, Color3.fromRGB(50,50,50), 1, 0)
         Btn.MouseEnter:Connect(function()
-            Tween(Btn,{BackgroundColor3=C.Accent,TextColor3=C.White},0.1):Play()
+            Tween(Btn,{BackgroundColor3=Color3.fromRGB(35,35,35)},0.1):Play()
         end)
         Btn.MouseLeave:Connect(function()
-            Tween(Btn,{BackgroundColor3=Color3.fromRGB(22,22,22),TextColor3=C.Muted},0.1):Play()
+            Tween(Btn,{BackgroundColor3=Color3.fromRGB(18,18,18)},0.1):Play()
         end)
         Btn.MouseButton1Click:Connect(onClick)
         return Btn
