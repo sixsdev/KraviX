@@ -1,4 +1,4 @@
--- 3.6
+-- 3.7
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -802,12 +802,6 @@ function KraviX:CreateWindow(config)
                     Box.BorderSizePixel = 0; Box.ZIndex = 14; mkCorner(Box,3)
                     mkStroke(Box, toggled and C.Accent or C.BorderBt, 1, 0)
 
-                    local Dot = Instance.new("Frame", Box)
-                    Dot.Size = UDim2.new(0,6,0,6); Dot.AnchorPoint = Vector2.new(0.5,0.5)
-                    Dot.Position = UDim2.new(0.5,0,0.5,0)
-                    Dot.BackgroundColor3 = C.White; Dot.BorderSizePixel = 0; Dot.ZIndex = 15
-                    Dot.BackgroundTransparency = toggled and 0 or 1; mkCorner(Dot,3)
-
                     local Lbl = Instance.new("TextLabel", Row)
                     Lbl.Size = UDim2.new(1,-52,1,0); Lbl.Position = UDim2.new(0,20,0,0)
                     Lbl.BackgroundTransparency = 1; Lbl.Text = cfg.Name or "Toggle"
@@ -830,7 +824,6 @@ function KraviX:CreateWindow(config)
                     local function Update()
                         local v = Toggle.Value
                         Tween(Box,{BackgroundColor3=v and C.Accent or Color3.fromRGB(22,22,22)},0.1):Play()
-                        Tween(Dot,{BackgroundTransparency=v and 0 or 1},0.1):Play()
                         Tween(Lbl,{TextColor3=v and C.Text or C.Sub},0.1):Play()
                         local st = Box:FindFirstChildOfClass("UIStroke")
                         if st then Tween(st,{Color=v and C.Accent or C.BorderBt},0.1):Play() end
@@ -1547,7 +1540,9 @@ function KraviX:CreateWindow(config)
 
     task.defer(function()
         local dateW = FBuildDate.AbsoluteSize.X
-        FBuildLabel.Position = UDim2.new(1,-(10+dateW+2),0,0)
+        local labelW = FBuildLabel.AbsoluteSize.X
+        FBuildDate.Position = UDim2.new(1,-8,0,0)
+        FBuildLabel.Position = UDim2.new(1,-(8+dateW+4),0,0)
     end)
 
     return Window
