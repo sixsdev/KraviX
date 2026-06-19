@@ -1,4 +1,4 @@
--- 2.0
+-- 3.0
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -727,6 +727,10 @@ function KraviX:CreateWindow(config)
 
             table.insert(tabEntry.SubTabs,{Btn=SBtn,Under=SUnder,Panel=SubPanel,Index=subIndex})
 
+            local SubFadeOverlay = Instance.new("Frame", SubPanel)
+            SubFadeOverlay.Size = UDim2.new(1,0,1,0); SubFadeOverlay.BackgroundColor3 = C.Bg2
+            SubFadeOverlay.BackgroundTransparency = 1; SubFadeOverlay.BorderSizePixel = 0; SubFadeOverlay.ZIndex = 50
+
             local function SelectSub()
                 tabEntry.ActiveSub = subIndex
                 for _, st in ipairs(tabEntry.SubTabs) do
@@ -736,6 +740,8 @@ function KraviX:CreateWindow(config)
                     st.Btn.Font = on and Enum.Font.GothamBold or Enum.Font.Gotham
                 end
                 SubPanel.Visible = true
+                SubFadeOverlay.BackgroundTransparency = 0
+                Tween(SubFadeOverlay,{BackgroundTransparency=1},0.14,Enum.EasingStyle.Quad):Play()
             end
 
             SBtn.MouseButton1Click:Connect(SelectSub)
