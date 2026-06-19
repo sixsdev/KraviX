@@ -1,4 +1,4 @@
--- 4.3
+-- 4.4
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -540,6 +540,37 @@ function KraviX:CreateWindow(config)
     ContentFrame.BackgroundTransparency = 1; ContentFrame.BorderSizePixel = 0
     ContentFrame.ZIndex = 10; ContentFrame.ClipsDescendants = true
 
+    local SidePanel = Instance.new("Frame", ScreenGui)
+    SidePanel.Size = UDim2.new(0,32,0,80)
+    SidePanel.Position = UDim2.new(0.5,-(WIN_W/2)-38,0.5,-40)
+    SidePanel.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    SidePanel.BorderSizePixel = 0; SidePanel.ZIndex = 15
+    SidePanel.Visible = false
+    mkCorner(SidePanel, 16)
+    mkStroke(SidePanel, Color3.fromRGB(40,40,40), 1, 0)
+    local SideList = Instance.new("UIListLayout", SidePanel)
+    SideList.FillDirection = Enum.FillDirection.Vertical
+    SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    SideList.VerticalAlignment = Enum.VerticalAlignment.Center
+    SideList.Padding = UDim.new(0,4)
+    local function makeSideBtn(label, onClick)
+        local Btn = Instance.new("TextButton", SidePanel)
+        Btn.Size = UDim2.new(0,24,0,24)
+        Btn.BackgroundColor3 = Color3.fromRGB(18,18,18)
+        Btn.Text = label; Btn.TextColor3 = Color3.fromRGB(255,255,255)
+        Btn.TextSize = 11; Btn.Font = Enum.Font.GothamBold
+        Btn.AutoButtonColor = false; Btn.ZIndex = 16
+        mkCorner(Btn, 6); mkStroke(Btn, Color3.fromRGB(50,50,50), 1, 0)
+        Btn.MouseEnter:Connect(function() Tween(Btn,{BackgroundColor3=Color3.fromRGB(35,35,35)},0.1):Play() end)
+        Btn.MouseLeave:Connect(function() Tween(Btn,{BackgroundColor3=Color3.fromRGB(18,18,18)},0.1):Play() end)
+        Btn.MouseButton1Click:Connect(onClick)
+        return Btn
+    end
+    Window._SideBtnC = makeSideBtn("C", function() end)
+    Window._SideBtnS = makeSideBtn("S", function() end)
+    Window._SidePanel = SidePanel
+    MakeDraggable(SidePanel, SidePanel)
+
     local function HideWindow()
         if not Main.Visible then return end
         Main.ClipsDescendants = true
@@ -595,47 +626,6 @@ function KraviX:CreateWindow(config)
     CloseBtn.MouseButton1Click:Connect(function() HideWindow() end)
 
     MakeDraggable(Main, TopBar)
-
-    local SidePanel = Instance.new("Frame", ScreenGui)
-    SidePanel.Size = UDim2.new(0,32,0,80)
-    SidePanel.Position = UDim2.new(0.5,-(WIN_W/2)-38,0.5,-40)
-    SidePanel.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    SidePanel.BorderSizePixel = 0; SidePanel.ZIndex = 15
-    SidePanel.Visible = false
-    mkCorner(SidePanel, 16)
-    mkStroke(SidePanel, Color3.fromRGB(40,40,40), 1, 0)
-
-    local SideList = Instance.new("UIListLayout", SidePanel)
-    SideList.FillDirection = Enum.FillDirection.Vertical
-    SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    SideList.VerticalAlignment = Enum.VerticalAlignment.Center
-    SideList.Padding = UDim.new(0,4)
-
-    local function makeSideBtn(label, onClick)
-        local Btn = Instance.new("TextButton", SidePanel)
-        Btn.Size = UDim2.new(0,24,0,24)
-        Btn.BackgroundColor3 = Color3.fromRGB(18,18,18)
-        Btn.BackgroundTransparency = 0
-        Btn.Text = label; Btn.TextColor3 = Color3.fromRGB(255,255,255)
-        Btn.TextSize = 11; Btn.Font = Enum.Font.GothamBold
-        Btn.AutoButtonColor = false; Btn.ZIndex = 16
-        mkCorner(Btn, 6)
-        mkStroke(Btn, Color3.fromRGB(50,50,50), 1, 0)
-        Btn.MouseEnter:Connect(function()
-            Tween(Btn,{BackgroundColor3=Color3.fromRGB(35,35,35)},0.1):Play()
-        end)
-        Btn.MouseLeave:Connect(function()
-            Tween(Btn,{BackgroundColor3=Color3.fromRGB(18,18,18)},0.1):Play()
-        end)
-        Btn.MouseButton1Click:Connect(onClick)
-        return Btn
-    end
-
-    local _closeBtnSide = makeSideBtn("C", function() HideWindow() end)
-    local _showBtnSide  = makeSideBtn("S", function() ShowWindow() end)
-    Window._SidePanel = SidePanel
-
-    MakeDraggable(SidePanel, SidePanel)
 
     if useLoader then
         CreateLoader(ScreenGui, function()
@@ -1304,13 +1294,6 @@ function KraviX:CreateWindow(config)
                     SatVibImg.Image = "rbxassetid://4155801252"; SatVibImg.ZIndex = 302
                     mkCorner(SatVibImg,4)
 
-                    -- ===== CURSOR DO COLOR PICKER (CORRIGIDO) =====
-                    -- AnchorPoint = (0.5, 0.5): a bolinha fica centralizada no
-                    -- ponto de clique. Antes a Position usava coordenadas de
-                    -- canto superior-esquerdo (0,0) sem compensar esse anchor,
-                    -- fazendo a bolinha ficar deslocada para baixo/direita do
-                    -- cursor real. A correção está em UpdateAll() abaixo, que
-                    -- agora usa fromScale ao invés de fromOffset sem anchor.
                     local CurOut = Instance.new("ImageLabel", SatVibImg)
                     CurOut.AnchorPoint = Vector2.new(0.5,0.5)
                     CurOut.Size = UDim2.new(0,8,0,8); CurOut.BackgroundTransparency = 1
@@ -1371,13 +1354,6 @@ function KraviX:CreateWindow(config)
                         inner.BorderSizePixel = 0; inner.ZIndex = 302
                         mkCorner(inner,4)
 
-                        -- ===== TEXTO BRANCO (CORRIGIDO) =====
-                        -- Antes havia DOIS UIStroke (stk e fs) criados no
-                        -- mesmo 'inner', e o primeiro (stk) era destruído
-                        -- logo depois. Isso não causava o roxo diretamente,
-                        -- mas para garantir consistência visual o texto do
-                        -- box agora usa C.White explicitamente (branco puro)
-                        -- e mantemos apenas UM UIStroke (fs).
                         local box = Instance.new("TextBox", inner)
                         box.Size = UDim2.new(1,-8,1,0); box.Position = UDim2.new(0,8,0,0)
                         box.BackgroundTransparency = 1
@@ -1408,11 +1384,6 @@ function KraviX:CreateWindow(config)
                         SwIn.BackgroundColor3      = c
                         TopAcc.BackgroundColor3    = c
                         SatVibImg.BackgroundColor3 = Color3.fromHSV(ph,1,1)
-                        -- CurOut tem AnchorPoint(0.5,0.5), então usamos
-                        -- UDim2.new com Scale em vez de Offset absoluto:
-                        -- isso centraliza a bolinha exatamente no ponto
-                        -- ps/pv dentro do canvas, acompanhando o cursor
-                        -- do mouse com precisão (sem ficar deslocada).
                         CurOut.Position = UDim2.new(ps, 0, 1-pv, 0)
                         HueCur.Position = UDim2.new(0, 0, ph, 0)
                         HexBox.Text     = "#"..c:ToHex():upper()
