@@ -1,4 +1,4 @@
--- 3.8
+-- 3.9
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -1114,7 +1114,7 @@ function KraviX:CreateWindow(config)
                     KB.AutoButtonColor = false; KB.ZIndex = 14; mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
                     local Keybind = {Value=cur}
                     KB.MouseButton1Click:Connect(function()
-                        if not listen then listen=true; KB.Text="..."; KB.TextColor3=C.Accent end
+                        if not listen then listen=true; KB.Text="..."; KB.TextColor3=C.Text end
                     end)
                     UserInputService.InputBegan:Connect(function(inp,proc)
                         if listen and not proc and inp.UserInputType==Enum.UserInputType.Keyboard then
@@ -1158,7 +1158,7 @@ function KraviX:CreateWindow(config)
                     KB.MouseButton1Click:Connect(function()
                         if listen then return end
                         listen = true; _ignoreNext = true
-                        KB.Text = "..."; KB.TextColor3 = C.Accent
+                        KB.Text = "..."; KB.TextColor3 = C.Text
                     end)
                     UserInputService.InputBegan:Connect(function(inp, processed)
                         if not listen then return end
@@ -1343,14 +1343,15 @@ function KraviX:CreateWindow(config)
                     local function UpdateAll()
                         local c = Color3.fromHSV(ph, ps, pv)
                         Picker.Value = c
-                        SwIn.BackgroundColor3    = c
+                        SwIn.BackgroundColor3      = c
                         SatVibImg.BackgroundColor3 = Color3.fromHSV(ph,1,1)
-                        CurOut.Position          = UDim2.new(ps, 0, 1-pv, 0)
-                        HueCur.Position          = UDim2.new(0, 0, ph, 0)
-                        HexBox.Text              = "#"..c:ToHex():upper()
-                        RgbBox.Text              = math.floor(c.R*255)..","
-                                                ..math.floor(c.G*255)..","
-                                                ..math.floor(c.B*255)
+                        local sz = SatVibImg.AbsoluteSize
+                        CurOut.Position = UDim2.fromOffset(ps*sz.X, (1-pv)*sz.Y)
+                        HueCur.Position = UDim2.new(0, 0, ph, 0)
+                        HexBox.Text     = "#"..c:ToHex():upper()
+                        RgbBox.Text     = math.floor(c.R*255)..","
+                                       ..math.floor(c.G*255)..","
+                                       ..math.floor(c.B*255)
                         callback(c)
                     end
 
