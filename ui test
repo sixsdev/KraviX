@@ -1,4 +1,4 @@
--- 3.7
+-- 3.8
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -241,28 +241,11 @@ local function CreateNotification(title, text, duration, ntype)
     D.TextColor3 = C.Sub; D.TextSize = 10; D.Font = Enum.Font.Gotham
     D.TextXAlignment = Enum.TextXAlignment.Left; D.LayoutOrder = 3
 
-    local PBg = Instance.new("Frame", G)
-    PBg.AnchorPoint = Vector2.new(1,1)
-    PBg.Size        = UDim2.new(0,10,0,2)
-    PBg.Position    = UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot)-H-3)
-    PBg.BackgroundColor3 = Color3.fromRGB(30,30,30); PBg.BorderSizePixel = 0; mkCorner(PBg,2)
-    local PFill = Instance.new("Frame", PBg)
-    PFill.Size = UDim2.new(1,0,1,0); PFill.BackgroundColor3 = dotColor
-    PFill.BorderSizePixel = 0; mkCorner(PFill,2)
-
     local dur = duration or 3
     Tween(F,{Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot))},0.28,Enum.EasingStyle.Back):Play()
-    task.delay(0.06, function()
-        if not F or not F.Parent then return end
-        local w = F.AbsoluteSize.X
-        PBg.Size     = UDim2.new(0,w,0,2)
-        PBg.Position = UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot)-H-3)
-        Tween(PFill,{Size=UDim2.new(0,0,1,0)},dur-0.06,Enum.EasingStyle.Linear):Play()
-    end)
     task.delay(dur, function()
         _notifSlots[slot] = nil
         Tween(F,{Position=UDim2.new(1,30,1,-(MARGIN+(H+MARGIN)*slot))},0.2,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
-        Tween(PBg,{BackgroundTransparency=1},0.15):Play()
         task.wait(0.22); G:Destroy()
     end)
 end
@@ -1523,27 +1506,22 @@ function KraviX:CreateWindow(config)
     local months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
 
     local FBuildLabel = Instance.new("TextLabel", Footer)
-    FBuildLabel.Size = UDim2.new(0,42,1,0); FBuildLabel.AnchorPoint = Vector2.new(1,0)
-    FBuildLabel.Position = UDim2.new(1,-10,0,0)
+    FBuildLabel.Size = UDim2.new(0,42,1,0)
+    FBuildLabel.Position = UDim2.new(0,10,0,0)
     FBuildLabel.BackgroundTransparency = 1; FBuildLabel.Text = "Build:"
     FBuildLabel.TextColor3 = C.Muted; FBuildLabel.TextSize = 9; FBuildLabel.Font = Enum.Font.Gotham
-    FBuildLabel.TextXAlignment = Enum.TextXAlignment.Right; FBuildLabel.ZIndex = 13
+    FBuildLabel.TextXAlignment = Enum.TextXAlignment.Left; FBuildLabel.ZIndex = 13
 
     local FBuildDate = Instance.new("TextLabel", Footer)
     FBuildDate.Name = "FBuildDate"
     FBuildDate.Size = UDim2.new(0,0,1,0); FBuildDate.AutomaticSize = Enum.AutomaticSize.X
-    FBuildDate.AnchorPoint = Vector2.new(1,0); FBuildDate.Position = UDim2.new(1,-10,0,0)
+    FBuildDate.Position = UDim2.new(0,56,0,0)
     FBuildDate.BackgroundTransparency = 1
     FBuildDate.Text = months[now.month].." "..now.day.." "..now.year
     FBuildDate.TextColor3 = C.Accent; FBuildDate.TextSize = 9; FBuildDate.Font = Enum.Font.GothamBold
-    FBuildDate.TextXAlignment = Enum.TextXAlignment.Right; FBuildDate.ZIndex = 14
+    FBuildDate.TextXAlignment = Enum.TextXAlignment.Left; FBuildDate.ZIndex = 14
 
-    task.defer(function()
-        local dateW = FBuildDate.AbsoluteSize.X
-        local labelW = FBuildLabel.AbsoluteSize.X
-        FBuildDate.Position = UDim2.new(1,-8,0,0)
-        FBuildLabel.Position = UDim2.new(1,-(8+dateW+4),0,0)
-    end)
+    task.defer(function() end)
 
     return Window
 end
