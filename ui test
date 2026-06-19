@@ -1,4 +1,4 @@
--- 3.0
+-- 3.5
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -517,10 +517,19 @@ function KraviX:CreateWindow(config)
 
     local VerLbl = Instance.new("TextLabel", TopBar)
     VerLbl.Size = UDim2.new(0,80,1,0); VerLbl.AnchorPoint = Vector2.new(1,0)
-    VerLbl.Position = UDim2.new(1,-10,0,0)
+    VerLbl.Position = UDim2.new(1,-32,0,0)
     VerLbl.BackgroundTransparency = 1; VerLbl.Text = config.Version or ""
     VerLbl.TextColor3 = C.Muted; VerLbl.TextSize = 9; VerLbl.Font = Enum.Font.Code
     VerLbl.TextXAlignment = Enum.TextXAlignment.Right; VerLbl.ZIndex = 13
+
+    local CloseBtn = Instance.new("TextButton", TopBar)
+    CloseBtn.Size = UDim2.new(0,18,0,18); CloseBtn.AnchorPoint = Vector2.new(1,0.5)
+    CloseBtn.Position = UDim2.new(1,-8,0.5,0)
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    CloseBtn.BackgroundTransparency = 0; CloseBtn.Text = "×"
+    CloseBtn.TextColor3 = C.Muted; CloseBtn.TextSize = 12; CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.AutoButtonColor = false; CloseBtn.ZIndex = 14
+    mkCorner(CloseBtn, 4)
 
     local TabBar = Instance.new("ScrollingFrame", Main)
     TabBar.Name = "TabBar"
@@ -591,6 +600,14 @@ function KraviX:CreateWindow(config)
     Window.HideWindow   = HideWindow
     Window.ShowWindow   = ShowWindow
     Window.ToggleWindow = ToggleWindow
+
+    CloseBtn.MouseEnter:Connect(function()
+        Tween(CloseBtn,{BackgroundColor3=C.Red,TextColor3=C.White},0.1):Play()
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        Tween(CloseBtn,{BackgroundColor3=Color3.fromRGB(30,30,30),TextColor3=C.Muted},0.1):Play()
+    end)
+    CloseBtn.MouseButton1Click:Connect(function() HideWindow() end)
 
     MakeDraggable(Main, TopBar)
 
