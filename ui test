@@ -1,4 +1,4 @@
--- 3.9
+-- 4
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -1084,7 +1084,7 @@ function KraviX:CreateWindow(config)
                     Box.BackgroundColor3 = Color3.fromRGB(18,18,18)
                     Box.PlaceholderText = cfg.Placeholder or "Enter text..."
                     Box.PlaceholderColor3 = C.Muted; Box.Text = cfg.Default or ""
-                    Box.TextColor3 = C.Text; Box.TextSize = 11; Box.Font = Enum.Font.Gotham
+                    Box.TextColor3 = C.White; Box.TextSize = 11; Box.Font = Enum.Font.Gotham
                     Box.ClearTextOnFocus = false; Box.ZIndex = 14; mkCorner(Box,4)
                     local bs = mkStroke(Box,C.BorderBt,1,0); mkPad(Box,0,0,8,8)
                     Box.Focused:Connect(function()   Tween(bs,{Color=C.Accent},0.12):Play()   end)
@@ -1255,6 +1255,13 @@ function KraviX:CreateWindow(config)
                     SatVibImg.Image = "rbxassetid://4155801252"; SatVibImg.ZIndex = 302
                     mkCorner(SatVibImg,4)
 
+                    -- ===== CURSOR DO COLOR PICKER (CORRIGIDO) =====
+                    -- AnchorPoint = (0.5, 0.5): a bolinha fica centralizada no
+                    -- ponto de clique. Antes a Position usava coordenadas de
+                    -- canto superior-esquerdo (0,0) sem compensar esse anchor,
+                    -- fazendo a bolinha ficar deslocada para baixo/direita do
+                    -- cursor real. A correção está em UpdateAll() abaixo, que
+                    -- agora usa fromScale ao invés de fromOffset sem anchor.
                     local CurOut = Instance.new("ImageLabel", SatVibImg)
                     CurOut.AnchorPoint = Vector2.new(0.5,0.5)
                     CurOut.Size = UDim2.new(0,8,0,8); CurOut.BackgroundTransparency = 1
@@ -1262,7 +1269,8 @@ function KraviX:CreateWindow(config)
                     CurOut.ImageColor3 = Color3.new(0,0,0); CurOut.ZIndex = 310
 
                     local CurIn = Instance.new("ImageLabel", CurOut)
-                    CurIn.Size = UDim2.new(0,6,0,6); CurIn.Position = UDim2.new(0,1,0,1)
+                    CurIn.AnchorPoint = Vector2.new(0.5,0.5)
+                    CurIn.Size = UDim2.new(0,6,0,6); CurIn.Position = UDim2.new(0.5,0,0.5,0)
                     CurIn.BackgroundTransparency = 1
                     CurIn.Image = "http://www.roblox.com/asset/?id=9619665977"
                     CurIn.ImageColor3 = Color3.new(1,1,1); CurIn.ZIndex = 311
@@ -1313,13 +1321,19 @@ function KraviX:CreateWindow(config)
                         inner.BackgroundColor3 = Color3.fromRGB(24,24,24)
                         inner.BorderSizePixel = 0; inner.ZIndex = 302
                         mkCorner(inner,4)
-                        local stk = mkStroke(inner, C.BorderBt, 1, 0)
 
+                        -- ===== TEXTO BRANCO (CORRIGIDO) =====
+                        -- Antes havia DOIS UIStroke (stk e fs) criados no
+                        -- mesmo 'inner', e o primeiro (stk) era destruído
+                        -- logo depois. Isso não causava o roxo diretamente,
+                        -- mas para garantir consistência visual o texto do
+                        -- box agora usa C.White explicitamente (branco puro)
+                        -- e mantemos apenas UM UIStroke (fs).
                         local box = Instance.new("TextBox", inner)
                         box.Size = UDim2.new(1,-8,1,0); box.Position = UDim2.new(0,8,0,0)
                         box.BackgroundTransparency = 1
                         box.PlaceholderText = placeholder; box.PlaceholderColor3 = C.Muted
-                        box.Text = defaultTxt; box.TextColor3 = C.Text
+                        box.Text = defaultTxt; box.TextColor3 = C.White
                         box.TextSize = 11; box.Font = Enum.Font.Code
                         box.TextXAlignment = Enum.TextXAlignment.Left
                         box.ZIndex = 303; box.ClearTextOnFocus = false
@@ -1327,7 +1341,6 @@ function KraviX:CreateWindow(config)
                         local fs = mkStroke(inner, C.BorderBt, 1, 0)
                         box.Focused:Connect(function()   Tween(fs,{Color=C.Accent},0.12):Play()   end)
                         box.FocusLost:Connect(function() Tween(fs,{Color=C.BorderBt},0.12):Play() end)
-        stk:Destroy()
 
                         return box
                     end
@@ -1345,8 +1358,12 @@ function KraviX:CreateWindow(config)
                         Picker.Value = c
                         SwIn.BackgroundColor3      = c
                         SatVibImg.BackgroundColor3 = Color3.fromHSV(ph,1,1)
-                        local sz = SatVibImg.AbsoluteSize
-                        CurOut.Position = UDim2.fromOffset(ps*sz.X, (1-pv)*sz.Y)
+                        -- CurOut tem AnchorPoint(0.5,0.5), então usamos
+                        -- UDim2.new com Scale em vez de Offset absoluto:
+                        -- isso centraliza a bolinha exatamente no ponto
+                        -- ps/pv dentro do canvas, acompanhando o cursor
+                        -- do mouse com precisão (sem ficar deslocada).
+                        CurOut.Position = UDim2.new(ps, 0, 1-pv, 0)
                         HueCur.Position = UDim2.new(0, 0, ph, 0)
                         HexBox.Text     = "#"..c:ToHex():upper()
                         RgbBox.Text     = math.floor(c.R*255)..","
