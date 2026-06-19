@@ -1,4 +1,4 @@
--- 4
+-- 4.1
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -1339,7 +1339,7 @@ function KraviX:CreateWindow(config)
                         box.ZIndex = 303; box.ClearTextOnFocus = false
 
                         local fs = mkStroke(inner, C.BorderBt, 1, 0)
-                        box.Focused:Connect(function()   Tween(fs,{Color=C.Accent},0.12):Play()   end)
+                        box.Focused:Connect(function()   Tween(fs,{Color=C.Sub},0.12):Play()   end)
                         box.FocusLost:Connect(function() Tween(fs,{Color=C.BorderBt},0.12):Play() end)
 
                         return box
@@ -1392,19 +1392,17 @@ function KraviX:CreateWindow(config)
                     CanvasHit.InputBegan:Connect(function(i)
                         if i.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
                         cDrag = true
-                        local mp = UserInputService:GetMouseLocation()
                         local ap = SatVibImg.AbsolutePosition; local as = SatVibImg.AbsoluteSize
-                        ps = math.clamp((mp.X-ap.X)/as.X, 0, 1)
-                        pv = 1-math.clamp((mp.Y-ap.Y)/as.Y, 0, 1)
+                        ps = math.clamp((Mouse.X-ap.X)/as.X, 0, 1)
+                        pv = 1-math.clamp((Mouse.Y-ap.Y)/as.Y, 0, 1)
                         UpdateAll()
                     end)
 
                     HBarHit.InputBegan:Connect(function(i)
                         if i.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
                         hDrag = true
-                        local mp = UserInputService:GetMouseLocation()
                         local ap = HueIn.AbsolutePosition; local as = HueIn.AbsoluteSize
-                        ph = math.clamp((mp.Y-ap.Y)/as.Y, 0, 1)
+                        ph = math.clamp((Mouse.Y-ap.Y)/as.Y, 0, 1)
                         UpdateAll()
                     end)
 
@@ -1416,16 +1414,14 @@ function KraviX:CreateWindow(config)
                     UserInputService.InputChanged:Connect(function(i)
                         if i.UserInputType ~= Enum.UserInputType.MouseMovement then return end
                         if cDrag then
-                            local mp = UserInputService:GetMouseLocation()
                             local ap = SatVibImg.AbsolutePosition; local as = SatVibImg.AbsoluteSize
-                            ps = math.clamp((mp.X-ap.X)/as.X, 0, 1)
-                            pv = 1-math.clamp((mp.Y-ap.Y)/as.Y, 0, 1)
+                            ps = math.clamp((Mouse.X-ap.X)/as.X, 0, 1)
+                            pv = 1-math.clamp((Mouse.Y-ap.Y)/as.Y, 0, 1)
                             UpdateAll()
                         end
                         if hDrag then
-                            local mp = UserInputService:GetMouseLocation()
                             local ap = HueIn.AbsolutePosition; local as = HueIn.AbsoluteSize
-                            ph = math.clamp((mp.Y-ap.Y)/as.Y, 0, 1)
+                            ph = math.clamp((Mouse.Y-ap.Y)/as.Y, 0, 1)
                             UpdateAll()
                         end
                     end)
