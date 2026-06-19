@@ -1,4 +1,4 @@
--- 3.5
+-- 3.6
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -560,13 +560,13 @@ function KraviX:CreateWindow(config)
     local function HideWindow()
         if not Main.Visible then return end
         Main.ClipsDescendants = true
-        Tween(TopBar,{BackgroundTransparency=1},0.1):Play()
-        Tween(TabBar,{BackgroundTransparency=1},0.1):Play()
-        task.wait(0.06*TWEEN_SPD)
-        Tween(Main,{Size=UDim2.new(0,WIN_W,0,0),Position=UDim2.new(0.5,-WIN_W/2,0.5,0),
-            BackgroundTransparency=0.7},0.2,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+        Tween(Main,{Size=UDim2.new(0,WIN_W*0.85,0,WIN_H*0.85),
+            Position=UDim2.new(0.5,-(WIN_W*0.85)/2,0.5,-(WIN_H*0.85)/2),
+            BackgroundTransparency=1},0.18,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+        Tween(TopBar,{BackgroundTransparency=1},0.12):Play()
+        Tween(TabBar,{BackgroundTransparency=1},0.12):Play()
         Tween(Backdrop,{BackgroundTransparency=1},0.18):Play()
-        task.wait(0.22*TWEEN_SPD)
+        task.wait(0.2*TWEEN_SPD)
         Main.Visible = false; Backdrop.Visible = false
         Main.Size     = UDim2.new(0,WIN_W,0,WIN_H)
         Main.Position = UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2)
@@ -578,18 +578,18 @@ function KraviX:CreateWindow(config)
     local function ShowWindow()
         if Main.Visible then return end
         Main.Visible = true; Backdrop.Visible = true
-        Main.ClipsDescendants = true
-        Main.Size     = UDim2.new(0,WIN_W*0.88,0,WIN_H*0.88)
-        Main.Position = UDim2.new(0.5,-(WIN_W*0.88)/2,0.5,-(WIN_H*0.88)/2+22)
-        Main.BackgroundTransparency = 0.9
+        Main.Size     = UDim2.new(0,WIN_W*0.82,0,WIN_H*0.82)
+        Main.Position = UDim2.new(0.5,-(WIN_W*0.82)/2,0.5,-(WIN_H*0.82)/2)
+        Main.BackgroundTransparency = 1
         TopBar.BackgroundTransparency = 1; TabBar.BackgroundTransparency = 1
         Backdrop.BackgroundTransparency = 1
-        Tween(Backdrop,{BackgroundTransparency=0.55},0.2,Enum.EasingStyle.Quad):Play()
-        Tween(Main,{Size=UDim2.new(0,WIN_W,0,WIN_H),Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2),
-            BackgroundTransparency=0},0.5,Enum.EasingStyle.Elastic,Enum.EasingDirection.Out):Play()
-        task.delay(0.12*TWEEN_SPD, function() Tween(TopBar,{BackgroundTransparency=0},0.18):Play() end)
-        task.delay(0.20*TWEEN_SPD, function()
-            Tween(TabBar,{BackgroundTransparency=0},0.18):Play()
+        Tween(Backdrop,{BackgroundTransparency=0.55},0.25,Enum.EasingStyle.Quad):Play()
+        Tween(Main,{Size=UDim2.new(0,WIN_W,0,WIN_H),
+            Position=UDim2.new(0.5,-WIN_W/2,0.5,-WIN_H/2),
+            BackgroundTransparency=0},0.45,Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+        task.delay(0.15*TWEEN_SPD, function() Tween(TopBar,{BackgroundTransparency=0},0.2):Play() end)
+        task.delay(0.2*TWEEN_SPD, function()
+            Tween(TabBar,{BackgroundTransparency=0},0.2):Play()
             Main.ClipsDescendants = false
         end)
     end
