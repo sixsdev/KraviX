@@ -1,4 +1,4 @@
--- 4.1
+-- 4.2
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -556,11 +556,13 @@ function KraviX:CreateWindow(config)
         Main.BackgroundTransparency = 0
         TopBar.BackgroundTransparency = 0; TabBar.BackgroundTransparency = 0
         Backdrop.BackgroundTransparency = 0.55; Main.ClipsDescendants = false
+        SidePanel.Visible = true
     end
 
     local function ShowWindow()
         if Main.Visible then return end
         Main.Visible = true; Backdrop.Visible = true
+        SidePanel.Visible = false
         Main.Size     = UDim2.new(0,WIN_W*0.82,0,WIN_H*0.82)
         Main.Position = UDim2.new(0.5,-(WIN_W*0.82)/2,0.5,-(WIN_H*0.82)/2)
         Main.BackgroundTransparency = 1
@@ -594,6 +596,46 @@ function KraviX:CreateWindow(config)
 
     MakeDraggable(Main, TopBar)
 
+    local SidePanel = Instance.new("Frame", ScreenGui)
+    SidePanel.Size = UDim2.new(0,32,0,80)
+    SidePanel.Position = UDim2.new(0.5,-(WIN_W/2)-38,0.5,-40)
+    SidePanel.BackgroundColor3 = Color3.fromRGB(12,12,12)
+    SidePanel.BorderSizePixel = 0; SidePanel.ZIndex = 15
+    SidePanel.Visible = false
+    mkCorner(SidePanel, 16)
+    mkStroke(SidePanel, C.Border, 1, 0)
+
+    local SideList = Instance.new("UIListLayout", SidePanel)
+    SideList.FillDirection = Enum.FillDirection.Vertical
+    SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    SideList.VerticalAlignment = Enum.VerticalAlignment.Center
+    SideList.Padding = UDim.new(0,4)
+
+    local function makeSideBtn(label, onClick)
+        local Btn = Instance.new("TextButton", SidePanel)
+        Btn.Size = UDim2.new(0,24,0,24)
+        Btn.BackgroundColor3 = Color3.fromRGB(22,22,22)
+        Btn.BackgroundTransparency = 0
+        Btn.Text = label; Btn.TextColor3 = C.Muted
+        Btn.TextSize = 11; Btn.Font = Enum.Font.GothamBold
+        Btn.AutoButtonColor = false; Btn.ZIndex = 16
+        mkCorner(Btn, 6)
+        Btn.MouseEnter:Connect(function()
+            Tween(Btn,{BackgroundColor3=C.Accent,TextColor3=C.White},0.1):Play()
+        end)
+        Btn.MouseLeave:Connect(function()
+            Tween(Btn,{BackgroundColor3=Color3.fromRGB(22,22,22),TextColor3=C.Muted},0.1):Play()
+        end)
+        Btn.MouseButton1Click:Connect(onClick)
+        return Btn
+    end
+
+    local _closeBtnSide = makeSideBtn("C", function() HideWindow() end)
+    local _showBtnSide  = makeSideBtn("S", function() ShowWindow() end)
+    Window._SidePanel = SidePanel
+
+    MakeDraggable(SidePanel, SidePanel)
+
     if useLoader then
         CreateLoader(ScreenGui, function()
             if useSound then PlaySound(SOUND_OPEN) end
@@ -604,7 +646,6 @@ function KraviX:CreateWindow(config)
         ShowWindow()
         CreateNotification("KraviX","Carregado com sucesso!",3,"success")
     end
-
     function Window:CreateTab(name, icon)
         local Tab      = {}
         local tabIndex = #Window.Tabs + 1
@@ -948,6 +989,7 @@ function KraviX:CreateWindow(config)
                     local DFrame = Instance.new("Frame", ScreenGui)
                     DFrame.BackgroundColor3 = Color3.fromRGB(18,18,18)
                     DFrame.BorderSizePixel  = 0; DFrame.Visible = false; DFrame.ZIndex = 200
+                    DFrame.ClipsDescendants = true
                     mkCorner(DFrame,5); mkStroke(DFrame,C.BorderBt,1,0)
                     local DL = Instance.new("UIListLayout", DFrame)
                     DL.Padding = UDim.new(0,2); DL.SortOrder = Enum.SortOrder.LayoutOrder
@@ -993,20 +1035,26 @@ function KraviX:CreateWindow(config)
                     end
 
                     local function openDropdown()
-                        opened = true; DFrame.Visible = true
+                        opened = true
                         local abs = Sel.AbsolutePosition
                         local fH  = #options*24+8
                         local vpH = ScreenGui.AbsoluteSize.Y
-                        DFrame.Size = UDim2.new(0,Sel.AbsoluteSize.X,0,fH)
+                        local posY
                         if abs.Y+26+fH+4 > vpH then
-                            DFrame.Position = UDim2.fromOffset(abs.X, abs.Y-fH-4)
+                            posY = abs.Y-fH-4
                         else
-                            DFrame.Position = UDim2.fromOffset(abs.X, abs.Y+26+3)
+                            posY = abs.Y+26+3
                         end
+                        DFrame.Size = UDim2.new(0,Sel.AbsoluteSize.X,0,0)
+                        DFrame.Position = UDim2.fromOffset(abs.X, posY)
+                        DFrame.Visible = true
+                        Tween(DFrame,{Size=UDim2.new(0,Sel.AbsoluteSize.X,0,fH)},0.18,Enum.EasingStyle.Quint):Play()
                         Tween(Arrow,{Rotation=180},0.15):Play()
                     end
                     local function closeDropdown()
-                        opened = false; DFrame.Visible = false
+                        opened = false
+                        Tween(DFrame,{Size=UDim2.new(0,Sel.AbsoluteSize.X,0,0)},0.14,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+                        task.delay(0.15, function() if not opened then DFrame.Visible = false end end)
                         Tween(Arrow,{Rotation=0},0.15):Play()
                     end
 
@@ -1233,7 +1281,7 @@ function KraviX:CreateWindow(config)
 
                     local TopAcc = Instance.new("Frame", PF)
                     TopAcc.Size = UDim2.new(1,0,0,2)
-                    TopAcc.BackgroundColor3 = C.Accent
+                    TopAcc.BackgroundColor3 = color
                     TopAcc.BorderSizePixel = 0; TopAcc.ZIndex = 301
                     mkCorner(TopAcc,6)
 
@@ -1357,6 +1405,7 @@ function KraviX:CreateWindow(config)
                         local c = Color3.fromHSV(ph, ps, pv)
                         Picker.Value = c
                         SwIn.BackgroundColor3      = c
+                        TopAcc.BackgroundColor3    = c
                         SatVibImg.BackgroundColor3 = Color3.fromHSV(ph,1,1)
                         -- CurOut tem AnchorPoint(0.5,0.5), então usamos
                         -- UDim2.new com Scale em vez de Offset absoluto:
