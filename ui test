@@ -1,4 +1,4 @@
--- 4.4
+-- 4
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -570,6 +570,139 @@ function KraviX:CreateWindow(config)
     Window._SideBtnS = makeSideBtn("S", function() end)
     Window._SidePanel = SidePanel
     MakeDraggable(SidePanel, SidePanel)
+
+    -- ===== MINI UI REUTILIZÁVEL =====
+    -- Cria uma janelinha pequena, independente da Main, com sua própria
+    -- animação de abrir/fechar (slide + fade, mesmo estilo da UI principal).
+    -- NÃO esconde nem afeta a Main nem o SidePanel.
+    -- Uso: local mini = Window:CreateMiniUI({Title="Updates", Width=260, Height=160})
+    --      mini:AddLabel("texto"); mini:Open() / mini:Close() / mini:Toggle()
+    function Window:CreateMiniUI(cfg)
+        cfg = cfg or {}
+        local mW = cfg.Width  or 260
+        local mH = cfg.Height or 160
+        local mTitle = cfg.Title or "Mini UI"
+
+        local Mini = Instance.new("Frame", ScreenGui)
+        Mini.Name = "KxMiniUI"
+        Mini.Size = UDim2.new(0,mW,0,mH)
+        Mini.Position = UDim2.new(0.5,-mW/2,0.5,-mH/2)
+        Mini.BackgroundColor3 = Color3.fromRGB(0,0,0)
+        Mini.BorderSizePixel = 0; Mini.Visible = false; Mini.ZIndex = 250
+        Mini.ClipsDescendants = true
+        mkCorner(Mini, 8)
+        mkStroke(Mini, Color3.fromRGB(45,45,45), 1, 0)
+
+        local MTop = Instance.new("Frame", Mini)
+        MTop.Size = UDim2.new(1,0,0,26)
+        MTop.BackgroundColor3 = Color3.fromRGB(14,14,14)
+        MTop.BorderSizePixel = 0; MTop.ZIndex = 251
+
+        local MTitle = Instance.new("TextLabel", MTop)
+        MTitle.Size = UDim2.new(1,-30,1,0); MTitle.Position = UDim2.new(0,10,0,0)
+        MTitle.BackgroundTransparency = 1; MTitle.Text = mTitle
+        MTitle.TextColor3 = Color3.fromRGB(255,255,255); MTitle.TextSize = 12
+        MTitle.Font = Enum.Font.GothamBold; MTitle.TextXAlignment = Enum.TextXAlignment.Left
+        MTitle.ZIndex = 252
+
+        local MClose = Instance.new("TextButton", MTop)
+        MClose.Size = UDim2.new(0,18,0,18); MClose.AnchorPoint = Vector2.new(1,0.5)
+        MClose.Position = UDim2.new(1,-6,0.5,0)
+        MClose.BackgroundColor3 = Color3.fromRGB(28,28,28)
+        MClose.Text = "×"; MClose.TextColor3 = Color3.fromRGB(160,160,160)
+        MClose.TextSize = 12; MClose.Font = Enum.Font.GothamBold
+        MClose.AutoButtonColor = false; MClose.ZIndex = 252
+        mkCorner(MClose, 4)
+        MClose.MouseEnter:Connect(function() Tween(MClose,{BackgroundColor3=C.Red,TextColor3=C.White},0.1):Play() end)
+        MClose.MouseLeave:Connect(function() Tween(MClose,{BackgroundColor3=Color3.fromRGB(28,28,28),TextColor3=Color3.fromRGB(160,160,160)},0.1):Play() end)
+
+        local MBody = Instance.new("Frame", Mini)
+        MBody.Size = UDim2.new(1,0,1,-26); MBody.Position = UDim2.new(0,0,0,26)
+        MBody.BackgroundTransparency = 1; MBody.ZIndex = 251
+
+        local MList = Instance.new("UIListLayout", MBody)
+        MList.SortOrder = Enum.SortOrder.LayoutOrder
+        MList.Padding = UDim.new(0,6)
+        mkPad(MBody, 10,10,10,10)
+
+        MakeDraggable(Mini, MTop)
+
+        local miniOpen = false
+        local function MiniOpen()
+            if miniOpen then return end
+            miniOpen = true
+            Mini.Visible = true
+            Mini.Size = UDim2.new(0,mW*0.85,0,mH*0.85)
+            Mini.Position = UDim2.new(0.5,-(mW*0.85)/2,0.5,-(mH*0.85)/2)
+            Mini.BackgroundTransparency = 1
+            MTop.BackgroundTransparency = 1
+            Tween(Mini,{Size=UDim2.new(0,mW,0,mH),
+                Position=UDim2.new(0.5,-mW/2,0.5,-mH/2),
+                BackgroundTransparency=0},0.32,Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+            task.delay(0.1*TWEEN_SPD, function()
+                Tween(MTop,{BackgroundTransparency=0},0.18):Play()
+            end)
+        end
+        local function MiniClose()
+            if not miniOpen then return end
+            miniOpen = false
+            Tween(Mini,{Size=UDim2.new(0,mW*0.85,0,mH*0.85),
+                Position=UDim2.new(0.5,-(mW*0.85)/2,0.5,-(mH*0.85)/2),
+                BackgroundTransparency=1},0.18,Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+            Tween(MTop,{BackgroundTransparency=1},0.12):Play()
+            task.wait(0.2*TWEEN_SPD)
+            Mini.Visible = false
+            Mini.Size = UDim2.new(0,mW,0,mH)
+            Mini.Position = UDim2.new(0.5,-mW/2,0.5,-mH/2)
+            Mini.BackgroundTransparency = 0
+            MTop.BackgroundTransparency = 0
+        end
+        local function MiniToggle()
+            if miniOpen then MiniClose() else MiniOpen() end
+        end
+        MClose.MouseButton1Click:Connect(MiniClose)
+
+        local MiniHandle = {}
+        MiniHandle.Frame  = Mini
+        MiniHandle.Open   = MiniOpen
+        MiniHandle.Close  = MiniClose
+        MiniHandle.Toggle = MiniToggle
+
+        function MiniHandle:AddLabel(text, color)
+            local L = Instance.new("TextLabel", MBody)
+            L.Size = UDim2.new(1,0,0,16); L.BackgroundTransparency = 1
+            L.Text = text or ""; L.TextColor3 = color or Color3.fromRGB(200,200,200)
+            L.TextSize = 11; L.Font = Enum.Font.Gotham
+            L.TextXAlignment = Enum.TextXAlignment.Left
+            L.TextWrapped = true; L.ZIndex = 252
+            return L
+        end
+
+        function MiniHandle:AddButton(text, onClick)
+            local Btn = Instance.new("TextButton", MBody)
+            Btn.Size = UDim2.new(1,0,0,24)
+            Btn.BackgroundColor3 = Color3.fromRGB(20,20,20)
+            Btn.Text = text or "Button"; Btn.TextColor3 = Color3.fromRGB(255,255,255)
+            Btn.TextSize = 11; Btn.Font = Enum.Font.GothamBold
+            Btn.AutoButtonColor = false; Btn.ZIndex = 252
+            mkCorner(Btn, 4); mkStroke(Btn, Color3.fromRGB(45,45,45), 1, 0)
+            Btn.MouseEnter:Connect(function() Tween(Btn,{BackgroundColor3=Color3.fromRGB(32,32,32)},0.1):Play() end)
+            Btn.MouseLeave:Connect(function() Tween(Btn,{BackgroundColor3=Color3.fromRGB(20,20,20)},0.1):Play() end)
+            if onClick then Btn.MouseButton1Click:Connect(onClick) end
+            return Btn
+        end
+
+        return MiniHandle
+    end
+
+    -- Mini UI de exemplo "oi test" — aberta pelo botão S do painel oval.
+    -- Não fecha a UI principal nem o SidePanel ao abrir.
+    local MiniTest = Window:CreateMiniUI({Title = "Oi Test", Width = 240, Height = 130})
+    MiniTest:AddLabel("oi! isso é uma mini UI de teste.")
+    MiniTest:AddLabel("ela abre/fecha com animação própria", Color3.fromRGB(140,140,140))
+    MiniTest:AddButton("Fechar", function() MiniTest:Close() end)
+    Window._MiniTest = MiniTest
+    Window._SideBtnS.MouseButton1Click:Connect(function() MiniTest:Toggle() end)
 
     local function HideWindow()
         if not Main.Visible then return end
