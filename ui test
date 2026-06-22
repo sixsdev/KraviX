@@ -1,4 +1,4 @@
--- 4
+-- 4.1
 local KraviX = {}
 
 local TweenService     = game:GetService("TweenService")
@@ -208,38 +208,58 @@ local function CreateNotification(title, text, duration, ntype)
     while _notifSlots[slot] do slot += 1 end
     _notifSlots[slot] = true
 
+    -- Largura máxima da notificação: nunca mais que a tela menos margens
+    -- dos dois lados. Isso evita que textos longos empurrem o card pra
+    -- fora da borda esquerda da tela (o bug da "bolinha roxa cortada").
+    local viewW = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X or 800
+    local MAXW  = math.min(320, viewW - MARGIN*2)
+
     local F = Instance.new("Frame", G)
-    F.Size             = UDim2.new(0,0,0,H); F.AutomaticSize = Enum.AutomaticSize.X
+    F.Size             = UDim2.new(0,MAXW,0,H); F.AutomaticSize = Enum.AutomaticSize.Y
     F.Position         = UDim2.new(1,30,1,-(MARGIN+(H+MARGIN)*slot))
     F.AnchorPoint      = Vector2.new(1,1)
     F.BackgroundColor3 = C.NotifBg; F.BackgroundTransparency = 0; F.BorderSizePixel = 0
-    mkCorner(F, H/2); mkStroke(F, Color3.fromRGB(36,36,36), 1, 0)
+    F.ClipsDescendants = true
+    mkCorner(F, 10); mkStroke(F, Color3.fromRGB(36,36,36), 1, 0)
 
     local List = Instance.new("UIListLayout", F)
     List.FillDirection      = Enum.FillDirection.Horizontal
-    List.VerticalAlignment  = Enum.VerticalAlignment.Center
+    List.VerticalAlignment  = Enum.VerticalAlignment.Top
     List.Padding            = UDim.new(0,7)
-    mkPad(F, 0,0,12,14)
+    mkPad(F, 7,7,12,14)
 
     local Dot = Instance.new("Frame", F)
-    Dot.Size = UDim2.new(0,7,0,7); Dot.BackgroundColor3 = dotColor
+    Dot.Size = UDim2.new(0,7,0,7); Dot.Position = UDim2.new(0,0,0,3)
+    Dot.BackgroundColor3 = dotColor
     Dot.BorderSizePixel = 0; mkCorner(Dot,4); Dot.LayoutOrder = 0
 
     local Sep = Instance.new("Frame", F)
-    Sep.Size = UDim2.new(0,1,0,12); Sep.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    Sep.Size = UDim2.new(0,1,0,12); Sep.Position = UDim2.new(0,0,0,1)
+    Sep.BackgroundColor3 = Color3.fromRGB(40,40,40)
     Sep.BorderSizePixel = 0; Sep.LayoutOrder = 1
 
-    local T = Instance.new("TextLabel", F)
-    T.Size = UDim2.new(0,0,1,0); T.AutomaticSize = Enum.AutomaticSize.X
+    -- Coluna de texto: largura fixa máxima (não AutomaticSize), permitindo
+    -- quebra de linha (TextWrapped) em vez de crescer pra fora da tela.
+    local TextCol = Instance.new("Frame", F)
+    TextCol.Size = UDim2.new(0, MAXW - 40, 0, 0)
+    TextCol.AutomaticSize = Enum.AutomaticSize.Y
+    TextCol.BackgroundTransparency = 1; TextCol.LayoutOrder = 2
+
+    local TextList = Instance.new("UIListLayout", TextCol)
+    TextList.FillDirection = Enum.FillDirection.Vertical
+    TextList.Padding       = UDim.new(0,2)
+
+    local T = Instance.new("TextLabel", TextCol)
+    T.Size = UDim2.new(1,0,0,0); T.AutomaticSize = Enum.AutomaticSize.Y
     T.BackgroundTransparency = 1; T.Text = title
     T.TextColor3 = C.Text; T.TextSize = 11; T.Font = Enum.Font.GothamBold
-    T.TextXAlignment = Enum.TextXAlignment.Left; T.LayoutOrder = 2
+    T.TextXAlignment = Enum.TextXAlignment.Left; T.TextWrapped = true; T.LayoutOrder = 0
 
-    local D = Instance.new("TextLabel", F)
-    D.Size = UDim2.new(0,0,1,0); D.AutomaticSize = Enum.AutomaticSize.X
+    local D = Instance.new("TextLabel", TextCol)
+    D.Size = UDim2.new(1,0,0,0); D.AutomaticSize = Enum.AutomaticSize.Y
     D.BackgroundTransparency = 1; D.Text = text
     D.TextColor3 = C.Sub; D.TextSize = 10; D.Font = Enum.Font.Gotham
-    D.TextXAlignment = Enum.TextXAlignment.Left; D.LayoutOrder = 3
+    D.TextXAlignment = Enum.TextXAlignment.Left; D.TextWrapped = true; D.LayoutOrder = 1
 
     local dur = duration or 3
     Tween(F,{Position=UDim2.new(1,-MARGIN,1,-(MARGIN+(H+MARGIN)*slot))},0.28,Enum.EasingStyle.Back):Play()
