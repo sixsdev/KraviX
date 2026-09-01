@@ -1,4 +1,4 @@
--- KraviX UI Library v2 — Layout Celestial (ícones verticais + Drawing)
+-- KraviX UI Library v3 — Layout Celestial (ícones verticais + Drawing)
 -- Tabs: coluna de ícones na esquerda (Drawing.new("Image"))
 -- Conteúdo: lado direito, mesmo sistema de SubTabs + Sections
 
@@ -512,6 +512,7 @@ function KraviX:CreateWindow(config)
     -- Slots dos ícones (frames de hit detection dentro do IconBar)
     -- Os Drawings ficam POR CIMA, esses frames são só pra referência de posição
     local IconSlots = {}  -- {frame, tabIndex}
+    local IconFallbacks = {}  -- guarda referência do FallbackLbl por tabIndex
 
     -- ══════════════════════════════════════
     -- ÁREA DE CONTEÚDO (direita)
@@ -810,7 +811,6 @@ function KraviX:CreateWindow(config)
 
         -- Fallback: se não tiver imagem, mostra letra inicial
         local FallbackLbl = Instance.new("TextLabel", SlotFrame)
-        FallbackLbl.Name = "_FallbackLbl"
         FallbackLbl.Size = UDim2.new(1,0,1,0)
         FallbackLbl.BackgroundTransparency = 1
         FallbackLbl.Text = name:sub(1,1):upper()
@@ -818,7 +818,7 @@ function KraviX:CreateWindow(config)
         FallbackLbl.TextSize = 13; FallbackLbl.Font = Enum.Font.GothamBold
         FallbackLbl.TextXAlignment = Enum.TextXAlignment.Center
         FallbackLbl.ZIndex = 15
-        SlotFrame._FallbackLbl = FallbackLbl
+        IconFallbacks[tabIndex] = FallbackLbl
 
         -- Tooltip com nome da tab
         local Tooltip = Instance.new("Frame", ScreenGui)
@@ -903,9 +903,10 @@ function KraviX:CreateWindow(config)
                 -- Atualiza visual do slot
                 t.Btn.BackgroundTransparency = on and 0 or 1
                 t.Btn.BackgroundColor3 = on and Color3.fromRGB(30,20,50) or Color3.fromRGB(0,0,0)
-                if t.Btn._FallbackLbl then
-                    t.Btn._FallbackLbl.TextColor3 = on and C.Accent or C.Sub
-                    t.Btn._FallbackLbl.Font = on and Enum.Font.GothamBlack or Enum.Font.GothamBold
+                local lbl = IconFallbacks[t.Index]
+                if lbl then
+                    lbl.TextColor3 = on and C.Accent or C.Sub
+                    lbl.Font = on and Enum.Font.GothamBlack or Enum.Font.GothamBold
                 end
             end
 
