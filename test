@@ -810,6 +810,7 @@ function KraviX:CreateWindow(config)
 
         -- Fallback: se não tiver imagem, mostra letra inicial
         local FallbackLbl = Instance.new("TextLabel", SlotFrame)
+        FallbackLbl.Name = "_FallbackLbl"
         FallbackLbl.Size = UDim2.new(1,0,1,0)
         FallbackLbl.BackgroundTransparency = 1
         FallbackLbl.Text = name:sub(1,1):upper()
