@@ -1,4 +1,4 @@
--- KraviX UI Library v4 — Layout Celestial (ícones verticais + Drawing)
+-- KraviX UI Library v5 — Layout Celestial (ícones verticais + Drawing)
 -- Tabs: coluna de ícones na esquerda (Drawing.new("Image"))
 -- Conteúdo: lado direito, mesmo sistema de SubTabs + Sections
 
@@ -810,16 +810,31 @@ function KraviX:CreateWindow(config)
         mkCorner(SlotFrame,6)
         IconSlots[tabIndex] = SlotFrame
 
-        -- Fallback: se não tiver imagem, mostra letra inicial
-        local FallbackLbl = Instance.new("TextLabel", SlotFrame)
-        FallbackLbl.Size = UDim2.new(1,0,1,0)
-        FallbackLbl.BackgroundTransparency = 1
-        FallbackLbl.Text = name:sub(1,1):upper()
-        FallbackLbl.TextColor3 = C.Sub
-        FallbackLbl.TextSize = 13; FallbackLbl.Font = Enum.Font.GothamBold
-        FallbackLbl.TextXAlignment = Enum.TextXAlignment.Center
-        FallbackLbl.ZIndex = 15
-        IconFallbacks[tabIndex] = FallbackLbl
+        -- Ícone: ImageLabel se tiver URL, senão letra inicial
+        local FallbackLbl
+        if iconUrl and iconUrl ~= "" then
+            local IconImg = Instance.new("ImageLabel", SlotFrame)
+            IconImg.Size = UDim2.new(0,22,0,22)
+            IconImg.Position = UDim2.new(0.5,-11,0.5,-11)
+            IconImg.BackgroundTransparency = 1
+            IconImg.Image = iconUrl
+            IconImg.ImageColor3 = C.Sub
+            IconImg.ZIndex = 15
+            mkCorner(IconImg, 3)
+            FallbackLbl = IconImg
+            -- atualiza cor como se fosse o label
+            IconFallbacks[tabIndex] = IconImg
+        else
+            FallbackLbl = Instance.new("TextLabel", SlotFrame)
+            FallbackLbl.Size = UDim2.new(1,0,1,0)
+            FallbackLbl.BackgroundTransparency = 1
+            FallbackLbl.Text = name:sub(1,1):upper()
+            FallbackLbl.TextColor3 = C.Sub
+            FallbackLbl.TextSize = 13; FallbackLbl.Font = Enum.Font.GothamBold
+            FallbackLbl.TextXAlignment = Enum.TextXAlignment.Center
+            FallbackLbl.ZIndex = 15
+            IconFallbacks[tabIndex] = FallbackLbl
+        end
 
         -- Tooltip com nome da tab
         local Tooltip = Instance.new("Frame", ScreenGui)
@@ -841,14 +856,22 @@ function KraviX:CreateWindow(config)
             Tooltip.Visible = true
             if tabIndex ~= activeTabIndex then
                 Tween(SlotFrame,{BackgroundTransparency=0.85},0.08):Play()
-                FallbackLbl.TextColor3 = C.Text
+                if FallbackLbl:IsA("ImageLabel") then
+                    FallbackLbl.ImageColor3 = C.Text
+                else
+                    FallbackLbl.TextColor3 = C.Text
+                end
             end
         end)
         SlotFrame.MouseLeave:Connect(function()
             Tooltip.Visible = false
             if tabIndex ~= activeTabIndex then
                 Tween(SlotFrame,{BackgroundTransparency=1},0.08):Play()
-                FallbackLbl.TextColor3 = C.Sub
+                if FallbackLbl:IsA("ImageLabel") then
+                    FallbackLbl.ImageColor3 = C.Sub
+                else
+                    FallbackLbl.TextColor3 = C.Sub
+                end
             end
         end)
 
@@ -906,8 +929,12 @@ function KraviX:CreateWindow(config)
                 t.Btn.BackgroundColor3 = on and Color3.fromRGB(30,20,50) or Color3.fromRGB(0,0,0)
                 local lbl = IconFallbacks[t.Index]
                 if lbl then
-                    lbl.TextColor3 = on and C.Accent or C.Sub
-                    lbl.Font = on and Enum.Font.GothamBlack or Enum.Font.GothamBold
+                    if lbl:IsA("ImageLabel") then
+                        lbl.ImageColor3 = on and C.White or C.Sub
+                    else
+                        lbl.TextColor3 = on and C.Accent or C.Sub
+                        lbl.Font = on and Enum.Font.GothamBlack or Enum.Font.GothamBold
+                    end
                 end
             end
 
