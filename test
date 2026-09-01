@@ -1,4 +1,4 @@
--- KraviX UI Library v3 — Layout Celestial (ícones verticais + Drawing)
+-- KraviX UI Library v4 — Layout Celestial (ícones verticais + Drawing)
 -- Tabs: coluna de ícones na esquerda (Drawing.new("Image"))
 -- Conteúdo: lado direito, mesmo sistema de SubTabs + Sections
 
@@ -213,28 +213,29 @@ function DrawingIcons:Init(mainFrame, tabs, onTabClick)
         for i, icon in ipairs(self._icons) do
             local d = icon.drawing
             if not d or not d.Visible then continue end
-            local px, py = d.Position.X, d.Position.Y
-            local sz = d.Size
-            if mx >= px and mx <= px+sz.X and my >= py and my <= py+sz.Y then
-                -- hover
-                Tween(d, {Transparency = 0.2}, 0.1):Play()
-                if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-                    if not icon._pressed then
-                        icon._pressed = true
-                        onTabClick(i)
+            local ok, _ = pcall(function()
+                local px, py = d.Position.X, d.Position.Y
+                local sz = d.Size
+                if mx >= px and mx <= px+sz.X and my >= py and my <= py+sz.Y then
+                    Tween(d, {Transparency = 0.2}, 0.1):Play()
+                    if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+                        if not icon._pressed then
+                            icon._pressed = true
+                            onTabClick(i)
+                        end
+                    else
+                        icon._pressed = false
                     end
                 else
                     icon._pressed = false
+                    if icon._active then
+                        Tween(d, {Transparency = 0}, 0.1):Play()
+                    else
+                        Tween(d, {Transparency = 0.5}, 0.1):Play()
+                    end
                 end
-            else
-                icon._pressed = false
-                -- volta transparência baseada em se está ativa
-                if icon._active then
-                    Tween(d, {Transparency = 0}, 0.1):Play()
-                else
-                    Tween(d, {Transparency = 0.5}, 0.1):Play()
-                end
-            end
+            end)
+            if not ok then icon.drawing = nil end
         end
     end)
 
@@ -1380,6 +1381,64 @@ function KraviX:CreateWindow(config)
                         end
                     end)
                     AddItem(Row); return Keybind
+                end
+
+                function Section:AddMouseKeybind(cfg)
+                    cfg = cfg or {}
+                    local def = cfg.Default or {type="key", value=Enum.KeyCode.E}
+                    local cur = def
+                    local callback = cfg.Callback or function() end
+                    local listen = false
+
+                    local function bindLabel(b)
+                        if not b then return "None" end
+                        if b.type == "mouse" then
+                            local n = tostring(b.value)
+                            return n:match("MouseButton(%d+)") and "M"..n:match("MouseButton(%d+)") or n
+                        end
+                        return b.value and b.value.Name or "None"
+                    end
+
+                    local Row = Instance.new("Frame")
+                    Row.Size = UDim2.new(1,0,0,26); Row.BackgroundTransparency = 1; Row.ZIndex = 13
+                    local Lbl = Instance.new("TextLabel", Row)
+                    Lbl.Size = UDim2.new(0.65,0,1,0); Lbl.BackgroundTransparency = 1
+                    Lbl.Text = cfg.Name or "Keybind"; Lbl.TextColor3 = C.Sub
+                    Lbl.TextSize = 11; Lbl.Font = Enum.Font.Gotham
+                    Lbl.TextXAlignment = Enum.TextXAlignment.Left; Lbl.ZIndex = 14
+                    local KB = Instance.new("TextButton", Row)
+                    KB.Size = UDim2.new(0,46,0,20); KB.AnchorPoint = Vector2.new(1,0.5)
+                    KB.Position = UDim2.new(1,0,0.5,0)
+                    KB.BackgroundColor3 = Color3.fromRGB(20,20,20); KB.Text = bindLabel(cur)
+                    KB.TextColor3 = C.Sub; KB.TextSize = 9; KB.Font = Enum.Font.Code
+                    KB.AutoButtonColor = false; KB.ZIndex = 14; mkCorner(KB,4); mkStroke(KB,C.BorderBt,1,0)
+
+                    local Bind = {Value=cur}
+                    function Bind:Set(b) cur=b; Bind.Value=b; KB.Text=bindLabel(b); KB.TextColor3=C.Sub end
+
+                    KB.MouseButton1Click:Connect(function()
+                        if not listen then listen=true; KB.Text="..."; KB.TextColor3=C.Text end
+                    end)
+                    UserInputService.InputBegan:Connect(function(inp, proc)
+                        if not listen then return end
+                        if proc then return end
+                        if inp.KeyCode == Enum.KeyCode.Escape then
+                            listen=false; KB.Text=bindLabel(cur); KB.TextColor3=C.Sub; return
+                        end
+                        local newBind
+                        if inp.UserInputType == Enum.UserInputType.Keyboard then
+                            newBind = {type="key", value=inp.KeyCode}
+                        elseif inp.UserInputType == Enum.UserInputType.MouseButton1
+                            or inp.UserInputType == Enum.UserInputType.MouseButton2
+                            or inp.UserInputType == Enum.UserInputType.MouseButton3 then
+                            newBind = {type="mouse", value=inp.UserInputType}
+                        end
+                        if newBind then
+                            listen=false; cur=newBind; Bind.Value=newBind
+                            KB.Text=bindLabel(newBind); KB.TextColor3=C.Sub; callback(newBind)
+                        end
+                    end)
+                    AddItem(Row); return Bind
                 end
 
                 function Section:AddColorPicker(cfg)
